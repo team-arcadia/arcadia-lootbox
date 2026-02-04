@@ -1,0 +1,29 @@
+# Gradle files
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Logs
+logs/
+*.log
+run/
+runs/
+crash-reports/
+debug.log
+debug-*.log.gz
+latest.log
+
+# Mac
+.DS_Store
+
+# Java
+*.class
+bin/
