@@ -20,6 +20,7 @@ crash-reports/
 debug.log
 debug-*.log.gz
 latest.log
+log.txt
 
 # Mac
 .DS_Store
@@ -27,3 +28,6 @@ latest.log
 # Java
 *.class
 bin/
+
+# Scripts
+cleanup_repo.bat
