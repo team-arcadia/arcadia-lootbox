@@ -1,0 +1,217 @@
+{
+    "displayName": "§fCommun",
+    "color": "white",
+    "keyItem": "arcadia:common_key",
+    "openSound": "minecraft:ui.toast.challenge_complete",
+    "openMessage": "§fVous avez ouvert une §lCommune§f !",
+    "lootTable": [
+        {
+            "item": "mekanismtools:iron_paxel",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "createoreexcavation:drill",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:iron_sword",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.25
+        },
+        {
+            "item": "minecraft:iron_pickaxe",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.25
+        },
+        {
+            "item": "minecraft:iron_axe",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.25
+        },
+        {
+            "item": "minecraft:iron_shovel",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.25
+        },
+        {
+            "item": "minecraft:iron_hoe",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.25
+        },
+        {
+            "item": "minecraft:iron_chestplate",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.25
+        },
+        {
+            "item": "minecraft:iron_helmet",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.25
+        },
+        {
+            "item": "minecraft:iron_leggings",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.25
+        },
+        {
+            "item": "minecraft:iron_boots",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.25
+        },
+        {
+            "item": "aether:iron_gloves",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.25
+        },
+        {
+            "item": "minecraft:furnace",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:smoker",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:blast_furnace",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:stonecutter",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:anvil",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.25
+        },
+        {
+            "item": "supplementaries:bubble_blower[supplementaries:charges=200]",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.2
+        },
+        {
+            "item": "sophisticatedbackpacks:iron_backpack",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.2
+        },
+        {
+            "item": "simplehats:hatbag_uncommon",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "numismatics:spur",
+            "minCount": 8,
+            "maxCount": 16,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:iron_ingot",
+            "minCount": 4,
+            "maxCount": 8,
+            "chance": 0.5
+        },
+        {
+            "item": "minecraft:coal",
+            "minCount": 16,
+            "maxCount": 64,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:oak_log",
+            "minCount": 64,
+            "maxCount": 64,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:torch",
+            "minCount": 64,
+            "maxCount": 64,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:golden_carrot",
+            "minCount": 8,
+            "maxCount": 16,
+            "chance": 0.25
+        },
+        {
+            "item": "minecraft:milk_bucket",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:leather",
+            "minCount": 8,
+            "maxCount": 16,
+            "chance": 0.5
+        },
+        {
+            "item": "minecraft:turtle_egg",
+            "minCount": 1,
+            "maxCount": 2,
+            "chance": 0.2
+        },
+        {
+            "item": "minecraft:sniffer_egg",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:white_bed",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.3
+        },
+        {
+            "item": "comforts:sleeping_bag_white",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.3
+        },
+        {
+            "item": "minecraft:enchanted_book[stored_enchantments={levels:{\"apothic_spawners:capturing\":1}}]",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "arcadia:rare_key",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.001
+        }
+    ],
+    "particles": [
+        "minecraft:cloud",
+        "voidtotem:void_totem"
+    ]
+}

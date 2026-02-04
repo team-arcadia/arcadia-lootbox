@@ -1,0 +1,272 @@
+{
+    "displayName": "§9Rare",
+    "color": "blue",
+    "keyItem": "arcadia:rare_key",
+    "openSound": "minecraft:ui.toast.challenge_complete",
+    "openMessage": "§9Vous avez ouvert une §lRare§9 !",
+    "lootTable": [
+        {
+            "item": "mekanismtools:diamond_paxel",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.01
+        },
+        {
+            "item": "createoreexcavation:diamond_drill",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:mace",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:diamond_sword",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:diamond_pickaxe",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:diamond_axe",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:diamond_shovel",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:diamond_hoe",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "aquaculture:diamond_fishing_rod",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:diamond_chestplate",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:diamond_helmet",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:diamond_leggings",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:diamond_boots",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "aether:diamond_gloves",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:furnace",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:smoker",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:blast_furnace",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:stonecutter",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:anvil",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.5
+        },
+        {
+            "item": "minecraft:smithing_table",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.5
+        },
+        {
+            "item": "waystones:waystone",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "waterframes:tv",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "exposure:camera",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "supplementaries:bubble_blower[supplementaries:charges=200]",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.5
+        },
+        {
+            "item": "sophisticatedbackpacks:diamond_backpack",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.2
+        },
+        {
+            "item": "simplehats:hatbag_rare",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "numismatics:spur",
+            "minCount": 16,
+            "maxCount": 32,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:gold_ingot",
+            "minCount": 4,
+            "maxCount": 8,
+            "chance": 0.8
+        },
+        {
+            "item": "minecraft:coal",
+            "minCount": 16,
+            "maxCount": 64,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:oak_log",
+            "minCount": 64,
+            "maxCount": 64,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:torch",
+            "minCount": 64,
+            "maxCount": 64,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:golden_carrot",
+            "minCount": 8,
+            "maxCount": 16,
+            "chance": 0.5
+        },
+        {
+            "item": "minecraft:milk_bucket",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:leather",
+            "minCount": 8,
+            "maxCount": 16,
+            "chance": 0.8
+        },
+        {
+            "item": "artifacts:eternal_steak",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "create_winery:bordeaux",
+            "minCount": 1,
+            "maxCount": 3,
+            "chance": 0.2
+        },
+        {
+            "item": "exposure:color_film",
+            "minCount": 1,
+            "maxCount": 2,
+            "chance": 0.5
+        },
+        {
+            "item": "minecraft:turtle_egg",
+            "minCount": 1,
+            "maxCount": 2,
+            "chance": 0.4
+        },
+        {
+            "item": "minecraft:sniffer_egg",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "minecraft:white_bed",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.5
+        },
+        {
+            "item": "comforts:sleeping_bag_white",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.5
+        },
+        {
+            "item": "minecraft:enchanted_book[stored_enchantments={levels:{\"apothic_spawners:capturing\":2}}]",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "arcadia:legendary_key",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.001
+        }
+    ],
+    "particles": [
+        "minecraft:cloud",
+        "voidtotem:void_totem",
+        "twilightforest:large_flame"
+    ]
+}

@@ -1,0 +1,316 @@
+{
+    "displayName": "§5Légendaire",
+    "color": "purple",
+    "keyItem": "arcadia:legendary_key",
+    "openSound": "minecraft:ui.toast.challenge_complete",
+    "openMessage": "§5Vous avez ouvert une §lLégendaire§5 !",
+    "lootTable": [
+        {
+            "item": "mekanismtools:netherite_paxel",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.01
+        },
+        {
+            "item": "createoreexcavation:netherite_drill",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:mace",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:netherite_sword",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "create_sa:experience_sword",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.02
+        },
+        {
+            "item": "minecraft:netherite_pickaxe",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:netherite_axe",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:netherite_shovel",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:netherite_hoe",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "artifacts:golden_hook",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:netherite_chestplate",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:netherite_helmet",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "cosmeticarmoursmod:winged_gilded_netherite_halo_helmet",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.01
+        },
+        {
+            "item": "minecraft:netherite_leggings",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:netherite_boots",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "aether:netherite_gloves",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:furnace",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:smoker",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:blast_furnace",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:stonecutter",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:anvil",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.75
+        },
+        {
+            "item": "minecraft:smithing_table",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.75
+        },
+        {
+            "item": "numismatics:vendor",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "waystones:waystone",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.2
+        },
+        {
+            "item": "waterframes:tv",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.2
+        },
+        {
+            "item": "exposure:camera",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "supplementaries:bubble_blower[supplementaries:charges=200]",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.5
+        },
+        {
+            "item": "betterarcheology:bomb",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "sophisticatedbackpacks:netherite_backpack",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.2
+        },
+        {
+            "item": "simplehats:hatbag_epic",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "numismatics:spur",
+            "minCount": 32,
+            "maxCount": 64,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:diamond",
+            "minCount": 4,
+            "maxCount": 8,
+            "chance": 1.0
+        },
+        {
+            "item": "create:experience_nugget",
+            "minCount": 8,
+            "maxCount": 64,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:coal",
+            "minCount": 32,
+            "maxCount": 64,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:oak_log",
+            "minCount": 64,
+            "maxCount": 64,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:torch",
+            "minCount": 64,
+            "maxCount": 64,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:golden_carrot",
+            "minCount": 8,
+            "maxCount": 16,
+            "chance": 0.75
+        },
+        {
+            "item": "minecraft:milk_bucket",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:leather",
+            "minCount": 8,
+            "maxCount": 16,
+            "chance": 1.0
+        },
+        {
+            "item": "artifacts:eternal_steak",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "minecraft:chorus_fruit",
+            "minCount": 16,
+            "maxCount": 32,
+            "chance": 0.8
+        },
+        {
+            "item": "create_winery:bordeaux",
+            "minCount": 1,
+            "maxCount": 3,
+            "chance": 0.5
+        },
+        {
+            "item": "exposure:color_film",
+            "minCount": 1,
+            "maxCount": 2,
+            "chance": 0.75
+        },
+        {
+            "item": "minecraft:turtle_egg",
+            "minCount": 1,
+            "maxCount": 2,
+            "chance": 0.8
+        },
+        {
+            "item": "minecraft:sniffer_egg",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.2
+        },
+        {
+            "item": "minecraft:white_bed",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.75
+        },
+        {
+            "item": "comforts:sleeping_bag_white",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.75
+        },
+        {
+            "item": "supplementaries:confetti_popper",
+            "minCount": 1,
+            "maxCount": 8,
+            "chance": 0.75
+        },
+        {
+            "item": "minecraft:enchanted_book[stored_enchantments={levels:{\"apothic_spawners:capturing\":3}}]",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "arcadia:arcadia_key",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.001
+        }
+    ],
+    "particles": [
+        "minecraft:cloud",
+        "voidtotem:void_totem",
+        "twilightforest:large_flame",
+        "mowziesmobs:sparkle",
+        "supplementaries:suds"
+    ]
+}

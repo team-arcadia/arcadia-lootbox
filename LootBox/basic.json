@@ -1,0 +1,144 @@
+{
+    "displayName": "§7Basique",
+    "color": "light_gray",
+    "keyItem": "arcadia:basic_key",
+    "openSound": "minecraft:ui.toast.challenge_complete",
+    "openMessage": "§7Vous avez ouvert une §lBasique§7 !",
+    "lootTable": [
+        {
+            "item": "mekanismtools:iron_paxel",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.01
+        },
+        {
+            "item": "minecraft:iron_sword",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:iron_pickaxe",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:iron_axe",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:iron_shovel",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:iron_hoe",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:iron_chestplate",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:iron_helmet",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:iron_leggings",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:iron_boots",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "aether:iron_gloves",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "minecraft:furnace",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.2
+        },
+        {
+            "item": "minecraft:smoker",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.2
+        },
+        {
+            "item": "minecraft:blast_furnace",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.2
+        },
+        {
+            "item": "minecraft:stonecutter",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.2
+        },
+        {
+            "item": "minecraft:anvil",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "sophisticatedbackpacks:backpack",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.2
+        },
+        {
+            "item": "simplehats:hatbag_common",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "numismatics:spur",
+            "minCount": 1,
+            "maxCount": 8,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:oak_log",
+            "minCount": 64,
+            "maxCount": 64,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:torch",
+            "minCount": 64,
+            "maxCount": 64,
+            "chance": 1.0
+        },
+        {
+            "item": "arcadia:common_key",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.001
+        }
+    ],
+    "particles": [
+        "minecraft:cloud"
+    ]
+}

@@ -1,0 +1,29 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.2.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :neoFormListLibraries UP-TO-DATE
+> Task :cacheVersionManifest1.21.1
+> Task :cacheVersionExecutableClient1.21.1
+> Task :cacheVersionExecutableServer1.21.1
+> Task :cacheVersionExtractedServer1.21.1
+> Task :cacheVersionMappingsClient1.21.1
+> Task :create1.21.1ClientExtraJar UP-TO-DATE
+> Task :selectRawArtifactNg_dummy_ng.net.minecraft_client_1.21.1_client-extra
+> Task :neoFormListTransformLibraries
+> Task :neoFormStripClient UP-TO-DATE
+> Task :neoFormStripServer UP-TO-DATE
+> Task :neoFormMerge UP-TO-DATE
+> Task :neoFormMergeMappings UP-TO-DATE
+> Task :neoFormRename UP-TO-DATE
+> Task :neoFormDecompile UP-TO-DATE
+> Task :neoFormInject
+> Task :neoFormPatch
+> Task :neoFormPatchUserDev
+> Task :neoFormTransformSource
+> Task :neoFormRecompile
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use or override a deprecated API that is marked for removal.
+Note: Recompile with -Xlint:removal for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+^CTerminer le programme de commandes (O/N)ÿ? 

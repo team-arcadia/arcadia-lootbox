@@ -1,0 +1,24 @@
+{
+    "displayName": "Coffre au Trésor",
+    "color": "yellow",
+    "keyItem": "minecraft:tripwire_hook",
+    "openSound": "minecraft:block.shulker_box.open",
+    "openMessage": "§aBravo ! Vous avez ouvert la Lootbox !",
+    "lootTable": [
+        {
+            "item": "minecraft:diamond",
+            "minCount": 1,
+            "maxCount": 3,
+            "chance": 0.5
+        },
+        {
+            "item": "minecraft:gold_ingot",
+            "minCount": 5,
+            "maxCount": 10,
+            "chance": 1.0
+        }
+    ],
+    "particles": [
+        "minecraft:totem_of_undying"
+    ]
+}

@@ -1,0 +1,242 @@
+{
+    "displayName": "§6Arcadia",
+    "color": "yellow",
+    "keyItem": "arcadia:arcadia_key",
+    "openSound": "minecraft:ui.toast.challenge_complete",
+    "openMessage": "§6Vous avez ouvert une §lArcadia§6 !",
+    "lootTable": [
+        {
+            "item": "advancednetherite:netherite_diamond_sword",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "advancednetherite:netherite_diamond_pickaxe",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "advancednetherite:netherite_diamond_axe",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "advancednetherite:netherite_diamond_shovel",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "advancednetherite:netherite_diamond_hoe",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "advancednetherite:netherite_diamond_chestplate",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "advancednetherite:netherite_diamond_helmet",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "advancednetherite:netherite_diamond_leggings",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "advancednetherite:netherite_diamond_boots",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        },
+        {
+            "item": "refinedstorage:grid",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "refinedstorage:controller",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "mechanical_botany:mechanical_insolator",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "fluxnetworks:flux_controller",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "fluxnetworks:basic_flux_storage",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "create_aquatic_ambitions:mechanical_conduit",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "create:basin",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "create:depot",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "create:rotation_speed_controller",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "create:mechanical_arm",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "create:blaze_burner",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "create:schematicannon",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "create:goggles",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "createaddition:alternator",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "createaddition:electric_motor",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "createendertransmission:fluid_transmitter",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "createendertransmission:item_transmitter",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "createendertransmission:energy_transmitter",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "apotheosis:reforging_table",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "minecraft:spawner",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "create_sa:experience_sword",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "customizableelytra:elytra_wing",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        },
+        {
+            "item": "numismatics:bevel",
+            "minCount": 32,
+            "maxCount": 64,
+            "chance": 1.0
+        },
+        {
+            "item": "simplehats:hatbag_easter",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "simplehats:hatbag_summer",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "simplehats:hatbag_halloween",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "simplehats:hatbag_festive",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        },
+        {
+            "item": "simplehats:hatdisplay",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        }
+    ],
+    "particles": [
+        "minecraft:cloud",
+        "voidtotem:void_totem",
+        "twilightforest:large_flame",
+        "mowziesmobs:sparkle",
+        "supplementaries:suds",
+        "minecraft:sonic_boom",
+        "supplementaries:bomb_explosion",
+        "supplementaries:confetti",
+        "supplementaries:streamer"
+    ]
+}
