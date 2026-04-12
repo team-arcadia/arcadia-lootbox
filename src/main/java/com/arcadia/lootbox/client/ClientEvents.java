@@ -3,7 +3,6 @@ package com.arcadia.lootbox.client;
 import com.arcadia.lib.ArcadiaModRegistry;
 import com.arcadia.lib.client.ArcadiaModCard;
 import com.arcadia.lootbox.ArcadiaLootbox;
-import com.arcadia.lootbox.config.LootboxConfig;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -22,14 +21,13 @@ public final class ClientEvents {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            if (LootboxConfig.HUB_ENABLED.get()) {
-                ArcadiaModRegistry.registerCard(new ArcadiaModCard(
-                        "lootbox", "\uD83C\uDF81",
-                        "arcadialootbox.hub.title", "arcadialootbox.hub.subtitle",
-                        0xFFAA00, 30, true
-                ));
-                ArcadiaModRegistry.registerCardClickHandler("lootbox", LootboxHubScreen::open);
-            }
+            // Always register — config is SERVER type, not available at client setup
+            ArcadiaModRegistry.registerCard(new ArcadiaModCard(
+                    "lootbox", "\uD83C\uDF81",
+                    "arcadialootbox.hub.title", "arcadialootbox.hub.subtitle",
+                    0xFFAA00, 30, true
+            ));
+            ArcadiaModRegistry.registerCardClickHandler("lootbox", LootboxHubScreen::open);
         });
     }
 }

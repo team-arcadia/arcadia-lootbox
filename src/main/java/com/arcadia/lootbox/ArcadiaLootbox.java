@@ -69,9 +69,6 @@ public class ArcadiaLootbox {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            LootboxManager.init();
-            FreeLootboxManager.load();
-
             // Detect LuckPerms (caches result)
             PermissionHelper.isLuckPermsLoaded();
 
@@ -81,13 +78,23 @@ public class ArcadiaLootbox {
                 LootboxNet.sendOpenHub(player);
             });
 
-            // Auto-save free claims periodically
-            int autoSaveTicks = LootboxConfig.FREE_AUTOSAVE_MINUTES.get() * 20 * 60;
-            com.arcadia.lib.scheduler.SchedulerService.repeating(autoSaveTicks, FreeLootboxManager::autoSave);
-
-            LOGGER.info("[ArcadiaLootbox] v1.2.0 initialized — {} lootboxes loaded, {} keys registered, LuckPerms: {}",
-                    LootboxManager.count(), KeyRegistry.getKeyCount(), PermissionHelper.isLuckPermsLoaded());
+            LOGGER.info("[ArcadiaLootbox] v1.2.0 registered. LuckPerms: {}", PermissionHelper.isLuckPermsLoaded());
         });
+    }
+
+    @SubscribeEvent
+    public void onServerStarting(net.neoforged.neoforge.event.server.ServerStartingEvent event) {
+        // Init here — SERVER config is now loaded
+        LootboxManager.init();
+        FreeLootboxManager.load();
+
+        // Auto-save free claims periodically (default 5 min if config not yet available)
+        int minutes = 5;
+        try { minutes = LootboxConfig.FREE_AUTOSAVE_MINUTES.get(); } catch (Exception ignored) {}
+        com.arcadia.lib.scheduler.SchedulerService.repeating(minutes * 20 * 60, FreeLootboxManager::autoSave);
+
+        LOGGER.info("[ArcadiaLootbox] v1.2.0 initialized — {} lootboxes loaded, {} keys registered",
+                LootboxManager.count(), KeyRegistry.getKeyCount());
     }
 
     // --- Event Handlers ---
