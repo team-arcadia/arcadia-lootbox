@@ -133,21 +133,8 @@ public class ArcadiaLootbox {
         }
     }
 
-    @SubscribeEvent
-    public void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
-        if (event.getLevel().isClientSide()) return;
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
-
-        BlockEntity be = event.getLevel().getBlockEntity(event.getPos());
-        if (be != null && event.getLevel().getBlockState(event.getPos()).getBlock() instanceof ShulkerBoxBlock) {
-            if (be.getPersistentData().contains("ArcadiaLoot")) {
-                String id = be.getPersistentData().getString("ArcadiaLoot");
-                if (LootHelper.handleLootboxAttempt(event.getLevel(), event.getPos(), player, id)) {
-                    event.setCanceled(true);
-                }
-            }
-        }
-    }
+    // Left-click removed — opening now happens via the "Draw!" button in the preview GUI.
+    // Right-click opens preview -> player clicks "Draw!" button -> LootHelper.handleLootboxAttempt()
 
     @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {

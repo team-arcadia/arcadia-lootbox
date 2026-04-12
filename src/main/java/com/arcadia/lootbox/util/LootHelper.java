@@ -120,7 +120,7 @@ public final class LootHelper {
         // Permission check (soft LuckPerms — works without LP)
         if (!def.permission().isEmpty()) {
             if (!PermissionHelper.hasPermission(player, def.permission())) {
-                player.sendSystemMessage(ArcadiaMessages.error("You don't have permission to open this lootbox."));
+                player.sendSystemMessage(ArcadiaMessages.error(LanguageHelper.get(player, "lootbox.no.permission")));
                 return true;
             }
         }
@@ -128,7 +128,7 @@ public final class LootHelper {
         // Sneak check
         if (def.requireSneakToOpen() || LootboxConfig.REQUIRE_SNEAK_DEFAULT.get()) {
             if (!player.isShiftKeyDown()) {
-                player.sendSystemMessage(ArcadiaMessages.info("Sneak + Left Click to open this lootbox."));
+                player.sendSystemMessage(ArcadiaMessages.info(LanguageHelper.get(player, "lootbox.sneak.required")));
                 return true;
             }
         }
@@ -145,20 +145,20 @@ public final class LootHelper {
         String cooldownKey = COOLDOWN_PREFIX + id;
         if (!CooldownManager.isReady(player.getUUID(), cooldownKey)) {
             String remaining = CooldownManager.getRemainingFormatted(player.getUUID(), cooldownKey);
-            player.sendSystemMessage(ArcadiaMessages.warning("Cooldown: " + remaining));
+            player.sendSystemMessage(ArcadiaMessages.warning(LanguageHelper.get(player, "lootbox.cooldown", "time", remaining)));
             return true;
         }
 
         // Anti-autoclicker
         if (HistoryManager.checkAutoclicker(player.getUUID())) {
-            player.sendSystemMessage(ArcadiaMessages.error("Too many openings! Please wait."));
+            player.sendSystemMessage(ArcadiaMessages.error(LanguageHelper.get(player, "lootbox.autoclicker")));
             return true;
         }
 
         // Usage check
         BlockEntity be = level.getBlockEntity(pos);
         if (be != null && !UsageTracker.hasUsesRemaining(be, def.maxUses())) {
-            player.sendSystemMessage(ArcadiaMessages.warning("This lootbox has no remaining uses."));
+            player.sendSystemMessage(ArcadiaMessages.warning(LanguageHelper.get(player, "lootbox.no.uses")));
             return true;
         }
 
@@ -210,14 +210,14 @@ public final class LootHelper {
                     : Component.literal(def.rarityColor() + "§l" + def.displayName());
             Component subtitle = !def.openSubtitle().isEmpty()
                     ? Component.literal(def.openSubtitle())
-                    : Component.literal("§7" + receivedItems.size() + " item(s) received!");
+                    : Component.literal("§7" + LanguageHelper.get(player, "lootbox.items.received", "count", String.valueOf(receivedItems.size())));
             MessageHelper.sendTitle(player, title, subtitle,
                     LootboxConfig.TITLE_FADE_IN.get(), LootboxConfig.TITLE_STAY.get(), LootboxConfig.TITLE_FADE_OUT.get());
         }
 
         // Action bar message
         String msg = def.openMessage();
-        if (msg == null || msg.isEmpty()) msg = "§aLootbox opened!";
+        if (msg == null || msg.isEmpty()) msg = "§a" + LanguageHelper.get(player, "lootbox.opened");
         player.displayClientMessage(Component.literal(msg), true);
 
         // Consume key

@@ -3,11 +3,6 @@ name: Build & Test
 on:
   push:
     tags: [ 'v*' ]
-    paths:
-      - 'src/**'
-      - 'build.gradle'
-      - 'settings.gradle'
-      - 'libs/**'
   pull_request:
     branches: [ main ]
 
