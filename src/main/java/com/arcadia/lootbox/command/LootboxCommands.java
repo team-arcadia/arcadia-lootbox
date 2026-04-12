@@ -278,15 +278,17 @@ public final class LootboxCommands {
     }
 
     private static int cmdSetUses(CommandContext<CommandSourceStack> ctx) {
-        BlockPos pos = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
-        int uses = IntegerArgumentType.getInteger(ctx, "uses");
-        BlockEntity be = ctx.getSource().getLevel().getBlockEntity(pos);
-        if (be == null || !be.getPersistentData().contains("ArcadiaLoot")) {
-            ctx.getSource().sendFailure(ArcadiaMessages.error("No lootbox at that position.")); return 0;
-        }
-        UsageTracker.setUsageCount(be, uses);
-        ctx.getSource().sendSuccess(() -> ArcadiaMessages.success("Set uses to " + uses + " at " + pos.toShortString()), true);
-        return 1;
+        try {
+            BlockPos pos = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
+            int uses = IntegerArgumentType.getInteger(ctx, "uses");
+            BlockEntity be = ctx.getSource().getLevel().getBlockEntity(pos);
+            if (be == null || !be.getPersistentData().contains("ArcadiaLoot")) {
+                ctx.getSource().sendFailure(ArcadiaMessages.error("No lootbox at that position.")); return 0;
+            }
+            UsageTracker.setUsageCount(be, uses);
+            ctx.getSource().sendSuccess(() -> ArcadiaMessages.success("Set uses to " + uses + " at " + pos.toShortString()), true);
+            return 1;
+        } catch (Exception e) { ctx.getSource().sendFailure(ArcadiaMessages.error(e.getMessage())); return 0; }
     }
 
     private static int cmdResetCooldown(CommandContext<CommandSourceStack> ctx) {

@@ -1,233 +1,299 @@
-<div align="center">
+<p align="center">
+  <img src="https://img.shields.io/badge/Minecraft-1.21.1-brightgreen?style=for-the-badge&logo=mojangstudios" alt="Minecraft 1.21.1"/>
+  <img src="https://img.shields.io/badge/NeoForge-21.1+-orange?style=for-the-badge" alt="NeoForge"/>
+  <img src="https://img.shields.io/badge/Java-21-red?style=for-the-badge&logo=openjdk" alt="Java 21"/>
+  <img src="https://img.shields.io/github/v/release/Team-Arcadia/Arcadia-LootBox?style=for-the-badge&label=Version&color=blue" alt="Version"/>
+  <img src="https://img.shields.io/github/actions/workflow/status/Team-Arcadia/Arcadia-LootBox/build.yml?style=for-the-badge&label=Build" alt="Build"/>
+  <img src="https://img.shields.io/github/license/Team-Arcadia/Arcadia-LootBox?style=for-the-badge" alt="License"/>
+</p>
 
-<img src="https://raw.githubusercontent.com/Team-Arcadia/Arcadia-Admin-Pannel/main/.github/assets/arcadia_banner.png" alt="Arcadia Banner" width="100%">
-
-<br><br>
-
-# Arcadia LootBox
-
-### Advanced Lootbox System for Minecraft Servers
+<h1 align="center">Arcadia LootBox</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Minecraft-1.21.1-brightgreen?style=for-the-badge&logo=curseforge&logoColor=white" alt="Minecraft">
-  <img src="https://img.shields.io/badge/NeoForge-21.1.42-orange?style=for-the-badge&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAQCAYAAAA" alt="NeoForge">
-  <img src="https://img.shields.io/badge/Version-1.2.0-blue?style=for-the-badge" alt="Version">
-  <img src="https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=for-the-badge" alt="License">
-  <img src="https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java">
+  <b>Premium lootbox system for Minecraft servers</b><br/>
+  <i>Powered by <a href="https://github.com/Team-Arcadia">Arcadia Lib</a> | Built for NeoForge 1.21.1</i>
 </p>
 
 <p align="center">
-  <a href="https://discord.gg/xjF8Rtzyd4">
-    <img src="https://img.shields.io/discord/1457392657830772738?style=for-the-badge&color=5865F2&label=Discord&logo=discord&logoColor=white" alt="Discord">
-  </a>
-  &nbsp;
-  <a href="https://arcadia-echoes-of-power.fr/">
-    <img src="https://img.shields.io/badge/Website-Arcadia-blue?style=for-the-badge&logo=google-chrome" alt="Website">
-  </a>
-  &nbsp;
-  <a href="https://buy.stripe.com/3cI3co6X97Vy4IK50QfIs00">
-    <img src="https://img.shields.io/badge/Donate-Stripe-6772E5?style=for-the-badge&logo=stripe&logoColor=white" alt="Donate">
-  </a>
+  <a href="#features">Features</a> |
+  <a href="#commands">Commands</a> |
+  <a href="#installation">Installation</a> |
+  <a href="#configuration">Configuration</a> |
+  <a href="#key-categories">Keys</a> |
+  <a href="#contributing">Contributing</a> |
+  <a href="#version-fran%C3%A7aise">Francais</a>
 </p>
-
-</div>
 
 ---
 
-<br>
+## Overview
 
-<p align="center">
-  <strong>Arcadia LootBox</strong> is a premium, feature-rich lootbox system designed for the <strong>Arcadia: Echoes of Power</strong> Minecraft server.<br>
-  Powered by <strong>Arcadia Lib</strong>, it offers dual lootbox types, 50 integrated keys, Arcadia Hub integration, free timed lootboxes, and full configuration.
-</p>
-
-<br>
+Arcadia LootBox is a feature-rich, optimized lootbox system designed for Minecraft modded servers. It provides dual lootbox types (weighted & guaranteed), 50 integrated key items, free timed lootboxes with configurable cooldowns, Arcadia Hub integration with steampunk theming, and a complete permission system with optional LuckPerms support.
 
 ## Features
 
-<table align="center">
-<tr>
-<td width="50%">
-
-### Core System
-- **Dual Lootbox Types** — `weighted` (% per item) & `guaranteed` (1 random + guaranteed drop)
-- **50 Integrated Key Items** — Dungeon, Shop, Vote, Lootable, Event, Boss
-- **6 Rarity Tiers** — Common, Uncommon, Rare, Epic, Legendary, Mythic
-- **JSON Configuration** — Create unlimited lootboxes via simple config files
-- **Physical Shulker Boxes** — 16 color variants as lootbox blocks
-
-</td>
-<td width="50%">
-
-### Advanced Features
-- **Free Timed Lootboxes** — Configurable cooldown (72h default, reducible with permissions)
-- **Arcadia Hub Integration** — Steampunk-themed browser screen with shop link
-- **Server Broadcasts** — Announce rare drops server-wide
-- **Opening History** — Per-player tracking with admin commands
-- **Anti-Autoclicker** — Rate-limiting protection
-
-</td>
-</tr>
-<tr>
-<td width="50%">
-
-### Administration
-- **16 Admin Commands** — Full management under `/arcadia_lootbox`
-- **Tab Completion** — All commands with smart suggestions
-- **Usage Limits** — Per-block maxUses with NBT persistence
-- **Permission System** — LuckPerms integration (optional, works without)
-- **Async Config Reload** — No main thread freeze
-
-</td>
-<td width="50%">
-
-### Rewards & Effects
-- **Command Rewards** — Execute server/player commands as loot
-- **XP Rewards** — Grant experience on opening
-- **Title Animations** — Configurable title/subtitle display
-- **Particle System** — Batched, configurable, performance-friendly
-- **Sound System** — Custom open/close sounds with volume/pitch
-
-</td>
-</tr>
-</table>
-
-<br>
-
-## Key Categories
-
-| Category | Tiers | Count | Description |
-|:--------:|:-----:|:-----:|:------------|
-| **Dungeon** | Common → Transcendent | 10 | Dropped by mobs in dungeons |
-| **Shop** | Common → Transcendent | 10 | Purchased from the online store |
-| **Vote** | Common → Transcendent | 10 | Earned by voting for the server |
-| **Lootable** | Common → Transcendent | 10 | Found naturally in the world |
-| **Event** | Bronze → Diamond | 5 | Special limited-time rewards |
-| **Boss** | Minor → Overlord | 5 | Dropped by boss mobs |
-
-<br>
+| Feature | Description |
+|---|---|
+| **Dual Lootbox Types** | "Weighted" (each item rolls with its own %) and "Guaranteed" (one random item + guaranteed drop) |
+| **50 Key Items** | Dungeon, Shop, Vote, Lootable, Event, Boss keys across multiple tiers with custom textures |
+| **Free Timed Lootboxes** | Per-lootbox configurable cooldowns (72h default), reducible to 48h with permissions. Persistent across restarts |
+| **Steampunk Hub** | ArcadiaTheme client-side lootbox browser with configurable shop link |
+| **6 Rarity Tiers** | Common, Uncommon, Rare, Epic, Legendary, Mythic with colored display |
+| **Server Broadcasts** | Announce rare drops server-wide with configurable rarity threshold |
+| **Soft LuckPerms** | Full LuckPerms integration that works gracefully without LP installed (vanilla OP fallback) |
+| **Opening History** | Per-player history tracking with admin commands to view and clear |
+| **Usage Limits** | Per-block maxUses with NBT persistence and admin override |
+| **Anti-Autoclicker** | Rate-limiting protection against rapid-fire abuse |
+| **Command Rewards** | Execute server/player commands as lootbox rewards with independent chances |
+| **XP Rewards** | Grant experience points on opening |
+| **Bilingual** | Automatic language detection (English/French) based on client settings |
+| **30+ Config Params** | Cooldowns, broadcasts, hub, performance, security, animation, sounds, free timers |
+| **Optimized** | Thread-safe managers, atomic map swap, async reload, batched particles, tick-friendly |
 
 ## Commands
 
-<details>
-<summary><strong>Click to expand command list</strong></summary>
+All commands use the prefix `/arcadia_lootbox`.
 
-| Command | Description |
-|---------|-------------|
-| `/arcadia_lootbox give <player> <id> [amount]` | Give a lootbox to a player |
-| `/arcadia_lootbox giveall <id> [amount]` | Give a lootbox to all online players |
-| `/arcadia_lootbox givekey <player> <key_id> [amount]` | Give a key item to a player |
-| `/arcadia_lootbox free [player]` | Claim or check free lootbox status |
-| `/arcadia_lootbox freetimer <player>` | Check remaining free lootbox cooldown |
-| `/arcadia_lootbox reload` | Reload all JSON configurations |
-| `/arcadia_lootbox list` | List all loaded lootbox definitions |
-| `/arcadia_lootbox listkeys` | List all registered key items |
-| `/arcadia_lootbox info <id>` | Show detailed lootbox information |
-| `/arcadia_lootbox preview <player> <id>` | Open loot preview GUI for a player |
-| `/arcadia_lootbox history <player>` | View player opening history |
-| `/arcadia_lootbox clearhistory <player>` | Clear a player's history |
-| `/arcadia_lootbox create <id> <name>` | Create a new lootbox template |
-| `/arcadia_lootbox delete <id>` | Delete a lootbox definition |
-| `/arcadia_lootbox setuses <pos> <uses>` | Set usage count on a placed block |
-| `/arcadia_lootbox resetcooldown <player>` | Reset all cooldowns for a player |
-| `/arcadia_lootbox stats` | Show global statistics |
-| `/arcadia_lootbox hub` | Open the Arcadia Hub |
+### Lootbox Management
+| Command | Permission | Description |
+|---|---|---|
+| `/arcadia_lootbox give <player> <id> [amount]` | Op Level 2 | Give a lootbox to a player |
+| `/arcadia_lootbox giveall <id> [amount]` | Op Level 2 | Give a lootbox to all online players |
+| `/arcadia_lootbox givekey <player> <key_id> [amount]` | Op Level 2 | Give a key item to a player |
+| `/arcadia_lootbox reload` | Op Level 2 | Reload all JSON configurations |
+| `/arcadia_lootbox list` | Op Level 2 | List all loaded lootbox definitions |
+| `/arcadia_lootbox listkeys` | Op Level 2 | List all registered key items |
+| `/arcadia_lootbox info <id>` | Op Level 2 | Show detailed lootbox information |
+| `/arcadia_lootbox create <id> <name>` | Op Level 2 | Create a new lootbox template |
+| `/arcadia_lootbox delete <id>` | Op Level 2 | Delete a lootbox definition |
 
-</details>
+### Player Interaction
+| Command | Permission | Description |
+|---|---|---|
+| `/arcadia_lootbox preview <player> <id>` | Op Level 2 | Open loot preview GUI for a player |
+| `/arcadia_lootbox history <player>` | Op Level 2 | View player opening history |
+| `/arcadia_lootbox clearhistory <player>` | Op Level 2 | Clear a player's history |
+| `/arcadia_lootbox setuses <pos> <uses>` | Op Level 2 | Set usage count on a placed block |
+| `/arcadia_lootbox resetcooldown <player>` | Op Level 2 | Reset all cooldowns for a player |
 
-<br>
+### Free Lootbox Timer
+| Command | Permission | Description |
+|---|---|---|
+| `/arcadia_lootbox free <player> <id>` | Op Level 2 | Claim a free lootbox for a player |
+| `/arcadia_lootbox freetimer <player> <id>` | Op Level 2 | Check remaining free cooldown |
+| `/arcadia_lootbox resetfree <player> [id]` | Op Level 2 | Reset free timer(s) for a player |
+
+### Other
+| Command | Permission | Description |
+|---|---|---|
+| `/arcadia_lootbox stats` | Op Level 2 | Show global statistics |
+| `/arcadia_lootbox hub` | Op Level 2 | Open the Arcadia Hub |
 
 ## Installation
 
-```
-1. Install NeoForge 21.1.42+ for Minecraft 1.21.1
-2. Install Arcadia Lib (required dependency)
-3. Drop ArcadiaLootbox-1.2.0.jar into your mods/ folder
-4. (Optional) Install LuckPerms for permission-based features
-5. Start the server — configs auto-generate in config/arcadia/arcadialootbox/
-6. Edit JSON files, then /arcadia_lootbox reload
-```
+### Requirements
+- Minecraft **1.21.1**
+- NeoForge **21.1+**
+- [Arcadia Lib](https://github.com/Team-Arcadia) **>= 1.2.0**
 
-<br>
+### Steps
+1. Download the latest release from the [Releases](https://github.com/Team-Arcadia/Arcadia-LootBox/releases) page
+2. Place `arcadia-lib-1.2.0.jar` in your `mods/` folder
+3. Place `ArcadiaLootbox-1.2.0.jar` in your `mods/` folder
+4. (Optional) Install [LuckPerms](https://luckperms.net/) for permission-based features
+5. Start the server — configs auto-generate in `config/arcadia/arcadialootbox/`
 
-## Dependencies
-
-| Mod | Required | Description |
-|-----|:--------:|-------------|
-| **Arcadia Lib** | Yes | Shared library (hub, messages, scheduler, theme) |
-| **LuckPerms** | No | Optional — enables per-lootbox permissions & reduced free cooldowns |
-
-<br>
+### Client Installation (Optional)
+Installing on the client enables the steampunk ArcadiaTheme rendering for the lootbox hub screen. The mod works without client installation (vanilla chest preview).
 
 ## Configuration
 
-The mod generates its config at `config/arcadia/lootbox.toml` with **30+ parameters** organized in sections:
+### Lootbox Definitions
+Each lootbox is a JSON file in `config/arcadia/arcadialootbox/`. Two types available:
+- **weighted** — Each item rolls independently with its own chance percentage
+- **guaranteed** — One item is picked from the pool (weighted random) + a guaranteed item always drops
 
-- **General** — Cooldowns, usage limits, sneak requirement
-- **Broadcast** — Server-wide announcements for rare drops
-- **Hub** — Shop URL, display settings
-- **Performance** — Particle limits, async reload, history size
-- **Security** — Anti-autoclicker, interaction distance
-- **Animation** — Title timings, particle effects
-- **Sounds** — Volume, pitch, default sounds
-- **Free Lootbox** — Default cooldown, permissions, global toggle
+### Free Timed Lootboxes
+Each lootbox can enable free timed claims with these JSON fields:
+```json
+{
+  "freeEnabled": true,
+  "freeCooldownHours": 72,
+  "freePermission": "",
+  "freeReducedCooldownHours": 48,
+  "freeReducedPermission": "arcadialootbox.free.reduced"
+}
+```
+Set `freeEnabled: false` to disable free claims for specific lootboxes.
 
-<br>
+### Global Config
+The TOML config at `config/arcadia/lootbox.toml` has 35+ parameters in sections: General, Broadcast, Hub, Performance, Security, Animation, Sounds, Free Lootbox.
+
+## Key Categories
+
+| Category | Tiers | Count | Source |
+|:--------:|:-----:|:-----:|:-------|
+| **Dungeon** | Common - Transcendent | 10 | Mob drops in dungeons |
+| **Shop** | Common - Transcendent | 10 | Online store purchase |
+| **Vote** | Common - Transcendent | 10 | Server vote rewards |
+| **Lootable** | Common - Transcendent | 10 | World loot (chests, fishing) |
+| **Event** | Bronze - Diamond | 5 | Limited-time events |
+| **Boss** | Minor - Overlord | 5 | Boss mob drops |
+
+## Architecture
+
+```
+com.arcadia.lootbox
+  +-- ArcadiaLootbox.java           Entry point, event registration
+  +-- client/
+  |   +-- ClientEvents.java          Hub card registration
+  |   +-- LootboxClientData.java     Client-side data cache
+  |   +-- LootboxHubScreen.java      Steampunk hub browser
+  +-- command/
+  |   +-- LootboxCommands.java       All /arcadia_lootbox commands
+  +-- config/
+  |   +-- LootboxConfig.java         Global TOML config (35+ params)
+  +-- data/
+  |   +-- LootboxDefinition.java     Per-lootbox JSON data model
+  +-- item/
+  |   +-- KeyRegistry.java           50 key item registrations
+  |   +-- LootboxKeyItem.java        Key item base class
+  +-- manager/
+  |   +-- LootboxManager.java        Config loading & caching
+  |   +-- FreeLootboxManager.java    Free claim timer persistence
+  |   +-- HistoryManager.java        Opening history tracking
+  |   +-- UsageTracker.java          Per-block usage counting
+  +-- menu/
+  |   +-- PreviewMenu.java           Server-side preview GUI
+  +-- network/
+  |   +-- LootboxNet.java            Packet registration
+  |   +-- S2COpenLootboxHub.java     Open hub packet
+  |   +-- S2CSyncLootboxList.java    Sync lootbox list packet
+  +-- util/
+      +-- LootHelper.java            Core lootbox logic
+      +-- PermissionHelper.java      Soft LuckPerms wrapper
+```
+
+## Building from Source
+
+```bash
+git clone https://github.com/Team-Arcadia/Arcadia-LootBox.git
+cd Arcadia-LootBox
+./gradlew build
+```
+
+The compiled JAR will be in `build/libs/`.
+
+## Contributing
+
+We welcome contributions! Please read our [Contributing Guide](.github/CONTRIBUTING.md) before submitting a pull request.
+
+## Links
+
+- [Arcadia: Echoes of Power](https://arcadia-echoes-of-power.fr/)
+- [Discord](https://discord.gg/xjF8Rtzyd4)
+- [Donate](https://buy.stripe.com/3cI3co6X97Vy4IK50QfIs00)
+
+## License
+
+All Rights Reserved. See [LICENSE](LICENSE) for details.
+
+## Credits
+
+**Author:** vyrriox
+**Organization:** [Team Arcadia](https://github.com/Team-Arcadia)
 
 ---
 
-<br>
-
-<div align="center">
-
-## Version Française
-
-</div>
+<h1 align="center">Arcadia LootBox (Version Francaise)</h1>
 
 <p align="center">
-  <strong>Arcadia LootBox</strong> est un système de lootbox premium conçu pour le serveur <strong>Arcadia: Echoes of Power</strong>.<br>
-  Propulsé par <strong>Arcadia Lib</strong>, il offre deux types de lootbox, 50 clés intégrées, l'intégration au Hub Arcadia, des lootbox gratuites avec timer, et une configuration complète.
+  <b>Systeme de lootbox premium pour serveurs Minecraft</b><br/>
+  <i>Propulse par <a href="https://github.com/Team-Arcadia">Arcadia Lib</a> | Construit pour NeoForge 1.21.1</i>
 </p>
 
-<details>
-<summary><strong>Caractéristiques principales</strong></summary>
+## Apercu
 
-- **Deux types de Lootbox** — `weighted` (% par item) et `guaranteed` (1 aléatoire + drop garanti)
-- **50 Clés intégrées** — Donjon, Boutique, Vote, Trouvable, Événement, Boss
-- **Lootbox gratuites** — Cooldown configurable (72h par défaut, réductible avec permissions)
-- **Intégration Hub Arcadia** — Écran navigateur steampunk avec lien boutique
-- **16 Commandes Admin** — Gestion complète sous `/arcadia_lootbox`
-- **Système de permissions** — Intégration LuckPerms optionnelle
-- **30+ Paramètres** — Configuration TOML complète
-- **Bilingue** — Localisation complète EN/FR
+Arcadia LootBox est un systeme de lootbox complet et optimise concu pour les serveurs Minecraft modes. Il propose deux types de lootbox (pondere et garanti), 50 cles integrees, des lootbox gratuites avec timer configurable, l'integration au Hub Arcadia avec theme steampunk, et un systeme de permissions complet avec support optionnel de LuckPerms.
 
-</details>
+## Caracteristiques
 
-<br>
+| Fonctionnalite | Description |
+|---|---|
+| **Deux types de Lootbox** | "Weighted" (% par item) et "Guaranteed" (1 aleatoire + drop garanti) |
+| **50 Items Cles** | Donjon, Boutique, Vote, Trouvable, Evenement, Boss sur plusieurs tiers |
+| **Lootbox gratuites** | Cooldown configurable par lootbox (72h defaut), reductible a 48h avec permissions. Persistant |
+| **Hub Steampunk** | Ecran client ArcadiaTheme avec lien boutique configurable |
+| **6 Niveaux de Rarete** | Common, Uncommon, Rare, Epic, Legendary, Mythic avec affichage colore |
+| **Broadcasts Serveur** | Annonces serveur pour les drops rares |
+| **LuckPerms Souple** | Integration complete, fonctionne sans LP (fallback OP vanilla) |
+| **Historique** | Suivi par joueur avec commandes admin |
+| **Limites d'Utilisation** | maxUses par lootbox placee avec persistance NBT |
+| **Anti-Autoclicker** | Protection contre l'abus |
+| **Bilingue** | Detection automatique de la langue (Anglais/Francais) |
+| **35+ Parametres** | Configuration TOML complete |
+| **Optimise** | Thread-safe, swap atomique, reload async, particules groupees |
 
----
+## Commandes
 
-<div align="center">
+Toutes les commandes utilisent le prefixe `/arcadia_lootbox`.
 
-### Support the Project / Soutenir le Projet
+### Gestion des Lootbox
+| Commande | Permission | Description |
+|---|---|---|
+| `/arcadia_lootbox give <joueur> <id> [quantite]` | Op Niveau 2 | Donner une lootbox |
+| `/arcadia_lootbox giveall <id> [quantite]` | Op Niveau 2 | Donner a tous les joueurs |
+| `/arcadia_lootbox givekey <joueur> <cle_id> [quantite]` | Op Niveau 2 | Donner une cle |
+| `/arcadia_lootbox reload` | Op Niveau 2 | Recharger les configurations |
+| `/arcadia_lootbox list` | Op Niveau 2 | Lister les lootbox |
+| `/arcadia_lootbox listkeys` | Op Niveau 2 | Lister les cles |
+| `/arcadia_lootbox info <id>` | Op Niveau 2 | Details d'une lootbox |
+| `/arcadia_lootbox create <id> <nom>` | Op Niveau 2 | Creer un template |
+| `/arcadia_lootbox delete <id>` | Op Niveau 2 | Supprimer une definition |
 
-<p>
-  <strong>Your support helps us keep Arcadia alive and evolving!</strong><br>
-  <em>Votre soutien nous aide à faire vivre et évoluer Arcadia !</em>
-</p>
+### Timer Lootbox Gratuites
+| Commande | Permission | Description |
+|---|---|---|
+| `/arcadia_lootbox free <joueur> <id>` | Op Niveau 2 | Reclamer une lootbox gratuite |
+| `/arcadia_lootbox freetimer <joueur> <id>` | Op Niveau 2 | Verifier le cooldown restant |
+| `/arcadia_lootbox resetfree <joueur> [id]` | Op Niveau 2 | Reinitialiser le timer |
 
-<a href="https://buy.stripe.com/3cI3co6X97Vy4IK50QfIs00">
-  <img src="https://img.shields.io/badge/Donate_via_Stripe-Support_Us-6772E5?style=for-the-badge&logo=stripe&logoColor=white" alt="Support Us" height="40">
-</a>
+## Installation
 
-<br><br>
+### Prerequis
+- Minecraft **1.21.1**
+- NeoForge **21.1+**
+- [Arcadia Lib](https://github.com/Team-Arcadia) **>= 1.2.0**
 
-<a href="https://www.arcadia-echoes-of-power.fr/partenariat">
-  <img src="https://img.shields.io/badge/Partners-Partenaires-orange?style=for-the-badge&logoColor=white" alt="Partners" height="30">
-</a>
+### Etapes
+1. Telecharger la derniere release depuis [Releases](https://github.com/Team-Arcadia/Arcadia-LootBox/releases)
+2. Placer `arcadia-lib-1.2.0.jar` dans le dossier `mods/`
+3. Placer `ArcadiaLootbox-1.2.0.jar` dans le dossier `mods/`
+4. (Optionnel) Installer [LuckPerms](https://luckperms.net/) pour les permissions avancees
+5. Demarrer le serveur — configs auto-generees dans `config/arcadia/arcadialootbox/`
 
-<br><br>
+### Installation Client (Optionnel)
+Installer sur le client active le rendu steampunk ArcadiaTheme pour le hub lootbox.
 
-<sub>Made with care by <strong>vyrriox</strong> for the Arcadia community</sub>
+## Compiler depuis les Sources
 
-</div>
+```bash
+git clone https://github.com/Team-Arcadia/Arcadia-LootBox.git
+cd Arcadia-LootBox
+./gradlew build
+```
+
+## Contribuer
+
+Les contributions sont les bienvenues ! Lisez notre [Guide de Contribution](.github/CONTRIBUTING.md) avant de soumettre une pull request.
+
+## Liens
+
+- [Arcadia: Echoes of Power](https://arcadia-echoes-of-power.fr/)
+- [Discord](https://discord.gg/xjF8Rtzyd4)
+- [Donation](https://buy.stripe.com/3cI3co6X97Vy4IK50QfIs00)
+
+## Credits
+
+**Auteur :** vyrriox
+**Organisation :** [Team Arcadia](https://github.com/Team-Arcadia)

@@ -1,22 +1,15 @@
-name: Build & Test
+name: Release
 
 on:
   push:
     tags: [ 'v*' ]
-    paths:
-      - 'src/**'
-      - 'build.gradle'
-      - 'settings.gradle'
-      - 'libs/**'
-  pull_request:
-    branches: [ main ]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  build:
-    name: Build Mod
+  release:
+    name: Create Release
     runs-on: ubuntu-latest
 
     steps:
@@ -36,10 +29,12 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build --no-daemon
 
-      - name: Upload Build Artifact
-        if: success()
-        uses: actions/upload-artifact@v4
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: ArcadiaLootbox-${{ github.ref_name }}
-          path: build/libs/ArcadiaLootbox-*.jar
-          retention-days: 30
+          files: build/libs/ArcadiaLootbox-*.jar
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

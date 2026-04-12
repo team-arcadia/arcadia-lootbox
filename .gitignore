@@ -31,12 +31,13 @@ crash-reports/
 debug-*.log.gz
 
 # ── Dependencies (local jars) ───────────────────────
-libs/
+# libs/ is committed so GitHub Actions can compile against arcadia-lib
 
 # ── Java ─────────────────────────────────────────────
 *.class
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
+!libs/*.jar
 
 # ── OS files ─────────────────────────────────────────
 .DS_Store
