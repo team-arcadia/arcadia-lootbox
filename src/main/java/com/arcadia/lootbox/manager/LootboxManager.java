@@ -167,6 +167,7 @@ public final class LootboxManager {
                 LootboxDefinition.AnimationConfig.defaults(),
                 false, 20, "", false, "§6✦ Treasure Chest ✦", "§eGood luck!",
                 List.of(), 0, "", 0, true,
+                "Coffre au Tresor", "§aLootbox ouverte !", "§6✦ Coffre au Tresor ✦", "§eBonne chance !",
                 false, 72, "", 48, ""
         ));
 
@@ -186,6 +187,7 @@ public final class LootboxManager {
                 LootboxDefinition.AnimationConfig.defaults(),
                 false, 20, "", false, "§a✦ Lucky Box ✦", "§7You always get bread + one lucky item!",
                 List.of(), 5, "", 0, true,
+                "Boite Chanceuse", "§aVous avez obtenu quelque chose !", "§a✦ Boite Chanceuse ✦", "§7Vous obtenez toujours du pain + un objet chanceux !",
                 true, 72, "", 48, "arcadialootbox.free.reduced"
         ));
     }

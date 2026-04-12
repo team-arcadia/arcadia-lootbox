@@ -100,12 +100,19 @@ public final class LootHelper {
 
     // --- Preview GUI ---
 
+    // Title prefix used by the client interceptor to detect lootbox preview menus
+    public static final String PREVIEW_TITLE_MARKER = "\u00A7r\u00A76\u2699 ";
+
     public static void openPreviewGui(ServerPlayer player, String id, BlockPos pos) {
         LootboxDefinition def = LootboxManager.get(id);
         if (def == null) return;
         String lang = player.clientInformation() != null ? player.clientInformation().language() : "en_us";
+        boolean fr = lang.startsWith("fr");
         String rarityName = LanguageHelper.getRarityName(player, def.rarity());
-        Component title = Component.literal(def.rarityColor() + "§l" + def.displayName() +
+        // Use FR display name if available
+        String name = (fr && !def.displayNameFR().isEmpty()) ? def.displayNameFR() : def.displayName();
+        // Prefix with marker so the client interceptor can detect it reliably
+        Component title = Component.literal(PREVIEW_TITLE_MARKER + def.rarityColor() + "§l" + name +
                 " §r§7(" + def.rarityColor() + rarityName + "§7)");
         player.openMenu(new SimpleMenuProvider((winId, inv, p) ->
                 new PreviewMenu(winId, inv, id, pos, def, lang), title));
@@ -204,20 +211,22 @@ public final class LootHelper {
         // Particles
         spawnParticles(level, pos, def, random);
 
-        // Title animation
+        // Title animation (use FR variants if player is French)
         if (LootboxConfig.ANIMATIONS_ENABLED.get() && LootboxConfig.TITLE_ON_OPEN.get()) {
-            Component title = !def.openTitle().isEmpty()
-                    ? Component.literal(def.openTitle())
-                    : Component.literal(def.rarityColor() + "§l" + def.displayName());
-            Component subtitle = !def.openSubtitle().isEmpty()
-                    ? Component.literal(def.openSubtitle())
-                    : Component.literal("§7" + LanguageHelper.get(player, "lootbox.items.received", "count", String.valueOf(receivedItems.size())));
-            MessageHelper.sendTitle(player, title, subtitle,
+            boolean fr = LanguageHelper.isFrench(player);
+            String titleText = fr && !def.openTitleFR().isEmpty() ? def.openTitleFR()
+                    : !def.openTitle().isEmpty() ? def.openTitle()
+                    : def.rarityColor() + "§l" + (fr && !def.displayNameFR().isEmpty() ? def.displayNameFR() : def.displayName());
+            String subtitleText = fr && !def.openSubtitleFR().isEmpty() ? def.openSubtitleFR()
+                    : !def.openSubtitle().isEmpty() ? def.openSubtitle()
+                    : "§7" + LanguageHelper.get(player, "lootbox.items.received", "count", String.valueOf(receivedItems.size()));
+            MessageHelper.sendTitle(player, Component.literal(titleText), Component.literal(subtitleText),
                     LootboxConfig.TITLE_FADE_IN.get(), LootboxConfig.TITLE_STAY.get(), LootboxConfig.TITLE_FADE_OUT.get());
         }
 
-        // Action bar message
-        String msg = def.openMessage();
+        // Action bar message (use FR variant if available)
+        boolean fr = LanguageHelper.isFrench(player);
+        String msg = fr && !def.openMessageFR().isEmpty() ? def.openMessageFR() : def.openMessage();
         if (msg == null || msg.isEmpty()) msg = "§a" + LanguageHelper.get(player, "lootbox.opened");
         player.displayClientMessage(Component.literal(msg), true);
 

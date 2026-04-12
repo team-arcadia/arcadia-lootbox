@@ -47,6 +47,11 @@ public record LootboxDefinition(
         String requiredBiome,
         int requiredLevel,
         boolean logOpening,
+        // v1.2.0 — French translations (optional, falls back to EN fields)
+        String displayNameFR,
+        String openMessageFR,
+        String openTitleFR,
+        String openSubtitleFR,
         // v1.2.0 — free lootbox timer
         boolean freeEnabled,
         int freeCooldownHours,
@@ -129,6 +134,10 @@ public record LootboxDefinition(
                 requiredBiome != null ? requiredBiome : "",
                 requiredLevel,
                 logOpening,
+                displayNameFR != null ? displayNameFR : "",
+                openMessageFR != null ? openMessageFR : "",
+                openTitleFR != null ? openTitleFR : "",
+                openSubtitleFR != null ? openSubtitleFR : "",
                 freeEnabled,
                 freeCooldownHours > 0 ? freeCooldownHours : 72,
                 freePermission != null ? freePermission : "",

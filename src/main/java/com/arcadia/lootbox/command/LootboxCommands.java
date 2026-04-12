@@ -261,6 +261,7 @@ public final class LootboxCommands {
         LootboxDefinition def = new LootboxDefinition(name, "white", "minecraft:tripwire_hook", "minecraft:block.chest.open", "",
                 List.of(), List.of("minecraft:flame"), "weighted", "", 1, 1, "common", false, "", false, -1, "",
                 LootboxDefinition.AnimationConfig.defaults(), false, 20, "", false, "", "", List.of(), 0, "", 0, true,
+                "", "", "", "",
                 false, 72, "", 48, "");
         if (LootboxManager.createDefinition(id, def)) {
             ctx.getSource().sendSuccess(() -> ArcadiaMessages.success("Created '" + id + "'. Edit the JSON file to add loot."), true);
