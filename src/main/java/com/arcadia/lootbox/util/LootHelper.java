@@ -104,8 +104,9 @@ public final class LootHelper {
         LootboxDefinition def = LootboxManager.get(id);
         if (def == null) return;
         String lang = player.clientInformation() != null ? player.clientInformation().language() : "en_us";
+        String rarityName = LanguageHelper.getRarityName(player, def.rarity());
         Component title = Component.literal(def.rarityColor() + "§l" + def.displayName() +
-                " §r§7(" + def.rarityColor() + def.rarityDisplayName() + "§7)");
+                " §r§7(" + def.rarityColor() + rarityName + "§7)");
         player.openMenu(new SimpleMenuProvider((winId, inv, p) ->
                 new PreviewMenu(winId, inv, id, pos, def, lang), title));
     }

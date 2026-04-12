@@ -49,6 +49,9 @@
   "item.arcadialootbox.boss_key_elite": "Elite Boss Key",
   "item.arcadialootbox.boss_key_supreme": "Supreme Boss Key",
   "item.arcadialootbox.boss_key_overlord": "Overlord Boss Key",
+  "itemGroup.arcadialootbox.lootbox_keys": "Arcadia Lootbox Keys",
   "arcadialootbox.hub.title": "Lootbox",
-  "arcadialootbox.hub.subtitle": "Keys & Crates"
+  "arcadialootbox.hub.subtitle": "Keys & Crates",
+  "tooltip.arcadialootbox.key.use": "Use on a Lootbox to open it",
+  "tooltip.arcadialootbox.key.mod": "Arcadia Lootbox Key"
 }

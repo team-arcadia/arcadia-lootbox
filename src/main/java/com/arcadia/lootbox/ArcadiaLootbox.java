@@ -53,8 +53,9 @@ public class ArcadiaLootbox {
     public ArcadiaLootbox(IEventBus modEventBus, ModContainer container) {
         instance = this;
 
-        // Register items (keys)
+        // Register items (keys) and creative tab
         KeyRegistry.ITEMS.register(modEventBus);
+        KeyRegistry.CREATIVE_TABS.register(modEventBus);
 
         // Register TOML config
         container.registerConfig(ModConfig.Type.SERVER, LootboxConfig.SPEC, "arcadia/lootbox.toml");

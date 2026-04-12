@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.arcadia.lootbox.ArcadiaLootbox;
 import com.arcadia.lootbox.config.LootboxConfig;
 import com.arcadia.lootbox.data.LootboxDefinition;
 import com.arcadia.lootbox.item.KeyRegistry;
@@ -37,8 +38,7 @@ public final class LootboxCommands {
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_IDS =
             (ctx, b) -> SharedSuggestionProvider.suggest(LootboxManager.getAllIds(), b);
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_KEYS =
-            (ctx, b) -> SharedSuggestionProvider.suggest(
-                    KeyRegistry.getAllKeyIds().stream().map(k -> "arcadialootbox:" + k), b);
+            (ctx, b) -> SharedSuggestionProvider.suggest(KeyRegistry.getAllKeyIds(), b);
 
     private LootboxCommands() {}
 
@@ -213,7 +213,9 @@ public final class LootboxCommands {
         try {
             ServerPlayer player = EntityArgument.getPlayer(ctx, "target");
             String keyId = StringArgumentType.getString(ctx, "key_id");
-            LootHelper.giveKeyItem(player, keyId, amount);
+            // Add namespace if missing
+            String fullId = keyId.contains(":") ? keyId : ArcadiaLootbox.MODID + ":" + keyId;
+            LootHelper.giveKeyItem(player, fullId, amount);
             ctx.getSource().sendSuccess(() -> ArcadiaMessages.success("Gave " + amount + "x " + keyId + " to " + player.getName().getString()), true);
             return 1;
         } catch (Exception e) { ctx.getSource().sendFailure(ArcadiaMessages.error(e.getMessage())); return 0; }

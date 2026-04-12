@@ -1,7 +1,12 @@
 package com.arcadia.lootbox.item;
 
 import com.arcadia.lootbox.ArcadiaLootbox;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -10,8 +15,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 /**
- * Registers all lootbox key items directly into the mod.
- * 50 keys total: Dungeon(10), Shop(10), Vote(10), Lootable(10), Event(5), Boss(5).
+ * Registers all 50 lootbox key items and a creative tab.
  *
  * @author vyrriox
  */
@@ -20,11 +24,13 @@ public final class KeyRegistry {
     public static final DeferredRegister.Items ITEMS =
             DeferredRegister.createItems(ArcadiaLootbox.MODID);
 
-    // Store all key IDs for lookup
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS =
+            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, ArcadiaLootbox.MODID);
+
     private static final List<String> ALL_KEY_IDS = new ArrayList<>();
     private static final Map<String, DeferredItem<Item>> KEY_ITEMS = new LinkedHashMap<>();
 
-    // ── Tier definitions ────────────────────────────────────────────────────
+    // ── Tier definitions ────────────────────────────────────────────────
     private static final String[] TIER_10_NAMES = {
             "common", "uncommon", "rare", "superior", "epic",
             "legendary", "mythic", "divine", "celestial", "transcendent"
@@ -41,19 +47,28 @@ public final class KeyRegistry {
     private static final Rarity[] BOSS_RARITIES = { Rarity.UNCOMMON, Rarity.RARE, Rarity.RARE, Rarity.EPIC, Rarity.EPIC };
 
     static {
-        // Dungeon Keys (10 tiers)
         registerCategory("dungeon", TIER_10_NAMES, TIER_10_RARITIES);
-        // Shop Keys (10 tiers)
         registerCategory("shop", TIER_10_NAMES, TIER_10_RARITIES);
-        // Vote Keys (10 tiers)
         registerCategory("vote", TIER_10_NAMES, TIER_10_RARITIES);
-        // Lootable Keys (10 tiers)
         registerCategory("lootable", TIER_10_NAMES, TIER_10_RARITIES);
-        // Event Keys (5 tiers)
         registerCategory("event", EVENT_NAMES, EVENT_RARITIES);
-        // Boss Keys (5 tiers)
         registerCategory("boss", BOSS_NAMES, BOSS_RARITIES);
     }
+
+    // ── Creative Tab ────────────────────────────────────────────────────
+    public static final Supplier<CreativeModeTab> LOOTBOX_TAB = CREATIVE_TABS.register("lootbox_keys",
+            () -> CreativeModeTab.builder()
+                    .title(Component.literal("Arcadia Lootbox Keys"))
+                    .icon(() -> {
+                        DeferredItem<Item> icon = KEY_ITEMS.get("dungeon_key_legendary");
+                        return icon != null ? new ItemStack(icon.get()) : new ItemStack(Items.TRIPWIRE_HOOK);
+                    })
+                    .displayItems((params, output) -> {
+                        for (DeferredItem<Item> item : KEY_ITEMS.values()) {
+                            output.accept(item.get());
+                        }
+                    })
+                    .build());
 
     private static void registerCategory(String category, String[] names, Rarity[] rarities) {
         for (int i = 0; i < names.length; i++) {
@@ -68,38 +83,16 @@ public final class KeyRegistry {
 
     private KeyRegistry() {}
 
-    /**
-     * Returns all registered key item IDs.
-     */
-    public static List<String> getAllKeyIds() {
-        return Collections.unmodifiableList(ALL_KEY_IDS);
-    }
+    public static List<String> getAllKeyIds() { return Collections.unmodifiableList(ALL_KEY_IDS); }
+    public static int getKeyCount() { return ALL_KEY_IDS.size(); }
 
-    /**
-     * Returns the total number of registered keys.
-     */
-    public static int getKeyCount() {
-        return ALL_KEY_IDS.size();
-    }
-
-    /**
-     * Gets a key item by its ID (e.g., "dungeon_key_rare").
-     */
     public static Item getKeyItem(String id) {
         DeferredItem<Item> deferred = KEY_ITEMS.get(id);
         return deferred != null ? deferred.get() : null;
     }
 
-    /**
-     * Checks if an ID corresponds to a registered key.
-     */
-    public static boolean isKey(String id) {
-        return KEY_ITEMS.containsKey(id);
-    }
+    public static boolean isKey(String id) { return KEY_ITEMS.containsKey(id); }
 
-    /**
-     * Returns the full ResourceLocation string for a key (e.g., "arcadialootbox:dungeon_key_rare").
-     */
     public static String getKeyResourceLocation(String keyId) {
         return ArcadiaLootbox.MODID + ":" + keyId;
     }

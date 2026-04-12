@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * Base item class for all lootbox keys.
- * Adds tooltip info and enchantment glint for epic+ rarities.
+ * Tooltip is bilingual via translation keys.
  *
  * @author vyrriox
  */
@@ -21,13 +21,12 @@ public class LootboxKeyItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("§7Use on a Lootbox to open it"));
-        tooltip.add(Component.literal("§8Arcadia Lootbox Key"));
+        tooltip.add(Component.translatable("tooltip.arcadialootbox.key.use"));
+        tooltip.add(Component.translatable("tooltip.arcadialootbox.key.mod"));
     }
 
     @Override
     public boolean isFoil(ItemStack stack) {
-        // Enchantment glint for epic+ rarity items
         return stack.getRarity() == net.minecraft.world.item.Rarity.EPIC;
     }
 }
