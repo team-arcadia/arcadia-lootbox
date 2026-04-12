@@ -42,6 +42,14 @@ public class LootboxHubScreen extends Screen {
     private int scrollOffset = 0;
     private int totalContentHeight = 0;
 
+    // Clickable card hitboxes (rebuilt every frame)
+    private record CardHitbox(int x, int y, int w, int h, String lootboxId) {
+        boolean contains(double mx, double my) {
+            return mx >= x && mx < x + w && my >= y && my < y + h;
+        }
+    }
+    private final List<CardHitbox> cardHitboxes = new ArrayList<>();
+
     public LootboxHubScreen() { super(Component.literal("Arcadia Lootbox Hub")); }
 
     public static void open() { Minecraft.getInstance().setScreen(new LootboxHubScreen()); }
@@ -77,6 +85,9 @@ public class LootboxHubScreen extends Screen {
             super.render(g, mouseX, mouseY, pt);
             return;
         }
+
+        // Rebuild hitboxes each frame
+        cardHitboxes.clear();
 
         // Enable scissor for scrollable area
         int contentTop = 48;
@@ -119,6 +130,7 @@ public class LootboxHubScreen extends Screen {
                             && mouseY >= cardY && mouseY < cardY + CARD_H
                             && mouseY >= contentTop && mouseY <= contentBottom;
                     drawCard(g, entry, cardX, cardY, hovered, info.color, fr);
+                    cardHitboxes.add(new CardHitbox(cardX, cardY, CARD_W, CARD_H, entry.id()));
                 }
             }
 
@@ -167,11 +179,21 @@ public class LootboxHubScreen extends Screen {
     @Override
     public boolean mouseClicked(double mx, double my, int btn) {
         if (btn == 0) {
+            // Shop button
             int btnX = width / 2 - 110, btnY = height - 38;
             if (mx >= btnX && mx < btnX + 220 && my >= btnY && my < btnY + 22) {
                 handleComponentClicked(Style.EMPTY.withClickEvent(
                         new ClickEvent(ClickEvent.Action.OPEN_URL, "https://store.yourserver.com/lootbox")));
                 return true;
+            }
+
+            // Card click — open preview via C2S packet
+            for (CardHitbox hitbox : cardHitboxes) {
+                if (hitbox.contains(mx, my)) {
+                    this.onClose();
+                    com.arcadia.lootbox.network.LootboxNet.sendPreviewRequest(hitbox.lootboxId);
+                    return true;
+                }
             }
         }
         return super.mouseClicked(mx, my, btn);

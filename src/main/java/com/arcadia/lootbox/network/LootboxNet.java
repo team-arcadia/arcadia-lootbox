@@ -20,6 +20,11 @@ public final class LootboxNet {
         PayloadRegistrar registrar = event.registrar("1");
         registrar.playToClient(S2COpenLootboxHub.TYPE, S2COpenLootboxHub.STREAM_CODEC, (pkt, ctx) -> pkt.handle(ctx));
         registrar.playToClient(S2CSyncLootboxList.TYPE, S2CSyncLootboxList.STREAM_CODEC, (pkt, ctx) -> pkt.handle(ctx));
+        registrar.playToServer(C2SRequestPreview.TYPE, C2SRequestPreview.STREAM_CODEC, (pkt, ctx) -> pkt.handle(ctx));
+    }
+
+    public static void sendPreviewRequest(String lootboxId) {
+        PacketDistributor.sendToServer(new C2SRequestPreview(lootboxId));
     }
 
     public static void sendOpenHub(ServerPlayer player) {
