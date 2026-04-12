@@ -3,7 +3,6 @@ package com.arcadia.lootbox.menu;
 import com.arcadia.lib.item.ItemBuilder;
 import com.arcadia.lootbox.data.LootboxDefinition;
 import com.arcadia.lootbox.manager.FreeLootboxManager;
-import com.arcadia.lootbox.util.LanguageHelper;
 import com.arcadia.lootbox.util.LootHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -23,82 +22,88 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Server-side preview GUI with ArcadiaTheme styling.
- * Right-click on lootbox opens this. Slot 49 = "Draw!" button to open the lootbox.
- * No more left-click interaction needed — everything happens through this menu.
+ * Server-side lootbox preview GUI.
+ * Right-click on lootbox opens this. Slot 49 = "Draw!" button.
+ * Fully bilingual EN/FR based on player language.
  *
  * @author vyrriox
  */
 public class PreviewMenu extends ChestMenu {
 
     private static final int DRAW_BUTTON_SLOT = 49;
-
     private final String lootboxId;
     private final BlockPos targetPos;
-    private final String language;
 
     public PreviewMenu(int containerId, Inventory playerInv, String id, BlockPos pos,
                        LootboxDefinition def, String language) {
         super(MenuType.GENERIC_9x6, containerId, playerInv, createContainer(def, language, playerInv.player, id), 6);
         this.lootboxId = id;
         this.targetPos = pos;
-        this.language = language;
     }
 
     private static SimpleContainer createContainer(LootboxDefinition def, String language, Player viewer, String lootboxId) {
-        SimpleContainer container = new SimpleContainer(54);
+        SimpleContainer c = new SimpleContainer(54);
         boolean fr = language != null && language.startsWith("fr");
 
-        // ── Border (copper glass panes) ────────────────────────────────
+        // Display name (FR if available)
+        String name = (fr && def.displayNameFR() != null && !def.displayNameFR().isEmpty())
+                ? def.displayNameFR() : def.displayName();
+
+        // ── Border ─────────────────────────────────────────────────────
         ItemStack border = ItemBuilder.of(Items.ORANGE_STAINED_GLASS_PANE).name(Component.literal(" ")).build();
-        for (int i = 0; i < 9; i++) container.setItem(i, border.copy());
-        for (int i = 45; i < 54; i++) container.setItem(i, border.copy());
+        for (int i = 0; i < 9; i++) c.setItem(i, border.copy());
+        for (int i = 45; i < 54; i++) c.setItem(i, border.copy());
         for (int row = 1; row < 5; row++) {
-            container.setItem(row * 9, border.copy());
-            container.setItem(row * 9 + 8, border.copy());
+            c.setItem(row * 9, border.copy());
+            c.setItem(row * 9 + 8, border.copy());
         }
 
-        // ── Info item (slot 4 — top center) ────────────────────────────
-        String typeLabel = def.isGuaranteedType()
-                ? (fr ? "§aType: Garanti (1 objet + garanti)" : "§aType: Guaranteed (1 item + guaranteed)")
-                : (fr ? "§eType: Pondere (% par objet)" : "§eType: Weighted (% per item)");
+        // ── Info (slot 4) ──────────────────────────────────────────────
+        String typeStr = def.isGuaranteedType()
+                ? (fr ? "§a\u2714 Garanti §7(1 objet + garanti)" : "§a\u2714 Guaranteed §7(1 item + guaranteed)")
+                : (fr ? "§e\u2696 Pondéré §7(% par objet)" : "§e\u2696 Weighted §7(% per item)");
 
-        ItemBuilder infoBuilder = ItemBuilder.of(Items.NETHER_STAR)
-                .name(Component.literal(def.rarityColor() + "§l" + def.displayName()))
-                .addLore("§7" + (fr ? "Rarete" : "Rarity") + ": " + def.rarityColor() + (fr ? frRarity(def.rarity()) : def.rarityDisplayName()))
-                .addLore("§7" + (fr ? "Cle" : "Key") + ": §f" + def.keyItem())
-                .addLore(typeLabel)
-                .addLore("§7" + (fr ? "Objets" : "Items") + ": §f" + def.lootTable().size());
+        ItemBuilder info = ItemBuilder.of(Items.NETHER_STAR)
+                .name(Component.literal(def.rarityColor() + "§l\u2B50 " + name))
+                .addLore("")
+                .addLore("§8\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550")
+                .addLore("  §7" + (fr ? "Rareté" : "Rarity") + " : " + def.rarityColor() + (fr ? frRarity(def.rarity()) : def.rarityDisplayName()))
+                .addLore("  §7" + (fr ? "Clé requise" : "Required Key") + " : §f" + shortItem(def.keyItem()))
+                .addLore("  §7Type : " + typeStr)
+                .addLore("  §7" + (fr ? "Récompenses" : "Rewards") + " : §f" + def.lootTable().size() + (fr ? " objets" : " items"))
+                .addLore("§8\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550");
 
         if (def.isGuaranteedType() && def.guaranteedItem() != null && !def.guaranteedItem().isEmpty()) {
-            infoBuilder.addLore("§7" + (fr ? "Garanti" : "Guaranteed") + ": §a" + def.guaranteedItem() +
-                    " (" + def.guaranteedMinCount() + "-" + def.guaranteedMaxCount() + ")");
+            info.addLore("  §a\u2714 " + (fr ? "Garanti" : "Guaranteed") + " : §f" + shortItem(def.guaranteedItem()) +
+                    " §7(" + def.guaranteedMinCount() + "-" + def.guaranteedMaxCount() + ")");
         }
 
-        // Free lootbox info
         if (def.freeEnabled() && viewer instanceof ServerPlayer sp) {
-            infoBuilder.addLore("");
+            info.addLore("");
             if (FreeLootboxManager.canClaim(sp, lootboxId, def)) {
-                infoBuilder.addLore(fr ? "§a§lReclamation GRATUITE disponible !" : "§a§lFREE claim available!");
+                info.addLore(fr ? "  §a§l\u2605 Réclamation GRATUITE !" : "  §a§l\u2605 FREE claim available!");
             } else {
                 String remaining = FreeLootboxManager.getRemainingFormatted(sp, lootboxId, def);
-                infoBuilder.addLore("§7" + (fr ? "Gratuit dans : §e" : "Free in: §e") + remaining);
+                info.addLore("  §7" + (fr ? "Gratuit dans" : "Free in") + " : §e" + remaining);
             }
         }
 
-        container.setItem(4, infoBuilder.enchanted().build());
+        info.addLore("");
+        info.addLore(fr ? "  §e\u25B6 Clic droit avec la clé pour tirer !" : "  §e\u25B6 Right-click with key to draw!");
+        c.setItem(4, info.enchanted().build());
 
-        // ── Draw button (slot 49 — bottom center) ──────────────────────
-        container.setItem(DRAW_BUTTON_SLOT, ItemBuilder.of(Items.TRIPWIRE_HOOK)
-                .name(Component.literal("§6§l" + (fr ? "Tirer !" : "Draw!")))
-                .addLore(fr ? "§7Cliquez pour ouvrir cette lootbox" : "§7Click to open this lootbox")
-                .addLore(fr ? "§7Necessite la cle en main" : "§7Requires key in hand")
+        // ── Draw button (slot 49) ──────────────────────────────────────
+        c.setItem(DRAW_BUTTON_SLOT, ItemBuilder.of(Items.TRIPWIRE_HOOK)
+                .name(Component.literal("§6§l\u2699 " + (fr ? "TIRER !" : "DRAW!")))
                 .addLore("")
-                .addLore(fr ? "§eClic pour lancer le tirage !" : "§eClick to roll!")
+                .addLore(fr ? "  §7Cliquez pour ouvrir la lootbox" : "  §7Click to open the lootbox")
+                .addLore(fr ? "  §7La clé doit être en main" : "  §7Key must be in your hand")
+                .addLore("")
+                .addLore(fr ? "  §e\u25B6 Clic pour lancer le tirage !" : "  §e\u25B6 Click to roll!")
                 .enchanted()
                 .build());
 
-        // ── Loot items (inner slots, sorted by rarity) ─────────────────
+        // ── Loot entries (sorted rarest first) ─────────────────────────
         List<LootboxDefinition.LootEntry> sorted = def.lootTable().stream()
                 .sorted(Comparator.comparingDouble(LootboxDefinition.LootEntry::chance))
                 .toList();
@@ -115,38 +120,37 @@ public class PreviewMenu extends ChestMenu {
 
             String eRarity = entry.rarity() != null ? entry.rarity() : "common";
             String eColor = rarityColor(eRarity);
-            String eName = entry.displayName() != null ? entry.displayName() : entry.item();
+            String eName = entry.displayName() != null ? entry.displayName() : shortItem(entry.item());
+            String eRarityName = fr ? frRarity(eRarity) : capitalize(eRarity);
 
             String chanceStr = def.isGuaranteedType()
                     ? String.format("%.2f", entry.chance()) + " " + (fr ? "poids" : "weight")
                     : String.format("%.1f%%", entry.chance() * 100);
 
             ItemStack display = ItemBuilder.of(item)
-                    .name(Component.literal(eColor + eName))
-                    .addLore("§7" + (fr ? "Chance" : "Chance") + ": §e" + chanceStr)
-                    .addLore("§7" + (fr ? "Quantite" : "Qty") + ": §f" + entry.minCount() + "-" + entry.maxCount())
-                    .addLore("§7" + (fr ? "Rarete" : "Rarity") + ": " + eColor + (fr ? frRarity(eRarity) : capitalize(eRarity)))
+                    .name(Component.literal(eColor + "§l" + eName))
+                    .addLore("")
+                    .addLore("  " + eColor + "\u25C6 " + eRarityName)
+                    .addLore("  §7" + (fr ? "Probabilité" : "Chance") + " : §e" + chanceStr)
+                    .addLore("  §7" + (fr ? "Quantité" : "Quantity") + " : §f" + entry.minCount() + " - " + entry.maxCount())
+                    .addLore("")
                     .build();
 
             if ("legendary".equals(eRarity) || "mythic".equals(eRarity) || "epic".equals(eRarity)) {
                 display = ItemBuilder.of(display).enchanted().build();
             }
-            container.setItem(slots[idx++], display);
+            c.setItem(slots[idx++], display);
         }
-        return container;
+        return c;
     }
 
     @Override
     public void clicked(int slotId, int button, ClickType clickType, Player player) {
-        // Draw button clicked!
         if (slotId == DRAW_BUTTON_SLOT && player instanceof ServerPlayer sp) {
             sp.closeContainer();
-            // Trigger lootbox opening via LootHelper
             LootHelper.handleLootboxAttempt(sp.level(), targetPos, sp, lootboxId);
             return;
         }
-
-        // Block all other clicks in the chest area
         if (slotId >= 0 && slotId < 54) return;
         if (clickType == ClickType.QUICK_MOVE) return;
         super.clicked(slotId, button, clickType, player);
@@ -156,6 +160,14 @@ public class PreviewMenu extends ChestMenu {
 
     @Override public boolean stillValid(Player player) {
         return player.distanceToSqr(targetPos.getX() + 0.5, targetPos.getY() + 0.5, targetPos.getZ() + 0.5) <= 64.0;
+    }
+
+    // ── Helpers ─────────────────────────────────────────────────────────
+
+    private static String shortItem(String fullId) {
+        if (fullId == null) return "???";
+        int colon = fullId.indexOf(':');
+        return colon >= 0 ? fullId.substring(colon + 1).replace('_', ' ') : fullId;
     }
 
     private static String rarityColor(String r) {
@@ -172,8 +184,8 @@ public class PreviewMenu extends ChestMenu {
     private static String frRarity(String r) {
         if (r == null) return "Commune";
         return switch (r.toLowerCase()) {
-            case "uncommon" -> "Peu commune"; case "rare" -> "Rare"; case "epic" -> "Epique";
-            case "legendary" -> "Legendaire"; case "mythic" -> "Mythique"; default -> "Commune";
+            case "uncommon" -> "Peu commune"; case "rare" -> "Rare"; case "epic" -> "Épique";
+            case "legendary" -> "Légendaire"; case "mythic" -> "Mythique"; default -> "Commune";
         };
     }
 }
