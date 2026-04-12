@@ -117,9 +117,9 @@ public final class LootHelper {
         LootboxDefinition def = LootboxManager.get(id);
         if (def == null) return false;
 
-        // Permission check
+        // Permission check (soft LuckPerms — works without LP)
         if (!def.permission().isEmpty()) {
-            if (!com.arcadia.lib.permissions.PermissionUtil.hasPermission(player, def.permission())) {
+            if (!PermissionHelper.hasPermission(player, def.permission())) {
                 player.sendSystemMessage(ArcadiaMessages.error("You don't have permission to open this lootbox."));
                 return true;
             }

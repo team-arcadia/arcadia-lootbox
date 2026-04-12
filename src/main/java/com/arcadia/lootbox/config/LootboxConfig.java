@@ -53,6 +53,13 @@ public final class LootboxConfig {
     public static final ModConfigSpec.DoubleValue SOUND_VOLUME;
     public static final ModConfigSpec.DoubleValue SOUND_PITCH;
 
+    // Free Lootbox
+    public static final ModConfigSpec.BooleanValue FREE_LOOTBOX_ENABLED;
+    public static final ModConfigSpec.IntValue FREE_DEFAULT_COOLDOWN_HOURS;
+    public static final ModConfigSpec.IntValue FREE_REDUCED_COOLDOWN_HOURS;
+    public static final ModConfigSpec.ConfigValue<String> FREE_REDUCED_PERMISSION;
+    public static final ModConfigSpec.IntValue FREE_AUTOSAVE_MINUTES;
+
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
@@ -103,6 +110,14 @@ public final class LootboxConfig {
         DEFAULT_CLOSE_SOUND = builder.define("defaultCloseSound", "");
         SOUND_VOLUME = builder.defineInRange("volume", 1.0, 0.0, 2.0);
         SOUND_PITCH = builder.defineInRange("pitch", 1.0, 0.1, 2.0);
+        builder.pop();
+
+        builder.comment("Free timed lootbox system").push("free");
+        FREE_LOOTBOX_ENABLED = builder.comment("Enable free timed lootboxes globally").define("enabled", true);
+        FREE_DEFAULT_COOLDOWN_HOURS = builder.comment("Default cooldown in hours between free claims (72 = 3 days)").defineInRange("defaultCooldownHours", 72, 1, 8760);
+        FREE_REDUCED_COOLDOWN_HOURS = builder.comment("Reduced cooldown for players with the reduced permission").defineInRange("reducedCooldownHours", 48, 1, 8760);
+        FREE_REDUCED_PERMISSION = builder.comment("Permission node for reduced cooldown (empty = disabled)").define("reducedPermission", "arcadialootbox.free.reduced");
+        FREE_AUTOSAVE_MINUTES = builder.comment("Auto-save free claim data interval in minutes").defineInRange("autosaveMinutes", 5, 1, 60);
         builder.pop();
 
         SPEC = builder.build();

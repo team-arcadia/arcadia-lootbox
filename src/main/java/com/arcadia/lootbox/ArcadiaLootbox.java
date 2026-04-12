@@ -5,9 +5,11 @@ import com.arcadia.lib.player.CooldownManager;
 import com.arcadia.lootbox.command.LootboxCommands;
 import com.arcadia.lootbox.config.LootboxConfig;
 import com.arcadia.lootbox.item.KeyRegistry;
+import com.arcadia.lootbox.manager.FreeLootboxManager;
 import com.arcadia.lootbox.manager.HistoryManager;
 import com.arcadia.lootbox.manager.LootboxManager;
 import com.arcadia.lootbox.manager.UsageTracker;
+import com.arcadia.lootbox.util.PermissionHelper;
 import com.arcadia.lootbox.network.LootboxNet;
 import com.arcadia.lootbox.network.S2CSyncLootboxList;
 import com.arcadia.lootbox.util.LootHelper;
@@ -68,6 +70,10 @@ public class ArcadiaLootbox {
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             LootboxManager.init();
+            FreeLootboxManager.load();
+
+            // Detect LuckPerms (caches result)
+            PermissionHelper.isLuckPermsLoaded();
 
             // Register hub opener action (server-side)
             ArcadiaModRegistry.registerServerAction("lootbox.hub", player -> {
@@ -75,8 +81,12 @@ public class ArcadiaLootbox {
                 LootboxNet.sendOpenHub(player);
             });
 
-            LOGGER.info("[ArcadiaLootbox] v1.2.0 initialized — {} lootboxes loaded, {} keys registered",
-                    LootboxManager.count(), KeyRegistry.getKeyCount());
+            // Auto-save free claims periodically
+            int autoSaveTicks = LootboxConfig.FREE_AUTOSAVE_MINUTES.get() * 20 * 60;
+            com.arcadia.lib.scheduler.SchedulerService.repeating(autoSaveTicks, FreeLootboxManager::autoSave);
+
+            LOGGER.info("[ArcadiaLootbox] v1.2.0 initialized — {} lootboxes loaded, {} keys registered, LuckPerms: {}",
+                    LootboxManager.count(), KeyRegistry.getKeyCount(), PermissionHelper.isLuckPermsLoaded());
         });
     }
 
@@ -155,9 +165,10 @@ public class ArcadiaLootbox {
 
     @SubscribeEvent
     public void onServerStopping(ServerStoppingEvent event) {
+        FreeLootboxManager.clearAll();
         HistoryManager.clearAll();
         UsageTracker.clearCache();
-        LOGGER.info("[ArcadiaLootbox] Cleaned up on server stop.");
+        LOGGER.info("[ArcadiaLootbox] Saved free claims and cleaned up on server stop.");
     }
 
     // --- Utility ---

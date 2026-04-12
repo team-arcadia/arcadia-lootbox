@@ -8,6 +8,11 @@ All notable changes to Arcadia LootBox are documented here.
 
 ### Added
 
+- **Free Timed Lootboxes** — Configurable per-lootbox free claims with cooldown timers (72h default, 48h with permissions). Persistent across server restarts via JSON storage. Auto-save every 5 minutes.
+- **Soft LuckPerms Integration** — Full LuckPerms support that works gracefully when LP is not installed. Falls back to vanilla OP checks. Per-lootbox permission nodes, reduced free cooldowns with permission.
+- **PermissionHelper** — Centralized permission wrapper with cached LP detection, default fallback, and error handling.
+- **FreeLootboxManager** — Persistent per-player claim tracker with formatted remaining time display.
+- **3 New Commands** — `/arcadia_lootbox free`, `/arcadia_lootbox freetimer`, `/arcadia_lootbox resetfree` for free lootbox management.
 - **Dual Lootbox Types** — Two distinct modes: "weighted" (each item rolls independently with its %) and "guaranteed" (picks ONE item from pool + always gives a guaranteed item).
 - **50 Integrated Key Items** — Dungeon (10 tiers), Shop (10 tiers), Vote (10 tiers), Lootable (10 tiers), Event (5 tiers), Boss (5 tiers) with custom textures.
 - **Arcadia Lib Integration** — Full integration with arcadia-lib: ArcadiaTheme, ArcadiaMessages, CooldownManager, SchedulerService, TextFormatter, ItemBuilder.
@@ -45,6 +50,9 @@ All notable changes to Arcadia LootBox are documented here.
 
 ### Ajouts
 
+- **Lootbox gratuites avec timer** — Claims gratuits par lootbox avec cooldown configurable (72h par défaut, 48h avec permissions). Persistant au redémarrage. Auto-save toutes les 5 minutes.
+- **Intégration LuckPerms souple** — Support LuckPerms complet qui fonctionne sans LP installé. Fallback sur OP vanilla. Permissions par lootbox, cooldowns réduits avec permission.
+- **3 Nouvelles commandes** — `/arcadia_lootbox free`, `/arcadia_lootbox freetimer`, `/arcadia_lootbox resetfree`.
 - **Deux types de Lootbox** — Mode "weighted" (% indépendant par item) et "guaranteed" (1 item tiré + item garanti).
 - **50 Clés intégrées** — Donjon (10), Boutique (10), Vote (10), Trouvable (10), Événement (5), Boss (5) avec textures.
 - **Intégration Arcadia Lib** — ArcadiaTheme, ArcadiaMessages, CooldownManager, SchedulerService, TextFormatter, ItemBuilder.

@@ -9,6 +9,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.arcadia.lootbox.config.LootboxConfig;
 import com.arcadia.lootbox.data.LootboxDefinition;
 import com.arcadia.lootbox.item.KeyRegistry;
+import com.arcadia.lootbox.manager.FreeLootboxManager;
 import com.arcadia.lootbox.manager.HistoryManager;
 import com.arcadia.lootbox.manager.LootboxManager;
 import com.arcadia.lootbox.manager.UsageTracker;
@@ -105,6 +106,23 @@ public final class LootboxCommands {
                 .then(Commands.literal("resetcooldown")
                         .then(Commands.argument("target", EntityArgument.player())
                                 .executes(LootboxCommands::cmdResetCooldown)))
+
+                // Free lootbox commands
+                .then(Commands.literal("free")
+                        .then(Commands.argument("target", EntityArgument.player())
+                                .then(Commands.argument("lootbox_id", StringArgumentType.string()).suggests(SUGGEST_IDS)
+                                        .executes(LootboxCommands::cmdFree))))
+
+                .then(Commands.literal("freetimer")
+                        .then(Commands.argument("target", EntityArgument.player())
+                                .then(Commands.argument("lootbox_id", StringArgumentType.string()).suggests(SUGGEST_IDS)
+                                        .executes(LootboxCommands::cmdFreeTimer))))
+
+                .then(Commands.literal("resetfree")
+                        .then(Commands.argument("target", EntityArgument.player())
+                                .executes(ctx -> cmdResetFree(ctx, false))
+                                .then(Commands.argument("lootbox_id", StringArgumentType.string()).suggests(SUGGEST_IDS)
+                                        .executes(ctx -> cmdResetFree(ctx, true)))))
         );
     }
 
@@ -240,7 +258,8 @@ public final class LootboxCommands {
         if (LootboxManager.exists(id)) { ctx.getSource().sendFailure(ArcadiaMessages.error("Already exists: " + id)); return 0; }
         LootboxDefinition def = new LootboxDefinition(name, "white", "minecraft:tripwire_hook", "minecraft:block.chest.open", "",
                 List.of(), List.of("minecraft:flame"), "weighted", "", 1, 1, "common", false, "", false, -1, "",
-                LootboxDefinition.AnimationConfig.defaults(), false, 20, "", false, "", "", List.of(), 0, "", 0, true);
+                LootboxDefinition.AnimationConfig.defaults(), false, 20, "", false, "", "", List.of(), 0, "", 0, true,
+                false, 72, "", 48, "");
         if (LootboxManager.createDefinition(id, def)) {
             ctx.getSource().sendSuccess(() -> ArcadiaMessages.success("Created '" + id + "'. Edit the JSON file to add loot."), true);
             return 1;
@@ -297,5 +316,83 @@ public final class LootboxCommands {
         }
         ctx.getSource().sendFailure(ArcadiaMessages.error("Must be run by a player."));
         return 0;
+    }
+
+    // --- Free lootbox commands ---
+
+    private static int cmdFree(CommandContext<CommandSourceStack> ctx) {
+        try {
+            ServerPlayer player = EntityArgument.getPlayer(ctx, "target");
+            String id = StringArgumentType.getString(ctx, "lootbox_id");
+            var src = ctx.getSource();
+
+            if (!LootboxManager.exists(id)) { src.sendFailure(ArcadiaMessages.error("Not found: " + id)); return 0; }
+            LootboxDefinition def = LootboxManager.get(id);
+
+            if (!def.freeEnabled()) {
+                src.sendFailure(ArcadiaMessages.error("Free claiming is not enabled for '" + id + "'."));
+                return 0;
+            }
+
+            if (!FreeLootboxManager.canClaim(player, id, def)) {
+                String remaining = FreeLootboxManager.getRemainingFormatted(player, id, def);
+                src.sendSuccess(() -> ArcadiaMessages.warning(
+                        player.getName().getString() + " cannot claim '" + id + "' yet. Remaining: " + remaining), false);
+                return 0;
+            }
+
+            // Claim: give the lootbox
+            LootHelper.giveLootboxItem(player, id);
+            FreeLootboxManager.recordClaim(player.getUUID(), id);
+
+            src.sendSuccess(() -> ArcadiaMessages.success(
+                    "Free lootbox '" + id + "' claimed by " + player.getName().getString() + "!"), true);
+            player.sendSystemMessage(ArcadiaMessages.success("You claimed a free " + def.displayName() + "!"));
+            return 1;
+        } catch (Exception e) { ctx.getSource().sendFailure(ArcadiaMessages.error(e.getMessage())); return 0; }
+    }
+
+    private static int cmdFreeTimer(CommandContext<CommandSourceStack> ctx) {
+        try {
+            ServerPlayer player = EntityArgument.getPlayer(ctx, "target");
+            String id = StringArgumentType.getString(ctx, "lootbox_id");
+            var src = ctx.getSource();
+
+            if (!LootboxManager.exists(id)) { src.sendFailure(ArcadiaMessages.error("Not found: " + id)); return 0; }
+            LootboxDefinition def = LootboxManager.get(id);
+
+            if (!def.freeEnabled()) {
+                src.sendSuccess(() -> ArcadiaMessages.info("Free claiming is disabled for '" + id + "'."), false);
+                return 0;
+            }
+
+            String remaining = FreeLootboxManager.getRemainingFormatted(player, id, def);
+            boolean canClaim = FreeLootboxManager.canClaim(player, id, def);
+
+            src.sendSuccess(() -> ArcadiaMessages.info("Free lootbox '" + id + "' for " + player.getName().getString() + ":"), false);
+            if (canClaim) {
+                src.sendSuccess(() -> Component.literal("  §aReady to claim!"), false);
+            } else {
+                src.sendSuccess(() -> Component.literal("  §7Remaining: §e" + remaining), false);
+            }
+            return 1;
+        } catch (Exception e) { ctx.getSource().sendFailure(ArcadiaMessages.error(e.getMessage())); return 0; }
+    }
+
+    private static int cmdResetFree(CommandContext<CommandSourceStack> ctx, boolean specificLootbox) {
+        try {
+            ServerPlayer player = EntityArgument.getPlayer(ctx, "target");
+            var src = ctx.getSource();
+
+            if (specificLootbox) {
+                String id = StringArgumentType.getString(ctx, "lootbox_id");
+                FreeLootboxManager.resetClaim(player.getUUID(), id);
+                src.sendSuccess(() -> ArcadiaMessages.success("Reset free timer for '" + id + "' for " + player.getName().getString()), true);
+            } else {
+                FreeLootboxManager.resetAllClaims(player.getUUID());
+                src.sendSuccess(() -> ArcadiaMessages.success("Reset ALL free timers for " + player.getName().getString()), true);
+            }
+            return 1;
+        } catch (Exception e) { ctx.getSource().sendFailure(ArcadiaMessages.error(e.getMessage())); return 0; }
     }
 }

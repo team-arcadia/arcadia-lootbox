@@ -166,10 +166,11 @@ public final class LootboxManager {
                 "rare", true, "", false, -1, "",
                 LootboxDefinition.AnimationConfig.defaults(),
                 false, 20, "", false, "§6✦ Treasure Chest ✦", "§eGood luck!",
-                List.of(), 0, "", 0, true
+                List.of(), 0, "", 0, true,
+                false, 72, "", 48, ""
         ));
 
-        // Guaranteed example
+        // Guaranteed example (with free lootbox enabled)
         createIfAbsent(dir, "example_guaranteed.json", new LootboxDefinition(
                 "Lucky Box", "lime", "arcadialootbox:vote_key_common",
                 "minecraft:block.chest.open", "§aYou got something!",
@@ -184,7 +185,8 @@ public final class LootboxManager {
                 "uncommon", false, "", false, -1, "",
                 LootboxDefinition.AnimationConfig.defaults(),
                 false, 20, "", false, "§a✦ Lucky Box ✦", "§7You always get bread + one lucky item!",
-                List.of(), 5, "", 0, true
+                List.of(), 5, "", 0, true,
+                true, 72, "", 48, "arcadialootbox.free.reduced"
         ));
     }
 

@@ -1,38 +1,54 @@
-# Gradle files
+# ══════════════════════════════════════════════════════
+#  Arcadia LootBox — .gitignore
+# ══════════════════════════════════════════════════════
+
+# ── Gradle ───────────────────────────────────────────
 .gradle/
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
+!**/src/test/**/build/
 
-# IDE files
+# ── IDE ──────────────────────────────────────────────
 .idea/
 .vscode/
 *.iml
 *.ipr
 *.iws
+*.launch
+.classpath
+.project
+.settings/
 out/
-
-# Logs
-logs/
-*.log
-run/
-runs/
-crash-reports/
-debug.log
-debug-*.log.gz
-latest.log
-log.txt
-
-# Mac
-.DS_Store
-
-# Java
-*.class
 bin/
 
-# Scripts
-cleanup_repo.bat
+# ── NeoForge / Minecraft ────────────────────────────
+run/
+runs/
+logs/
+crash-reports/
+*.log
+debug-*.log.gz
 
-# OS files
+# ── Dependencies (local jars) ───────────────────────
+libs/
+
+# ── Java ─────────────────────────────────────────────
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# ── OS files ─────────────────────────────────────────
+.DS_Store
 Thumbs.db
 Desktop.ini
+ehthumbs.db
+
+# ── Claude Code ──────────────────────────────────────
+.claude/
+CLAUDE.md
+
+# ── Misc ─────────────────────────────────────────────
+cleanup_repo.bat
+*.bak
+*.tmp

@@ -46,7 +46,13 @@ public record LootboxDefinition(
         // v1.2.0 — conditions
         String requiredBiome,
         int requiredLevel,
-        boolean logOpening
+        boolean logOpening,
+        // v1.2.0 — free lootbox timer
+        boolean freeEnabled,
+        int freeCooldownHours,
+        String freePermission,
+        int freeReducedCooldownHours,
+        String freeReducedPermission
 ) {
     public record LootEntry(
             String item,
@@ -122,7 +128,12 @@ public record LootboxDefinition(
                 experienceReward,
                 requiredBiome != null ? requiredBiome : "",
                 requiredLevel,
-                logOpening
+                logOpening,
+                freeEnabled,
+                freeCooldownHours > 0 ? freeCooldownHours : 72,
+                freePermission != null ? freePermission : "",
+                freeReducedCooldownHours > 0 ? freeReducedCooldownHours : 48,
+                freeReducedPermission != null ? freeReducedPermission : ""
         );
     }
 
