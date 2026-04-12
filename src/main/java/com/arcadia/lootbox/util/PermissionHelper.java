@@ -78,8 +78,8 @@ public final class PermissionHelper {
      */
     private static boolean checkLuckPerms(ServerPlayer player, String permission) {
         try {
-            // Use arcadia-lib's PermissionUtil which wraps LuckPerms API
-            return com.arcadia.lib.permissions.PermissionUtil.hasPermission(player, permission);
+            // Use arcadia-lib's PermissionService which wraps LuckPerms API
+            return com.arcadia.lib.permissions.PermissionService.hasPermission(player, permission);
         } catch (Exception e) {
             LOGGER.debug("[ArcadiaLootbox] LP permission check failed for '{}': {}", permission, e.getMessage());
             return player.hasPermissions(2);
