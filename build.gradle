@@ -4,8 +4,8 @@ plugins {
     id 'net.neoforged.gradle.userdev' version '7.1.20'
 }
 
-version = '1.1.0'
-group = 'com.vyrriox.arcadialootbox'
+version = '1.2.0'
+group = 'com.arcadia.lootbox'
 
 base {
     archivesName = 'ArcadiaLootbox'
@@ -44,10 +44,30 @@ configurations {
     runtimeClasspath.extendsFrom localRuntime
 }
 
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
+    compileOnly files('libs/arcadia-lib-1.2.0.jar')
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+}
+
+tasks.withType(ProcessResources).configureEach {
+    var replaceProperties = [
+            minecraft_version: minecraft_version,
+            neo_version      : neo_version,
+            mod_version      : version,
+            mod_id           : mod_id,
+    ]
+    inputs.properties replaceProperties
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProperties
+    }
 }

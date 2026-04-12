@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "arcadialootbox:item/vote_key_celestial"
+  }
+}

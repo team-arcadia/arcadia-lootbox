@@ -5,12 +5,12 @@ issueTrackerURL="https://github.com/vyrriox/Arcadia-LootBox/issues"
 
 [[mods]]
 modId="arcadialootbox"
-version="1.1.0"
+version="${mod_version}"
 displayName="Arcadia Lootbox"
 authors="vyrriox"
 description='''
-A lootbox system with custom visuals, 3D blocks, and configuration.
-(Requires installation on Server AND Client)
+A premium lootbox system with custom visuals, hub integration, and full configuration.
+Powered by Arcadia Lib.
 '''
 logoFile="logo.png"
 displayTest="IGNORE_SERVER_VERSION"
@@ -27,4 +27,11 @@ modId="minecraft"
 type="required"
 versionRange="[1.21.1]"
 ordering="NONE"
+side="BOTH"
+
+[[dependencies.arcadialootbox]]
+modId="arcadia_lib"
+type="required"
+versionRange="[1.2.0,)"
+ordering="AFTER"
 side="BOTH"

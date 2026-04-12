@@ -1,61 +1,135 @@
-# CHANGELOG / JOURNAL DES MODIFICATIONS
+# Changelog
 
-## [1.1.0] - 2026-01-14
-
-### 🇺🇸 English
-#### Added
-- **Advanced Config System**: Auto-generates a `README.txt` guide (FR/EN) in the config folder.
-- **Dynamic Localization**: Menu titles and item lores utilize the player's client language (FR/EN) without resource packs.
-- **Opening Message**: Added `openMessage` field in JSON to customize chat feedback.
-- **Security**: Added distance check (8 blocks) to auto-close GUI.
-- **Anti-Spam**: Added cooldown to key item usage.
-
-#### Changed
-- **Improved Interaction**:
-    - **Right Click**: Opens Preview GUI (See drops and chances).
-    - **Left Click**: Opens the lootbox (if holding key).
-- **Anti-Lag**: Dropped items are merged into stacks to prevent server lag.
-
-#### Fixed
-- **Crash Fix**: Resolved critical crash when placing Lootbox Shulkers (NBT Data issue).
+All notable changes to Arcadia LootBox are documented here.
 
 ---
 
-### 🇫🇷 Français
-#### Ajouté
-- **Système de Configuration Avancé** : Le mod génère automatiquement un guide `README.txt` (FR/EN) dans le dossier config.
-- **Localisation Dynamique** : Les titres des menus et les lores des items s'adaptent automatiquement à la langue du joueur (FR/EN) sans resource pack.
-- **Message d'Ouverture** : Ajout d'une option `openMessage` dans le JSON pour personnaliser le message de chat.
-- **Sécurité** : Ajout d'une vérification de distance (8 blocs) pour fermer le menu si le joueur s'éloigne.
-- **Anti-Spam** : Ajout d'un cooldown sur l'item clé pour éviter le spam d'ouverture.
+## [1.2.0] - 2026-04-12
 
-#### Changé
-- **Interaction Améliorée** :
-    - **Clic Droit** : Ouvre un GUI de prévisualisation (Voir les loots et les % de chance).
-    - **Clic Gauche** : Ouvre la lootbox (si la clé est en main).
-- **Anti-Lag** : Les items au sol sont regroupés pour éviter le lag serveur.
+### Added
 
-#### Corrigé
-- **Crash Fix** : Correction d'un crash critique lors de la pose d'une Lootbox (Shulker) lié aux données NBT.
+- **Dual Lootbox Types** — Two distinct modes: "weighted" (each item rolls independently with its %) and "guaranteed" (picks ONE item from pool + always gives a guaranteed item).
+- **50 Integrated Key Items** — Dungeon (10 tiers), Shop (10 tiers), Vote (10 tiers), Lootable (10 tiers), Event (5 tiers), Boss (5 tiers) with custom textures.
+- **Arcadia Lib Integration** — Full integration with arcadia-lib: ArcadiaTheme, ArcadiaMessages, CooldownManager, SchedulerService, TextFormatter, ItemBuilder.
+- **Arcadia Hub Module** — Lootbox card registered in the Arcadia Hub with steampunk-themed client-side browser screen.
+- **Rarity System** — 6 rarity tiers (Common → Mythic) with colored display and broadcast support.
+- **Server Broadcast** — Configurable server-wide announcements when rare items are found.
+- **Opening History** — Per-player history tracking with admin commands to view and clear.
+- **Usage Limits** — maxUses per placed lootbox with NBT persistence and admin override.
+- **Anti-Autoclicker** — Detects rapid-fire openings and temporarily blocks abusers.
+- **Title Animations** — Configurable title/subtitle on lootbox opening with fade timings.
+- **Command Rewards** — Execute console/player commands as lootbox rewards with independent chances.
+- **XP Rewards** — Grant experience points on lootbox opening.
+- **Permission System** — Per-lootbox LuckPerms permission nodes via arcadia-lib.
+- **Global TOML Config** — 30+ configurable parameters: cooldowns, broadcasts, hub, performance, security, animation, sounds.
+- **Network Sync** — S2C packets sync lootbox data to clients for hub display.
 
-______________________________________________________________________
+### Changed
 
-## [1.0.0] - initial Release
+- **Package Rename** — Moved from `com.vyrriox.arcadialootbox` to `com.arcadia.lootbox`.
+- **Commands** — All commands now under `/arcadia_lootbox` with 14 subcommands and full tab-completion.
+- **Preview GUI** — Enhanced with copper-glass border, nether star info panel, rarity sorting, enchant glint on epic+ items.
+- **Thread Safety** — ConcurrentHashMap for all managers, volatile fields, bounded history queues.
+- **Random Optimization** — Uses `level.random` instead of `new Random()` per opening.
+- **Particle Optimization** — Batched particle sending (single call with count > 1), configurable limit.
+- **Config Validation** — Validates minCount <= maxCount, chance range, guaranteed type fields on load.
+- **Async Reload** — Config reload runs off the main thread to prevent tick freezes.
 
-### 🇺🇸 English
-#### Added
-- **Lootbox System**: Added Lootbox block with 16 color variants.
-- **JSON Configuration**: Dynamic loading of configs from `config/arcadia/arcadialootbox/`.
-- **Rewards**: Weighted drop system (Items, Chance, Min/Max Quantity).
-- **Keys**: Requires a specific item (Key) to open the Lootbox (Configurable).
-- **Visuals**: Particle support upon opening.
-- **Commands**: `/arcadialoot give` and `/arcadialoot reload`.
+### Fixed
 
-### 🇫🇷 Français
-#### Ajouté
-- **Système de Lootbox** : Ajout du bloc Lootbox avec 16 variantes de couleurs.
-- **Configuration JSON** : Chargement dynamique des configurations depuis `config/arcadia/arcadialootbox/`.
-- **Récompenses** : Système de drop pondéré (Items, Chance, Quantité Min/Max).
-- **Clés** : Nécessite un item spécifique (Key) pour ouvrir la Lootbox (Configurable).
-- **Visuels** : Support des particules lors de l'ouverture.
-- **Commandes** : `/arcadialoot give` et `/arcadialoot reload`.
+- **ClassCastException** — Added `instanceof ServerPlayer` check in left-click handler.
+- **minCount > maxCount crash** — Validated at config load time.
+- **Unknown item silent failure** — Now logs a warning for missing items.
+- **Random color support** — "random" color value now works as documented.
+- **Block existence check** — Preview GUI validates block still exists.
+
+### Ajouts
+
+- **Deux types de Lootbox** — Mode "weighted" (% indépendant par item) et "guaranteed" (1 item tiré + item garanti).
+- **50 Clés intégrées** — Donjon (10), Boutique (10), Vote (10), Trouvable (10), Événement (5), Boss (5) avec textures.
+- **Intégration Arcadia Lib** — ArcadiaTheme, ArcadiaMessages, CooldownManager, SchedulerService, TextFormatter, ItemBuilder.
+- **Module Hub Arcadia** — Carte lootbox dans le Hub avec écran client steampunk.
+- **Système de rareté** — 6 niveaux (Common → Mythic) avec couleurs et broadcast.
+- **Broadcast serveur** — Annonces configurables pour les drops rares.
+- **Historique d'ouvertures** — Suivi par joueur avec commandes admin.
+- **Limites d'utilisation** — maxUses par lootbox placée avec persistance NBT.
+- **Anti-Autoclicker** — Détection des ouvertures rapides.
+- **Animations titre** — Titre/sous-titre configurables à l'ouverture.
+- **Récompenses commandes** — Exécution de commandes comme récompenses.
+- **Récompenses XP** — Points d'expérience à l'ouverture.
+- **Système de permissions** — Nodes LuckPerms par lootbox.
+- **Config TOML globale** — 30+ paramètres configurables.
+
+### Modifications
+
+- **Renommage package** — `com.vyrriox.arcadialootbox` → `com.arcadia.lootbox`.
+- **Commandes** — Toutes sous `/arcadia_lootbox` avec 14 sous-commandes et auto-complétion.
+- **GUI Preview** — Bordure cuivre, étoile info, tri par rareté, glint enchantement.
+- **Thread Safety** — ConcurrentHashMap partout, champs volatile.
+- **Optimisation particules** — Envoi groupé, limite configurable.
+
+### Correctifs
+
+- **ClassCastException** — Vérification `instanceof ServerPlayer`.
+- **Crash minCount > maxCount** — Validation au chargement.
+- **Item inconnu silencieux** — Warning dans les logs.
+
+---
+
+## [1.1.0] - 2026-01-14
+
+### Added
+
+- **Advanced Config System** — Auto-generates a README.txt guide (FR/EN) in the config folder.
+- **Dynamic Localization** — Menu titles and item lores utilize the player's client language (FR/EN).
+- **Opening Message** — Added openMessage field in JSON to customize chat feedback.
+- **Security** — Added distance check (8 blocks) to auto-close GUI.
+- **Anti-Spam** — Added cooldown to key item usage.
+
+### Changed
+
+- **Improved Interaction** — Right Click: Preview GUI. Left Click: Open lootbox.
+- **Anti-Lag** — Dropped items merged into stacks.
+
+### Fixed
+
+- **Crash Fix** — Resolved critical crash when placing Lootbox Shulkers (NBT Data issue).
+
+### Ajouts
+
+- **Système de Configuration Avancé** — Guide README.txt auto-généré (FR/EN).
+- **Localisation Dynamique** — Titres et lores adaptés à la langue du joueur.
+- **Message d'Ouverture** — Option openMessage dans le JSON.
+- **Sécurité** — Vérification de distance (8 blocs).
+- **Anti-Spam** — Cooldown sur les clés.
+
+### Modifications
+
+- **Interaction Améliorée** — Clic Droit: Preview. Clic Gauche: Ouverture.
+- **Anti-Lag** — Items au sol regroupés.
+
+### Correctifs
+
+- **Crash Fix** — Correction crash NBT lors de la pose des Shulkers.
+
+---
+
+## [1.0.0] - Initial Release
+
+### Added
+
+- **Lootbox System** — Lootbox block with 16 color variants.
+- **JSON Configuration** — Dynamic loading from config/arcadia/arcadialootbox/.
+- **Rewards** — Weighted drop system (Items, Chance, Min/Max Quantity).
+- **Keys** — Requires a specific item to open (Configurable).
+- **Visuals** — Particle support upon opening.
+- **Commands** — /arcadialoot give and /arcadialoot reload.
+
+### Ajouts
+
+- **Système de Lootbox** — Bloc Lootbox avec 16 variantes de couleurs.
+- **Configuration JSON** — Chargement dynamique depuis config/arcadia/arcadialootbox/.
+- **Récompenses** — Système de drop pondéré.
+- **Clés** — Item spécifique requis pour ouvrir.
+- **Visuels** — Support des particules.
+- **Commandes** — /arcadialoot give et /arcadialoot reload.

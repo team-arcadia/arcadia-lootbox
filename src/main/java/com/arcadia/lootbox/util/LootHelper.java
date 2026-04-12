@@ -1,0 +1,424 @@
+package com.arcadia.lootbox.util;
+
+import com.arcadia.lib.ArcadiaMessages;
+import com.arcadia.lib.player.CooldownManager;
+import com.arcadia.lib.scheduler.SchedulerService;
+import com.arcadia.lib.text.MessageHelper;
+import com.arcadia.lib.text.TextFormatter;
+import com.arcadia.lootbox.config.LootboxConfig;
+import com.arcadia.lootbox.data.LootboxDefinition;
+import com.arcadia.lootbox.manager.HistoryManager;
+import com.arcadia.lootbox.manager.LootboxManager;
+import com.arcadia.lootbox.manager.UsageTracker;
+import com.arcadia.lootbox.menu.PreviewMenu;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.ShulkerBoxBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+
+/**
+ * Core lootbox logic — opening, previewing, giving, broadcasting.
+ * Supports "weighted" (multi-drop) and "guaranteed" (single-drop + guaranteed item) modes.
+ *
+ * @author vyrriox
+ */
+public final class LootHelper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger("ArcadiaLootbox");
+    private static final String COOLDOWN_PREFIX = "lootbox.open.";
+
+    private LootHelper() {}
+
+    // --- NBT ---
+
+    public static String getLootboxIdFromStack(ItemStack stack) {
+        if (stack.isEmpty()) return null;
+        CustomData data = stack.get(DataComponents.CUSTOM_DATA);
+        if (data != null) {
+            CompoundTag tag = data.copyTag();
+            if (tag.contains("LootboxID")) return tag.getString("LootboxID");
+        }
+        return null;
+    }
+
+    // --- Give lootbox item ---
+
+    public static void giveLootboxItem(ServerPlayer player, String id) {
+        LootboxDefinition def = LootboxManager.get(id);
+        if (def == null) return;
+
+        DyeColor dye = resolveDyeColor(def.color());
+        ItemStack stack = new ItemStack(ShulkerBoxBlock.getBlockByColor(dye));
+
+        CompoundTag beTag = new CompoundTag();
+        beTag.putString("LootboxID", id);
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(beTag));
+        stack.set(DataComponents.CUSTOM_NAME, Component.literal(
+                def.rarityColor() + "Lootbox: §f" + def.displayName()));
+
+        List<Component> lore = new ArrayList<>();
+        lore.add(Component.literal("§7Rarity: " + def.rarityColor() + def.rarityDisplayName()));
+        lore.add(Component.literal("§7Key: §f" + def.keyItem()));
+        lore.add(Component.literal("§7Type: §f" + (def.isGuaranteedType() ? "Guaranteed" : "Weighted")));
+        if (def.maxUses() > 0) lore.add(Component.literal("§7Max Uses: §f" + def.maxUses()));
+        stack.set(DataComponents.LORE, new ItemLore(lore));
+
+        if (!player.getInventory().add(stack)) player.drop(stack, false);
+    }
+
+    // --- Give key item ---
+
+    public static void giveKeyItem(ServerPlayer player, String keyId, int amount) {
+        ResourceLocation keyRes = ResourceLocation.tryParse(keyId);
+        if (keyRes == null) return;
+        var item = BuiltInRegistries.ITEM.get(keyRes);
+        if (item == Items.AIR) return;
+
+        ItemStack stack = new ItemStack(item, amount);
+        if (!player.getInventory().add(stack)) player.drop(stack, false);
+    }
+
+    // --- Preview GUI ---
+
+    public static void openPreviewGui(ServerPlayer player, String id, BlockPos pos) {
+        LootboxDefinition def = LootboxManager.get(id);
+        if (def == null) return;
+        String lang = player.clientInformation() != null ? player.clientInformation().language() : "en_us";
+        Component title = Component.literal(def.rarityColor() + "§l" + def.displayName() +
+                " §r§7(" + def.rarityColor() + def.rarityDisplayName() + "§7)");
+        player.openMenu(new SimpleMenuProvider((winId, inv, p) ->
+                new PreviewMenu(winId, inv, id, pos, def, lang), title));
+    }
+
+    // --- Lootbox opening attempt ---
+
+    public static boolean handleLootboxAttempt(Level level, BlockPos pos, ServerPlayer player, String id) {
+        if (id == null || id.isEmpty()) return false;
+        LootboxDefinition def = LootboxManager.get(id);
+        if (def == null) return false;
+
+        // Permission check
+        if (!def.permission().isEmpty()) {
+            if (!com.arcadia.lib.permissions.PermissionUtil.hasPermission(player, def.permission())) {
+                player.sendSystemMessage(ArcadiaMessages.error("You don't have permission to open this lootbox."));
+                return true;
+            }
+        }
+
+        // Sneak check
+        if (def.requireSneakToOpen() || LootboxConfig.REQUIRE_SNEAK_DEFAULT.get()) {
+            if (!player.isShiftKeyDown()) {
+                player.sendSystemMessage(ArcadiaMessages.info("Sneak + Left Click to open this lootbox."));
+                return true;
+            }
+        }
+
+        // Key check
+        ItemStack heldItem = player.getMainHandItem();
+        ResourceLocation keyRes = ResourceLocation.tryParse(def.keyItem());
+        if (keyRes == null || !BuiltInRegistries.ITEM.getKey(heldItem.getItem()).equals(keyRes)) {
+            return false;
+        }
+
+        // Cooldown check
+        int cooldownTicks = def.cooldownTicks() > 0 ? def.cooldownTicks() : LootboxConfig.DEFAULT_COOLDOWN_TICKS.get();
+        String cooldownKey = COOLDOWN_PREFIX + id;
+        if (!CooldownManager.isReady(player.getUUID(), cooldownKey)) {
+            String remaining = CooldownManager.getRemainingFormatted(player.getUUID(), cooldownKey);
+            player.sendSystemMessage(ArcadiaMessages.warning("Cooldown: " + remaining));
+            return true;
+        }
+
+        // Anti-autoclicker
+        if (HistoryManager.checkAutoclicker(player.getUUID())) {
+            player.sendSystemMessage(ArcadiaMessages.error("Too many openings! Please wait."));
+            return true;
+        }
+
+        // Usage check
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be != null && !UsageTracker.hasUsesRemaining(be, def.maxUses())) {
+            player.sendSystemMessage(ArcadiaMessages.warning("This lootbox has no remaining uses."));
+            return true;
+        }
+
+        CooldownManager.set(player.getUUID(), cooldownKey, cooldownTicks * 50L);
+        openLootboxLogic((ServerLevel) level, pos, player, def, heldItem, id);
+        return true;
+    }
+
+    // --- Core opening logic ---
+
+    private static void openLootboxLogic(ServerLevel level, BlockPos pos, ServerPlayer player,
+                                         LootboxDefinition def, ItemStack keyStack, String lootboxId) {
+        if (!level.isLoaded(pos) || !(level.getBlockState(pos).getBlock() instanceof ShulkerBoxBlock)) return;
+
+        var random = level.random;
+        playSound(level, pos, def.openSound());
+
+        List<String> receivedItems = new ArrayList<>();
+
+        if (def.isGuaranteedType()) {
+            // --- GUARANTEED MODE: pick ONE item + guaranteed item ---
+            handleGuaranteedDrop(level, pos, player, def, random, receivedItems, lootboxId);
+        } else {
+            // --- WEIGHTED MODE: each item rolls independently ---
+            handleWeightedDrop(level, pos, player, def, random, receivedItems, lootboxId);
+        }
+
+        // Command rewards
+        for (LootboxDefinition.CommandReward cmd : def.commandRewards()) {
+            if (random.nextDouble() <= cmd.chance()) {
+                // Sanitize player name to prevent command injection
+                String safeName = player.getGameProfile().getName().replaceAll("[^A-Za-z0-9_]", "");
+                String command = cmd.command().replace("{player}", safeName);
+                var src = cmd.asConsole() ? level.getServer().createCommandSourceStack() : player.createCommandSourceStack();
+                level.getServer().getCommands().performPrefixedCommand(src, command);
+            }
+        }
+
+        // XP
+        if (def.experienceReward() > 0) player.giveExperiencePoints((int) def.experienceReward());
+
+        // Particles
+        spawnParticles(level, pos, def, random);
+
+        // Title animation
+        if (LootboxConfig.ANIMATIONS_ENABLED.get() && LootboxConfig.TITLE_ON_OPEN.get()) {
+            Component title = !def.openTitle().isEmpty()
+                    ? Component.literal(def.openTitle())
+                    : Component.literal(def.rarityColor() + "§l" + def.displayName());
+            Component subtitle = !def.openSubtitle().isEmpty()
+                    ? Component.literal(def.openSubtitle())
+                    : Component.literal("§7" + receivedItems.size() + " item(s) received!");
+            MessageHelper.sendTitle(player, title, subtitle,
+                    LootboxConfig.TITLE_FADE_IN.get(), LootboxConfig.TITLE_STAY.get(), LootboxConfig.TITLE_FADE_OUT.get());
+        }
+
+        // Action bar message
+        String msg = def.openMessage();
+        if (msg == null || msg.isEmpty()) msg = "§aLootbox opened!";
+        player.displayClientMessage(Component.literal(msg), true);
+
+        // Consume key
+        if (!player.isCreative()) keyStack.shrink(1);
+
+        // Track usage
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be != null) {
+            int usageCount = UsageTracker.incrementUsage(be);
+            if (def.destroyOnOpen() || (def.maxUses() > 0 && usageCount >= def.maxUses())) {
+                SchedulerService.delayed(5, () -> {
+                    if (level.isLoaded(pos)) {
+                        level.destroyBlock(pos, false);
+                        UsageTracker.removeFromCache(pos);
+                    }
+                });
+            }
+        }
+
+        // Record history
+        HistoryManager.record(player.getUUID(), lootboxId, def.displayName(), receivedItems);
+
+        // Log
+        if (def.logOpening() || LootboxConfig.LOG_ALL_OPENINGS.get()) {
+            LOGGER.info("[ArcadiaLootbox] {} opened '{}' ({}) at {} — {}",
+                    player.getName().getString(), lootboxId, def.type(), pos.toShortString(), receivedItems);
+        }
+    }
+
+    // --- WEIGHTED DROP: each item rolls with its own chance ---
+
+    private static void handleWeightedDrop(ServerLevel level, BlockPos pos, ServerPlayer player,
+                                            LootboxDefinition def, net.minecraft.util.RandomSource random,
+                                            List<String> receivedItems, String lootboxId) {
+        Map<net.minecraft.world.item.Item, Integer> drops = new LinkedHashMap<>();
+        int maxDrops = LootboxConfig.MAX_DROPS_PER_OPEN.get();
+        int dropCount = 0;
+
+        for (LootboxDefinition.LootEntry entry : def.lootTable()) {
+            if (dropCount >= maxDrops) break;
+            if (random.nextDouble() <= entry.chance()) {
+                ResourceLocation itemRes = ResourceLocation.tryParse(entry.item());
+                if (itemRes == null) continue;
+                var item = BuiltInRegistries.ITEM.get(itemRes);
+                if (item == Items.AIR) continue;
+
+                int min = Math.max(0, entry.minCount());
+                int max = Math.max(min, entry.maxCount());
+                int count = min == max ? min : random.nextInt(max - min + 1) + min;
+                if (count > 0) {
+                    drops.merge(item, count, Integer::sum);
+                    String name = entry.displayName() != null ? entry.displayName() : entry.item();
+                    receivedItems.add(count + "x " + name);
+                    dropCount++;
+                    if (entry.broadcast() || (def.broadcastRare() && shouldBroadcast(entry.rarity()))) {
+                        broadcastDrop(level, player, def, entry, count, lootboxId);
+                    }
+                }
+            }
+        }
+        giveDrops(player, drops);
+    }
+
+    // --- GUARANTEED DROP: pick ONE from pool (weighted) + guaranteed item ---
+
+    private static void handleGuaranteedDrop(ServerLevel level, BlockPos pos, ServerPlayer player,
+                                              LootboxDefinition def, net.minecraft.util.RandomSource random,
+                                              List<String> receivedItems, String lootboxId) {
+        // 1. Give guaranteed item
+        if (def.guaranteedItem() != null && !def.guaranteedItem().isEmpty()) {
+            ResourceLocation gRes = ResourceLocation.tryParse(def.guaranteedItem());
+            if (gRes != null) {
+                var gItem = BuiltInRegistries.ITEM.get(gRes);
+                if (gItem != Items.AIR) {
+                    int gMin = Math.max(1, def.guaranteedMinCount());
+                    int gMax = Math.max(gMin, def.guaranteedMaxCount());
+                    int gCount = gMin == gMax ? gMin : random.nextInt(gMax - gMin + 1) + gMin;
+                    giveItem(player, gItem, gCount);
+                    receivedItems.add(gCount + "x " + def.guaranteedItem() + " (guaranteed)");
+                }
+            }
+        }
+
+        // 2. Pick ONE item from pool using chance as weight
+        if (!def.lootTable().isEmpty()) {
+            double totalWeight = 0;
+            for (LootboxDefinition.LootEntry entry : def.lootTable()) {
+                totalWeight += Math.max(0, entry.chance());
+            }
+
+            if (totalWeight > 0) {
+                double roll = random.nextDouble() * totalWeight;
+                double cumulative = 0;
+                for (LootboxDefinition.LootEntry entry : def.lootTable()) {
+                    cumulative += Math.max(0, entry.chance());
+                    if (roll < cumulative) {
+                        ResourceLocation itemRes = ResourceLocation.tryParse(entry.item());
+                        if (itemRes != null) {
+                            var item = BuiltInRegistries.ITEM.get(itemRes);
+                            if (item != Items.AIR) {
+                                int min = Math.max(0, entry.minCount());
+                                int max = Math.max(min, entry.maxCount());
+                                int count = min == max ? min : random.nextInt(max - min + 1) + min;
+                                giveItem(player, item, count);
+                                String name = entry.displayName() != null ? entry.displayName() : entry.item();
+                                receivedItems.add(count + "x " + name);
+                                if (entry.broadcast() || (def.broadcastRare() && shouldBroadcast(entry.rarity()))) {
+                                    broadcastDrop(level, player, def, entry, count, lootboxId);
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // --- Item giving ---
+
+    private static void giveDrops(ServerPlayer player, Map<net.minecraft.world.item.Item, Integer> drops) {
+        for (var entry : drops.entrySet()) {
+            giveItem(player, entry.getKey(), entry.getValue());
+        }
+    }
+
+    private static void giveItem(ServerPlayer player, net.minecraft.world.item.Item item, int total) {
+        int maxStack = item.getDefaultInstance().getMaxStackSize();
+        while (total > 0) {
+            int split = Math.min(total, maxStack);
+            ItemStack stack = new ItemStack(item, split);
+            if (!player.getInventory().add(stack)) player.drop(stack, false);
+            total -= split;
+        }
+    }
+
+    // --- Particles ---
+
+    private static void spawnParticles(ServerLevel level, BlockPos pos, LootboxDefinition def,
+                                       net.minecraft.util.RandomSource random) {
+        if (!LootboxConfig.ANIMATIONS_ENABLED.get() || def.particles() == null) return;
+        int limit = LootboxConfig.PARTICLE_LIMIT.get();
+        var anim = def.animation();
+        int count = Math.min(anim != null ? anim.particleCount() : 15, limit);
+        float speed = anim != null ? anim.particleSpeed() : 0.1f;
+        double radius = anim != null ? anim.particleRadius() : 0.5;
+
+        for (String pStr : def.particles()) {
+            ResourceLocation pRes = ResourceLocation.tryParse(pStr);
+            if (pRes == null) continue;
+            var type = BuiltInRegistries.PARTICLE_TYPE.get(pRes);
+            if (type instanceof net.minecraft.core.particles.SimpleParticleType simple) {
+                level.sendParticles(simple, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                        count, radius, radius, radius, speed);
+            }
+        }
+    }
+
+    // --- Sound ---
+
+    private static void playSound(ServerLevel level, BlockPos pos, String soundId) {
+        SoundEvent sound = SoundEvents.SHULKER_BOX_OPEN;
+        if (soundId != null && !soundId.isEmpty()) {
+            ResourceLocation res = ResourceLocation.tryParse(soundId);
+            if (res != null) {
+                SoundEvent s = BuiltInRegistries.SOUND_EVENT.get(res);
+                if (s != null) sound = s;
+            }
+        }
+        level.playSound(null, pos, sound, SoundSource.BLOCKS,
+                (float) LootboxConfig.SOUND_VOLUME.get().doubleValue(),
+                (float) LootboxConfig.SOUND_PITCH.get().doubleValue());
+    }
+
+    // --- Broadcast ---
+
+    private static boolean shouldBroadcast(String rarity) {
+        if (!LootboxConfig.BROADCAST_ENABLED.get()) return false;
+        return LootboxConfig.rarityToLevel(rarity) >= LootboxConfig.BROADCAST_MIN_RARITY.get();
+    }
+
+    private static void broadcastDrop(ServerLevel level, ServerPlayer player, LootboxDefinition def,
+                                       LootboxDefinition.LootEntry entry, int count, String lootboxId) {
+        String format = LootboxConfig.BROADCAST_RARE_FORMAT.get();
+        String name = entry.displayName() != null ? entry.displayName() : entry.item();
+        String rarity = entry.rarity() != null ? entry.rarity() : "common";
+        Component msg = TextFormatter.format(format, Map.of(
+                "player", player.getName().getString(), "lootbox", def.displayName(),
+                "item", name, "count", String.valueOf(count), "rarity", rarity));
+        for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) p.sendSystemMessage(msg);
+    }
+
+    // --- Utility ---
+
+    public static DyeColor resolveDyeColor(String colorName) {
+        if (colorName == null || "random".equalsIgnoreCase(colorName)) {
+            return DyeColor.values()[new Random().nextInt(DyeColor.values().length)];
+        }
+        for (DyeColor d : DyeColor.values()) {
+            if (d.getName().equalsIgnoreCase(colorName)) return d;
+        }
+        return DyeColor.WHITE;
+    }
+}
