@@ -63,9 +63,12 @@ public final class LootHelper {
 
     // --- Give lootbox item ---
 
+    private static final Random SHARED_RANDOM = new Random();
+
     public static void giveLootboxItem(ServerPlayer player, String id) {
         LootboxDefinition def = LootboxManager.get(id);
         if (def == null) return;
+        boolean fr = LanguageHelper.isFrench(player);
 
         DyeColor dye = resolveDyeColor(def.color());
         ItemStack stack = new ItemStack(ShulkerBoxBlock.getBlockByColor(dye));
@@ -73,14 +76,17 @@ public final class LootHelper {
         CompoundTag beTag = new CompoundTag();
         beTag.putString("LootboxID", id);
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(beTag));
+        String name = (fr && !def.displayNameFR().isEmpty()) ? def.displayNameFR() : def.displayName();
         stack.set(DataComponents.CUSTOM_NAME, Component.literal(
-                def.rarityColor() + "Lootbox: §f" + def.displayName()));
+                def.rarityColor() + "Lootbox: §f" + name));
 
         List<Component> lore = new ArrayList<>();
-        lore.add(Component.literal("§7Rarity: " + def.rarityColor() + def.rarityDisplayName()));
-        lore.add(Component.literal("§7Key: §f" + def.keyItem()));
-        lore.add(Component.literal("§7Type: §f" + (def.isGuaranteedType() ? "Guaranteed" : "Weighted")));
-        if (def.maxUses() > 0) lore.add(Component.literal("§7Max Uses: §f" + def.maxUses()));
+        String rarityName = fr ? LanguageHelper.getFR("rarity." + (def.rarity() != null ? def.rarity().toLowerCase() : "common"))
+                : def.rarityDisplayName();
+        lore.add(Component.literal("§7" + (fr ? "Rareté" : "Rarity") + ": " + def.rarityColor() + rarityName));
+        lore.add(Component.literal("§7" + (fr ? "Clé" : "Key") + ": §f" + def.keyItem()));
+        lore.add(Component.literal("§7Type: §f" + (def.isGuaranteedType() ? (fr ? "Garanti" : "Guaranteed") : (fr ? "Pondéré" : "Weighted"))));
+        if (def.maxUses() > 0) lore.add(Component.literal("§7" + (fr ? "Utilisations" : "Max Uses") + ": §f" + def.maxUses()));
         stack.set(DataComponents.LORE, new ItemLore(lore));
 
         if (!player.getInventory().add(stack)) player.drop(stack, false);
@@ -306,7 +312,8 @@ public final class LootHelper {
                     int gMax = Math.max(gMin, def.guaranteedMaxCount());
                     int gCount = gMin == gMax ? gMin : random.nextInt(gMax - gMin + 1) + gMin;
                     giveItem(player, gItem, gCount);
-                    receivedItems.add(gCount + "x " + def.guaranteedItem() + " (guaranteed)");
+                    boolean fr = LanguageHelper.isFrench(player);
+                    receivedItems.add(gCount + "x " + def.guaranteedItem() + (fr ? " (garanti)" : " (guaranteed)"));
                 }
             }
         }
@@ -328,9 +335,10 @@ public final class LootHelper {
                         if (itemRes != null) {
                             var item = BuiltInRegistries.ITEM.get(itemRes);
                             if (item != Items.AIR) {
-                                int min = Math.max(0, entry.minCount());
+                                int min = Math.max(1, entry.minCount());
                                 int max = Math.max(min, entry.maxCount());
                                 int count = min == max ? min : random.nextInt(max - min + 1) + min;
+                                if (count <= 0) break;
                                 giveItem(player, item, count);
                                 String name = entry.displayName() != null ? entry.displayName() : entry.item();
                                 receivedItems.add(count + "x " + name);
@@ -424,7 +432,7 @@ public final class LootHelper {
 
     public static DyeColor resolveDyeColor(String colorName) {
         if (colorName == null || "random".equalsIgnoreCase(colorName)) {
-            return DyeColor.values()[new Random().nextInt(DyeColor.values().length)];
+            return DyeColor.values()[SHARED_RANDOM.nextInt(DyeColor.values().length)];
         }
         for (DyeColor d : DyeColor.values()) {
             if (d.getName().equalsIgnoreCase(colorName)) return d;

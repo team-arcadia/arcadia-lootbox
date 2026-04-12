@@ -159,7 +159,10 @@ public class PreviewMenu extends ChestMenu {
     @Override public ItemStack quickMoveStack(Player player, int index) { return ItemStack.EMPTY; }
 
     @Override public boolean stillValid(Player player) {
-        return player.distanceToSqr(targetPos.getX() + 0.5, targetPos.getY() + 0.5, targetPos.getZ() + 0.5) <= 64.0;
+        double maxDist = 8.0;
+        try { maxDist = com.arcadia.lootbox.config.LootboxConfig.MAX_INTERACTION_DISTANCE.get(); } catch (Exception ignored) {}
+        double maxDistSq = maxDist * maxDist;
+        return player.distanceToSqr(targetPos.getX() + 0.5, targetPos.getY() + 0.5, targetPos.getZ() + 0.5) <= maxDistSq;
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────

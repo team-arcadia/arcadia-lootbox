@@ -339,20 +339,24 @@ public final class LootboxCommands {
                 return 0;
             }
 
-            if (!FreeLootboxManager.canClaim(player, id, def)) {
+            // Atomic claim — prevents double-claim race condition
+            if (!FreeLootboxManager.tryAtomicClaim(player, id, def)) {
                 String remaining = FreeLootboxManager.getRemainingFormatted(player, id, def);
                 src.sendSuccess(() -> ArcadiaMessages.warning(
-                        player.getName().getString() + " cannot claim '" + id + "' yet. Remaining: " + remaining), false);
+                        player.getName().getString() + " cannot claim '" + id + "' yet. " + remaining), false);
                 return 0;
             }
 
-            // Claim: give the lootbox
+            // Claim succeeded — give the lootbox
             LootHelper.giveLootboxItem(player, id);
-            FreeLootboxManager.recordClaim(player.getUUID(), id);
 
             src.sendSuccess(() -> ArcadiaMessages.success(
-                    "Free lootbox '" + id + "' claimed by " + player.getName().getString() + "!"), true);
-            player.sendSystemMessage(ArcadiaMessages.success("You claimed a free " + def.displayName() + "!"));
+                    "Free lootbox '" + id + "' claimed by " + player.getName().getString()), true);
+            boolean fr = com.arcadia.lootbox.util.LanguageHelper.isFrench(player);
+            String name = (fr && !def.displayNameFR().isEmpty()) ? def.displayNameFR() : def.displayName();
+            player.sendSystemMessage(ArcadiaMessages.success(
+                    fr ? "Vous avez réclamé un(e) " + name + " gratuit(e) !"
+                       : "You claimed a free " + name + "!"));
             return 1;
         } catch (Exception e) { ctx.getSource().sendFailure(ArcadiaMessages.error(e.getMessage())); return 0; }
     }

@@ -31,7 +31,7 @@ public final class LootboxNet {
         PacketDistributor.sendToPlayer(player, new S2COpenLootboxHub());
     }
 
-    public static void sendLootboxList(ServerPlayer player, List<S2CSyncLootboxList.LootboxEntry> entries) {
-        PacketDistributor.sendToPlayer(player, new S2CSyncLootboxList(entries));
+    public static void sendLootboxList(ServerPlayer player, List<S2CSyncLootboxList.LootboxEntry> entries, String shopUrl) {
+        PacketDistributor.sendToPlayer(player, new S2CSyncLootboxList(entries, shopUrl));
     }
 }

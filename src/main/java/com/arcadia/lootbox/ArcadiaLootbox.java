@@ -129,6 +129,7 @@ public class ArcadiaLootbox {
     public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         if (event.getLevel().isClientSide()) return;
         if (event.getHand() != InteractionHand.MAIN_HAND) return;
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
         BlockEntity be = event.getLevel().getBlockEntity(event.getPos());
         if (be != null && event.getLevel().getBlockState(event.getPos()).getBlock() instanceof ShulkerBoxBlock) {
@@ -136,7 +137,7 @@ public class ArcadiaLootbox {
                 String id = be.getPersistentData().getString("ArcadiaLoot");
                 event.setCanceled(true);
                 event.setCancellationResult(InteractionResult.SUCCESS);
-                LootHelper.openPreviewGui((ServerPlayer) event.getEntity(), id, event.getPos());
+                LootHelper.openPreviewGui(player, id, event.getPos());
             }
         }
     }
@@ -181,6 +182,8 @@ public class ArcadiaLootbox {
                     def.type() != null ? def.type() : "weighted"
             ));
         }
-        LootboxNet.sendLootboxList(player, entries);
+        String shopUrl = "";
+        try { shopUrl = LootboxConfig.SHOP_URL.get(); } catch (Exception ignored) {}
+        LootboxNet.sendLootboxList(player, entries, shopUrl);
     }
 }

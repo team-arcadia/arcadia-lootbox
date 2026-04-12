@@ -17,7 +17,7 @@ import java.util.List;
  *
  * @author vyrriox
  */
-public record S2CSyncLootboxList(List<LootboxEntry> entries) implements CustomPacketPayload {
+public record S2CSyncLootboxList(List<LootboxEntry> entries, String shopUrl) implements CustomPacketPayload {
 
     public record LootboxEntry(String id, String displayName, String rarity, String keyItem, int lootCount, String type) {}
 
@@ -33,6 +33,7 @@ public record S2CSyncLootboxList(List<LootboxEntry> entries) implements CustomPa
             buf.writeUtf(e.id); buf.writeUtf(e.displayName); buf.writeUtf(e.rarity);
             buf.writeUtf(e.keyItem); buf.writeVarInt(e.lootCount); buf.writeUtf(e.type);
         }
+        buf.writeUtf(pkt.shopUrl != null ? pkt.shopUrl : "");
     }
 
     private static S2CSyncLootboxList decode(FriendlyByteBuf buf) {
@@ -41,13 +42,17 @@ public record S2CSyncLootboxList(List<LootboxEntry> entries) implements CustomPa
         for (int i = 0; i < size; i++) {
             list.add(new LootboxEntry(buf.readUtf(), buf.readUtf(), buf.readUtf(), buf.readUtf(), buf.readVarInt(), buf.readUtf()));
         }
-        return new S2CSyncLootboxList(list);
+        String url = buf.readUtf();
+        return new S2CSyncLootboxList(list, url);
     }
 
     @Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
 
     @OnlyIn(Dist.CLIENT)
     public void handle(IPayloadContext ctx) {
-        ctx.enqueueWork(() -> com.arcadia.lootbox.client.LootboxClientData.setLootboxList(entries));
+        ctx.enqueueWork(() -> {
+            com.arcadia.lootbox.client.LootboxClientData.setLootboxList(entries);
+            com.arcadia.lootbox.client.LootboxClientData.setShopUrl(shopUrl);
+        });
     }
 }

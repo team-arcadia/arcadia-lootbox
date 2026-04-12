@@ -21,8 +21,8 @@ public record C2SRequestPreview(String lootboxId) implements CustomPacketPayload
 
     public static final StreamCodec<FriendlyByteBuf, C2SRequestPreview> STREAM_CODEC =
             StreamCodec.of(
-                    (buf, pkt) -> buf.writeUtf(pkt.lootboxId),
-                    buf -> new C2SRequestPreview(buf.readUtf())
+                    (buf, pkt) -> buf.writeUtf(pkt.lootboxId, 64),
+                    buf -> new C2SRequestPreview(buf.readUtf(64))
             );
 
     @Override

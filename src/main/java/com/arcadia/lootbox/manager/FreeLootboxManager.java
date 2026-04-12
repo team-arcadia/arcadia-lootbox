@@ -40,7 +40,7 @@ public final class FreeLootboxManager {
 
     // Key: "uuid:lootboxId" -> Value: epoch millis of last free claim
     private static final Map<String, Long> CLAIM_TIMESTAMPS = new ConcurrentHashMap<>();
-    private static volatile boolean dirty = false;
+    private static final java.util.concurrent.atomic.AtomicBoolean dirty = new java.util.concurrent.atomic.AtomicBoolean(false);
 
     private FreeLootboxManager() {}
 
@@ -74,7 +74,32 @@ public final class FreeLootboxManager {
      */
     public static void recordClaim(UUID playerUuid, String lootboxId) {
         CLAIM_TIMESTAMPS.put(key(playerUuid, lootboxId), System.currentTimeMillis());
-        dirty = true;
+        dirty.set(true);
+    }
+
+    /**
+     * Atomically checks and claims a free lootbox. Prevents double-claim race conditions.
+     * @return true if the claim was successful, false if still on cooldown
+     */
+    public static boolean tryAtomicClaim(ServerPlayer player, String lootboxId, LootboxDefinition def) {
+        if (!LootboxConfig.FREE_LOOTBOX_ENABLED.get()) return false;
+        if (!def.freeEnabled()) return false;
+        if (!def.freePermission().isEmpty()) {
+            if (!PermissionHelper.hasPermissionOrDefault(player, def.freePermission(), true)) return false;
+        }
+        long cooldownMs = getEffectiveCooldownMs(player, def);
+        String k = key(player.getUUID(), lootboxId);
+        long now = System.currentTimeMillis();
+
+        // Atomic check-and-set using compute
+        boolean[] success = {false};
+        CLAIM_TIMESTAMPS.compute(k, (key, lastClaim) -> {
+            if (lastClaim != null && now - lastClaim < cooldownMs) return lastClaim; // Reject
+            success[0] = true;
+            return now; // Accept + record
+        });
+        if (success[0]) dirty.set(true);
+        return success[0];
     }
 
     /**
@@ -96,7 +121,9 @@ public final class FreeLootboxManager {
      */
     public static String getRemainingFormatted(ServerPlayer player, String lootboxId, LootboxDefinition def) {
         long remainingMs = getRemainingCooldownMs(player, lootboxId, def);
-        if (remainingMs <= 0) return "Ready!";
+        if (remainingMs <= 0) {
+            return com.arcadia.lootbox.util.LanguageHelper.isFrench(player) ? "Prêt !" : "Ready!";
+        }
         return formatDuration(remainingMs);
     }
 
@@ -105,7 +132,7 @@ public final class FreeLootboxManager {
      */
     public static void resetClaim(UUID playerUuid, String lootboxId) {
         CLAIM_TIMESTAMPS.remove(key(playerUuid, lootboxId));
-        dirty = true;
+        dirty.set(true);
     }
 
     /**
@@ -114,7 +141,7 @@ public final class FreeLootboxManager {
     public static void resetAllClaims(UUID playerUuid) {
         String prefix = playerUuid.toString() + ":";
         CLAIM_TIMESTAMPS.entrySet().removeIf(e -> e.getKey().startsWith(prefix));
-        dirty = true;
+        dirty.set(true);
     }
 
     // --- Cooldown calculation ---
@@ -182,15 +209,15 @@ public final class FreeLootboxManager {
      * Saves claim timestamps to disk. Called on server stop and periodically.
      */
     public static void save() {
-        if (!dirty) return;
+        if (!dirty.compareAndSet(true, false)) return;
         Path file = getDataFile();
         try {
             Files.createDirectories(file.getParent());
             try (FileWriter writer = new FileWriter(file.toFile())) {
                 GSON.toJson(CLAIM_TIMESTAMPS, writer);
             }
-            dirty = false;
         } catch (Exception e) {
+            dirty.set(true); // Mark dirty again so next save retries
             LOGGER.error("[ArcadiaLootbox] Failed to save free claims data", e);
         }
     }
@@ -199,7 +226,7 @@ public final class FreeLootboxManager {
      * Saves if dirty. Call this periodically (e.g., every 5 minutes via scheduler).
      */
     public static void autoSave() {
-        if (dirty) save();
+        if (dirty.get()) save();
     }
 
     /**

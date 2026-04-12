@@ -182,8 +182,10 @@ public class LootboxHubScreen extends Screen {
             // Shop button
             int btnX = width / 2 - 110, btnY = height - 38;
             if (mx >= btnX && mx < btnX + 220 && my >= btnY && my < btnY + 22) {
-                handleComponentClicked(Style.EMPTY.withClickEvent(
-                        new ClickEvent(ClickEvent.Action.OPEN_URL, "https://store.yourserver.com/lootbox")));
+                String url = LootboxClientData.getShopUrl();
+                if (!url.isEmpty()) {
+                    handleComponentClicked(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url)));
+                }
                 return true;
             }
 

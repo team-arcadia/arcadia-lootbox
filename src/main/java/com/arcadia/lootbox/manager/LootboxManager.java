@@ -123,8 +123,14 @@ public final class LootboxManager {
     public static int count() { return LOOTBOXES.size(); }
     public static long getLastReloadTime() { return lastReloadTime; }
 
+    private static boolean isValidId(String id) {
+        return id != null && id.matches("[A-Za-z0-9_\\-]+");
+    }
+
     public static boolean createDefinition(String id, LootboxDefinition def) {
+        if (!isValidId(id)) return false;
         Path file = getConfigDir().resolve(id + ".json");
+        if (!file.toAbsolutePath().startsWith(getConfigDir().toAbsolutePath())) return false;
         if (Files.exists(file)) return false;
         try (FileWriter writer = new FileWriter(file.toFile())) {
             GSON.toJson(def, writer);
@@ -137,7 +143,9 @@ public final class LootboxManager {
     }
 
     public static boolean deleteDefinition(String id) {
+        if (!isValidId(id)) return false;
         Path file = getConfigDir().resolve(id + ".json");
+        if (!file.toAbsolutePath().startsWith(getConfigDir().toAbsolutePath())) return false;
         if (!Files.exists(file)) return false;
         try {
             Files.delete(file);

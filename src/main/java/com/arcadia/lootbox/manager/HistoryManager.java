@@ -37,7 +37,8 @@ public final class HistoryManager {
 
     public static List<HistoryEntry> getHistory(UUID uuid) {
         Deque<HistoryEntry> entries = HISTORY.get(uuid);
-        return entries == null ? List.of() : List.copyOf(entries);
+        if (entries == null) return List.of();
+        synchronized (entries) { return List.copyOf(entries); }
     }
 
     public static void clearHistory(UUID uuid) { HISTORY.remove(uuid); }
@@ -46,7 +47,8 @@ public final class HistoryManager {
 
     public static int getTotalOpenings(UUID uuid) {
         Deque<HistoryEntry> entries = HISTORY.get(uuid);
-        return entries != null ? entries.size() : 0;
+        if (entries == null) return 0;
+        synchronized (entries) { return entries.size(); }
     }
 
     public static boolean checkAutoclicker(UUID uuid) {
@@ -56,10 +58,10 @@ public final class HistoryManager {
         synchronized (timestamps) {
             timestamps.addLast(now);
             while (!timestamps.isEmpty() && timestamps.peekFirst() < now - 60_000) timestamps.removeFirst();
-        }
-        if (timestamps.size() > LootboxConfig.ANTI_AUTOCLICKER_THRESHOLD.get()) {
-            LOGGER.warn("[ArcadiaLootbox] Anti-autoclicker: {} — {} opens/min", uuid, timestamps.size());
-            return true;
+            if (timestamps.size() > LootboxConfig.ANTI_AUTOCLICKER_THRESHOLD.get()) {
+                LOGGER.warn("[ArcadiaLootbox] Anti-autoclicker: {} — {} opens/min", uuid, timestamps.size());
+                return true;
+            }
         }
         return false;
     }

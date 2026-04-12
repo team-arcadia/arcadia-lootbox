@@ -13,10 +13,15 @@ import java.util.List;
 public final class LootboxClientData {
 
     private static volatile List<S2CSyncLootboxList.LootboxEntry> lootboxList = Collections.emptyList();
+    private static volatile String shopUrl = "";
 
     private LootboxClientData() {}
 
     public static void setLootboxList(List<S2CSyncLootboxList.LootboxEntry> list) { lootboxList = List.copyOf(list); }
     public static List<S2CSyncLootboxList.LootboxEntry> getLootboxList() { return lootboxList; }
-    public static void clear() { lootboxList = Collections.emptyList(); }
+
+    public static void setShopUrl(String url) { shopUrl = url != null ? url : ""; }
+    public static String getShopUrl() { return shopUrl; }
+
+    public static void clear() { lootboxList = Collections.emptyList(); shopUrl = ""; }
 }
