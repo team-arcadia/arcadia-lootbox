@@ -14,6 +14,7 @@ import com.arcadia.lootbox.manager.FreeLootboxManager;
 import com.arcadia.lootbox.manager.HistoryManager;
 import com.arcadia.lootbox.manager.LootboxManager;
 import com.arcadia.lootbox.manager.UsageTracker;
+import com.arcadia.lootbox.util.LanguageHelper;
 import com.arcadia.lootbox.util.LootHelper;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -129,19 +130,39 @@ public final class LootboxCommands {
     private static int cmdReload(CommandContext<CommandSourceStack> ctx) {
         var src = ctx.getSource();
         if (LootboxConfig.ASYNC_CONFIG_RELOAD.get()) {
-            src.sendSuccess(() -> ArcadiaMessages.info("Reloading..."), true);
+            src.sendSuccess(() -> ArcadiaMessages.info(t(src, "cmd.reloading")), true);
             LootboxManager.reloadAsync().thenAccept(c -> {
-                src.sendSuccess(() -> ArcadiaMessages.success("Reloaded " + c + " lootbox definitions."), true);
+                src.sendSuccess(() -> ArcadiaMessages.success(t(src, "cmd.reloaded", "count", String.valueOf(c))), true);
                 // Re-sync all connected clients
                 syncAllClients(src);
             });
         } else {
             int c = LootboxManager.reload();
-            src.sendSuccess(() -> ArcadiaMessages.success("Reloaded " + c + " lootbox definitions."), true);
+            src.sendSuccess(() -> ArcadiaMessages.success(t(src, "cmd.reloaded", "count", String.valueOf(c))), true);
             // Re-sync all connected clients
             syncAllClients(src);
         }
         return 1;
+    }
+
+    /** Get ServerPlayer from source (for i18n). Returns null if console. */
+    private static ServerPlayer sp(CommandSourceStack src) {
+        return src.getEntity() instanceof ServerPlayer p ? p : null;
+    }
+    /** Translate a key for the command executor. Falls back to EN for console. */
+    private static String t(CommandSourceStack src, String key) {
+        ServerPlayer p = sp(src);
+        return p != null ? LanguageHelper.get(p, key) : LanguageHelper.getEN(key);
+    }
+    private static String t(CommandSourceStack src, String key, String ph, String val) {
+        ServerPlayer p = sp(src);
+        return p != null ? LanguageHelper.get(p, key, ph, val) : LanguageHelper.getEN(key).replace("{" + ph + "}", val);
+    }
+    private static String t(CommandSourceStack src, String key, java.util.Map<String, String> ph) {
+        ServerPlayer p = sp(src);
+        String result = p != null ? LanguageHelper.get(p, key) : LanguageHelper.getEN(key);
+        for (var e : ph.entrySet()) result = result.replace("{" + e.getKey() + "}", e.getValue());
+        return result;
     }
 
     private static void syncAllClients(CommandSourceStack src) {
@@ -156,8 +177,8 @@ public final class LootboxCommands {
     private static int cmdList(CommandContext<CommandSourceStack> ctx) {
         var src = ctx.getSource();
         var ids = LootboxManager.getAllIds();
-        if (ids.isEmpty()) { src.sendSuccess(() -> ArcadiaMessages.warning("No lootboxes found."), false); return 0; }
-        src.sendSuccess(() -> ArcadiaMessages.info("Lootboxes (" + ids.size() + "):"), false);
+        if (ids.isEmpty()) { src.sendSuccess(() -> ArcadiaMessages.warning(t(src, "cmd.no.lootboxes")), false); return 0; }
+        src.sendSuccess(() -> ArcadiaMessages.info(t(src, "cmd.lootboxes", "count", String.valueOf(ids.size()))), false);
         for (String id : ids) {
             LootboxDefinition def = LootboxManager.get(id);
             src.sendSuccess(() -> Component.literal("  §7- §e" + id + " §7| " + def.rarityColor() + def.rarityDisplayName() +
@@ -168,7 +189,7 @@ public final class LootboxCommands {
 
     private static int cmdListKeys(CommandContext<CommandSourceStack> ctx) {
         var src = ctx.getSource();
-        src.sendSuccess(() -> ArcadiaMessages.info("Registered Keys (" + KeyRegistry.getKeyCount() + "):"), false);
+        src.sendSuccess(() -> ArcadiaMessages.info(t(src, "cmd.keys", "count", String.valueOf(KeyRegistry.getKeyCount()))), false);
         for (String keyId : KeyRegistry.getAllKeyIds()) {
             src.sendSuccess(() -> Component.literal("  §7- §earcadialootbox:" + keyId), false);
         }
@@ -178,7 +199,7 @@ public final class LootboxCommands {
     private static int cmdInfo(CommandContext<CommandSourceStack> ctx) {
         String id = StringArgumentType.getString(ctx, "id");
         var src = ctx.getSource();
-        if (!LootboxManager.exists(id)) { src.sendFailure(ArcadiaMessages.error("Not found: " + id)); return 0; }
+        if (!LootboxManager.exists(id)) { src.sendFailure(ArcadiaMessages.error(t(ctx.getSource(), "cmd.not.found", "id", id))); return 0; }
         LootboxDefinition def = LootboxManager.get(id);
         src.sendSuccess(() -> ArcadiaMessages.info("§6=== " + id + " ==="), false);
         src.sendSuccess(() -> Component.literal("  §7Name: §f" + def.displayName()), false);
@@ -207,19 +228,19 @@ public final class LootboxCommands {
         try {
             ServerPlayer player = EntityArgument.getPlayer(ctx, "target");
             String id = StringArgumentType.getString(ctx, "lootbox_id");
-            if (!LootboxManager.exists(id)) { ctx.getSource().sendFailure(ArcadiaMessages.error("Not found: " + id)); return 0; }
+            if (!LootboxManager.exists(id)) { ctx.getSource().sendFailure(ArcadiaMessages.error(t(ctx.getSource(), "cmd.not.found", "id", id))); return 0; }
             for (int i = 0; i < amount; i++) LootHelper.giveLootboxItem(player, id);
-            ctx.getSource().sendSuccess(() -> ArcadiaMessages.success("Gave " + amount + "x '" + id + "' to " + player.getName().getString()), true);
+            ctx.getSource().sendSuccess(() -> ArcadiaMessages.success(t(ctx.getSource(), "cmd.gave", java.util.Map.of("amount", String.valueOf(amount), "id", id, "player", player.getName().getString()))), true);
             return 1;
         } catch (Exception e) { ctx.getSource().sendFailure(ArcadiaMessages.error(e.getMessage())); return 0; }
     }
 
     private static int cmdGiveAll(CommandContext<CommandSourceStack> ctx, int amount) {
         String id = StringArgumentType.getString(ctx, "lootbox_id");
-        if (!LootboxManager.exists(id)) { ctx.getSource().sendFailure(ArcadiaMessages.error("Not found: " + id)); return 0; }
+        if (!LootboxManager.exists(id)) { ctx.getSource().sendFailure(ArcadiaMessages.error(t(ctx.getSource(), "cmd.not.found", "id", id))); return 0; }
         var players = ctx.getSource().getServer().getPlayerList().getPlayers();
         for (ServerPlayer p : players) for (int i = 0; i < amount; i++) LootHelper.giveLootboxItem(p, id);
-        ctx.getSource().sendSuccess(() -> ArcadiaMessages.success("Gave " + amount + "x '" + id + "' to " + players.size() + " players"), true);
+        ctx.getSource().sendSuccess(() -> ArcadiaMessages.success(t(ctx.getSource(), "cmd.gave.all", java.util.Map.of("amount", String.valueOf(amount), "id", id, "count", String.valueOf(players.size())))), true);
         return 1;
     }
 
@@ -230,7 +251,7 @@ public final class LootboxCommands {
             // Add namespace if missing
             String fullId = keyId.contains(":") ? keyId : ArcadiaLootbox.MODID + ":" + keyId;
             LootHelper.giveKeyItem(player, fullId, amount);
-            ctx.getSource().sendSuccess(() -> ArcadiaMessages.success("Gave " + amount + "x " + keyId + " to " + player.getName().getString()), true);
+            ctx.getSource().sendSuccess(() -> ArcadiaMessages.success(t(ctx.getSource(), "cmd.gave.key", java.util.Map.of("amount", String.valueOf(amount), "key", keyId, "player", player.getName().getString()))), true);
             return 1;
         } catch (Exception e) { ctx.getSource().sendFailure(ArcadiaMessages.error(e.getMessage())); return 0; }
     }
@@ -239,7 +260,7 @@ public final class LootboxCommands {
         try {
             ServerPlayer player = EntityArgument.getPlayer(ctx, "target");
             String id = StringArgumentType.getString(ctx, "lootbox_id");
-            if (!LootboxManager.exists(id)) { ctx.getSource().sendFailure(ArcadiaMessages.error("Not found: " + id)); return 0; }
+            if (!LootboxManager.exists(id)) { ctx.getSource().sendFailure(ArcadiaMessages.error(t(ctx.getSource(), "cmd.not.found", "id", id))); return 0; }
             LootHelper.openPreviewGui(player, id, player.blockPosition());
             return 1;
         } catch (Exception e) { ctx.getSource().sendFailure(ArcadiaMessages.error(e.getMessage())); return 0; }
@@ -249,8 +270,8 @@ public final class LootboxCommands {
         try {
             ServerPlayer player = EntityArgument.getPlayer(ctx, "target");
             var history = HistoryManager.getHistory(player.getUUID());
-            if (history.isEmpty()) { ctx.getSource().sendSuccess(() -> ArcadiaMessages.info("No history."), false); return 0; }
-            ctx.getSource().sendSuccess(() -> ArcadiaMessages.info("History (" + history.size() + "):"), false);
+            if (history.isEmpty()) { ctx.getSource().sendSuccess(() -> ArcadiaMessages.info(t(ctx.getSource(), "cmd.no.history", "player", player.getName().getString())), false); return 0; }
+            ctx.getSource().sendSuccess(() -> ArcadiaMessages.info(t(ctx.getSource(), "cmd.history", java.util.Map.of("player", player.getName().getString(), "count", String.valueOf(history.size())))), false);
             for (int i = 0; i < Math.min(history.size(), 10); i++) {
                 HistoryManager.HistoryEntry e = history.get(i);
                 ctx.getSource().sendSuccess(() -> Component.literal("  §7[" + e.formattedTime() + "] §e" + e.lootboxName() + " §7→ §f" + String.join(", ", e.itemsReceived())), false);
@@ -263,7 +284,7 @@ public final class LootboxCommands {
         try {
             ServerPlayer player = EntityArgument.getPlayer(ctx, "target");
             HistoryManager.clearHistory(player.getUUID());
-            ctx.getSource().sendSuccess(() -> ArcadiaMessages.success("Cleared history for " + player.getName().getString()), true);
+            ctx.getSource().sendSuccess(() -> ArcadiaMessages.success(t(ctx.getSource(), "cmd.history.cleared", "player", player.getName().getString())), true);
             return 1;
         } catch (Exception e) { ctx.getSource().sendFailure(ArcadiaMessages.error(e.getMessage())); return 0; }
     }
@@ -271,14 +292,14 @@ public final class LootboxCommands {
     private static int cmdCreate(CommandContext<CommandSourceStack> ctx) {
         String id = StringArgumentType.getString(ctx, "id");
         String name = StringArgumentType.getString(ctx, "displayName");
-        if (LootboxManager.exists(id)) { ctx.getSource().sendFailure(ArcadiaMessages.error("Already exists: " + id)); return 0; }
+        if (LootboxManager.exists(id)) { ctx.getSource().sendFailure(ArcadiaMessages.error(t(ctx.getSource(), "cmd.already.exists", "id", id))); return 0; }
         LootboxDefinition def = new LootboxDefinition(name, "white", "minecraft:tripwire_hook", "minecraft:block.chest.open", "",
                 List.of(), List.of("minecraft:flame"), "weighted", "", 1, 1, "common", false, "", false, -1, "",
                 LootboxDefinition.AnimationConfig.defaults(), false, 20, "", false, "", "", List.of(), 0, "", 0, true,
                 0, "", "", "", "",
                 false, 72, "", 48, "");
         if (LootboxManager.createDefinition(id, def)) {
-            ctx.getSource().sendSuccess(() -> ArcadiaMessages.success("Created '" + id + "'. Edit the JSON file to add loot."), true);
+            ctx.getSource().sendSuccess(() -> ArcadiaMessages.success(t(ctx.getSource(), "cmd.created", "id", id)), true);
             return 1;
         }
         return 0;
@@ -287,10 +308,10 @@ public final class LootboxCommands {
     private static int cmdDelete(CommandContext<CommandSourceStack> ctx) {
         String id = StringArgumentType.getString(ctx, "id");
         if (LootboxManager.deleteDefinition(id)) {
-            ctx.getSource().sendSuccess(() -> ArcadiaMessages.success("Deleted: " + id), true);
+            ctx.getSource().sendSuccess(() -> ArcadiaMessages.success(t(ctx.getSource(), "cmd.deleted", "id", id)), true);
             return 1;
         }
-        ctx.getSource().sendFailure(ArcadiaMessages.error("Not found: " + id));
+        ctx.getSource().sendFailure(ArcadiaMessages.error(t(ctx.getSource(), "cmd.not.found", "id", id)));
         return 0;
     }
 
@@ -300,10 +321,10 @@ public final class LootboxCommands {
             int uses = IntegerArgumentType.getInteger(ctx, "uses");
             BlockEntity be = ctx.getSource().getLevel().getBlockEntity(pos);
             if (be == null || !be.getPersistentData().contains("ArcadiaLoot")) {
-                ctx.getSource().sendFailure(ArcadiaMessages.error("No lootbox at that position.")); return 0;
+                ctx.getSource().sendFailure(ArcadiaMessages.error(t(ctx.getSource(), "cmd.no.lootbox.at.pos"))); return 0;
             }
             UsageTracker.setUsageCount(be, uses);
-            ctx.getSource().sendSuccess(() -> ArcadiaMessages.success("Set uses to " + uses + " at " + pos.toShortString()), true);
+            ctx.getSource().sendSuccess(() -> ArcadiaMessages.success(t(ctx.getSource(), "cmd.uses.set", java.util.Map.of("uses", String.valueOf(uses), "pos", pos.toShortString()))), true);
             return 1;
         } catch (Exception e) { ctx.getSource().sendFailure(ArcadiaMessages.error(e.getMessage())); return 0; }
     }
@@ -312,14 +333,14 @@ public final class LootboxCommands {
         try {
             ServerPlayer player = EntityArgument.getPlayer(ctx, "target");
             com.arcadia.lib.player.CooldownManager.clearPlayer(player.getUUID());
-            ctx.getSource().sendSuccess(() -> ArcadiaMessages.success("Reset cooldowns for " + player.getName().getString()), true);
+            ctx.getSource().sendSuccess(() -> ArcadiaMessages.success(t(ctx.getSource(), "cmd.cooldown.reset", "player", player.getName().getString())), true);
             return 1;
         } catch (Exception e) { ctx.getSource().sendFailure(ArcadiaMessages.error(e.getMessage())); return 0; }
     }
 
     private static int cmdStats(CommandContext<CommandSourceStack> ctx) {
         var src = ctx.getSource();
-        src.sendSuccess(() -> ArcadiaMessages.info("§6=== Arcadia Lootbox Stats ==="), false);
+        src.sendSuccess(() -> ArcadiaMessages.info("§6=== " + t(src, "stats.title") + " ==="), false);
         src.sendSuccess(() -> Component.literal("  §7Definitions: §f" + LootboxManager.count()), false);
         src.sendSuccess(() -> Component.literal("  §7Keys: §f" + KeyRegistry.getKeyCount()), false);
         src.sendSuccess(() -> Component.literal("  §7Hub: §f" + LootboxConfig.HUB_ENABLED.get()), false);
@@ -333,7 +354,7 @@ public final class LootboxCommands {
             com.arcadia.lib.network.ArcadiaLibNet.sendOpenHub(player);
             return 1;
         }
-        ctx.getSource().sendFailure(ArcadiaMessages.error("Must be run by a player."));
+        ctx.getSource().sendFailure(ArcadiaMessages.error(t(ctx.getSource(), "cmd.must.be.player")));
         return 0;
     }
 
@@ -345,11 +366,11 @@ public final class LootboxCommands {
             String id = StringArgumentType.getString(ctx, "lootbox_id");
             var src = ctx.getSource();
 
-            if (!LootboxManager.exists(id)) { src.sendFailure(ArcadiaMessages.error("Not found: " + id)); return 0; }
+            if (!LootboxManager.exists(id)) { src.sendFailure(ArcadiaMessages.error(t(ctx.getSource(), "cmd.not.found", "id", id))); return 0; }
             LootboxDefinition def = LootboxManager.get(id);
 
             if (!def.freeEnabled()) {
-                src.sendFailure(ArcadiaMessages.error("Free claiming is not enabled for '" + id + "'."));
+                src.sendFailure(ArcadiaMessages.error(t(src, "free.disabled", "id", id)));
                 return 0;
             }
 
@@ -364,13 +385,11 @@ public final class LootboxCommands {
             // Claim succeeded — give the lootbox
             LootHelper.giveLootboxItem(player, id);
 
-            src.sendSuccess(() -> ArcadiaMessages.success(
-                    "Free lootbox '" + id + "' claimed by " + player.getName().getString()), true);
+            src.sendSuccess(() -> ArcadiaMessages.success(t(src, "free.claimed", java.util.Map.of("id", id, "player", player.getName().getString()))), true);
             boolean fr = com.arcadia.lootbox.util.LanguageHelper.isFrench(player);
             String name = (fr && !def.displayNameFR().isEmpty()) ? def.displayNameFR() : def.displayName();
             player.sendSystemMessage(ArcadiaMessages.success(
-                    fr ? "Vous avez réclamé un(e) " + name + " gratuit(e) !"
-                       : "You claimed a free " + name + "!"));
+                    LanguageHelper.get(player, "free.claimed.player", "name", name)));
             return 1;
         } catch (Exception e) { ctx.getSource().sendFailure(ArcadiaMessages.error(e.getMessage())); return 0; }
     }
@@ -381,20 +400,20 @@ public final class LootboxCommands {
             String id = StringArgumentType.getString(ctx, "lootbox_id");
             var src = ctx.getSource();
 
-            if (!LootboxManager.exists(id)) { src.sendFailure(ArcadiaMessages.error("Not found: " + id)); return 0; }
+            if (!LootboxManager.exists(id)) { src.sendFailure(ArcadiaMessages.error(t(ctx.getSource(), "cmd.not.found", "id", id))); return 0; }
             LootboxDefinition def = LootboxManager.get(id);
 
             if (!def.freeEnabled()) {
-                src.sendSuccess(() -> ArcadiaMessages.info("Free claiming is disabled for '" + id + "'."), false);
+                src.sendSuccess(() -> ArcadiaMessages.info(t(src, "free.disabled", "id", id)), false);
                 return 0;
             }
 
             String remaining = FreeLootboxManager.getRemainingFormatted(player, id, def);
             boolean canClaim = FreeLootboxManager.canClaim(player, id, def);
 
-            src.sendSuccess(() -> ArcadiaMessages.info("Free lootbox '" + id + "' for " + player.getName().getString() + ":"), false);
+            src.sendSuccess(() -> ArcadiaMessages.info(t(src, "free.timer.title", java.util.Map.of("id", id, "player", player.getName().getString()))), false);
             if (canClaim) {
-                src.sendSuccess(() -> Component.literal("  §aReady to claim!"), false);
+                src.sendSuccess(() -> Component.literal("  §a" + t(src, "free.ready")), false);
             } else {
                 src.sendSuccess(() -> Component.literal("  §7Remaining: §e" + remaining), false);
             }
@@ -410,10 +429,10 @@ public final class LootboxCommands {
             if (specificLootbox) {
                 String id = StringArgumentType.getString(ctx, "lootbox_id");
                 FreeLootboxManager.resetClaim(player.getUUID(), id);
-                src.sendSuccess(() -> ArcadiaMessages.success("Reset free timer for '" + id + "' for " + player.getName().getString()), true);
+                src.sendSuccess(() -> ArcadiaMessages.success(t(src, "free.reset.one", java.util.Map.of("id", id, "player", player.getName().getString()))), true);
             } else {
                 FreeLootboxManager.resetAllClaims(player.getUUID());
-                src.sendSuccess(() -> ArcadiaMessages.success("Reset ALL free timers for " + player.getName().getString()), true);
+                src.sendSuccess(() -> ArcadiaMessages.success(t(src, "free.reset.all", "player", player.getName().getString())), true);
             }
             return 1;
         } catch (Exception e) { ctx.getSource().sendFailure(ArcadiaMessages.error(e.getMessage())); return 0; }

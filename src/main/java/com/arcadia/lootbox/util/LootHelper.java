@@ -430,13 +430,28 @@ public final class LootHelper {
 
     private static void broadcastDrop(ServerLevel level, ServerPlayer player, LootboxDefinition def,
                                        LootboxDefinition.LootEntry entry, int count, String lootboxId) {
-        String format = LootboxConfig.BROADCAST_RARE_FORMAT.get();
-        String name = entry.displayName() != null ? entry.displayName() : entry.item();
+        String name = entry.displayName() != null ? entry.displayName() : shortItem(entry.item());
         String rarity = entry.rarity() != null ? entry.rarity() : "common";
-        Component msg = TextFormatter.format(format, Map.of(
-                "player", player.getName().getString(), "lootbox", def.displayName(),
-                "item", name, "count", String.valueOf(count), "rarity", rarity));
-        for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) p.sendSystemMessage(msg);
+        String rarityColor = def.rarityColor();
+
+        // Build broadcast message directly (config format has placeholder issues with §)
+        String msg = "§6\u2699 §d\u2726 §e" + player.getName().getString() +
+                " §7a trouvé " + rarityColor + capitalize(rarity) +
+                " §7: §f" + count + "x §e" + name +
+                " §7dans §e" + def.displayName() + "§7! §d\u2726";
+
+        Component component = Component.literal(msg);
+        for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) p.sendSystemMessage(component);
+    }
+
+    private static String shortItem(String fullId) {
+        if (fullId == null) return "???";
+        int colon = fullId.indexOf(':');
+        return colon >= 0 ? fullId.substring(colon + 1).replace('_', ' ') : fullId;
+    }
+
+    private static String capitalize(String s) {
+        return s == null || s.isEmpty() ? "Common" : s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
     }
 
     // --- Key search ---
