@@ -146,6 +146,14 @@ public class LootboxHubScreen extends Screen {
         totalContentHeight = curY + scrollOffset - contentTop;
         g.disableScissor();
 
+        // Singleplayer warning
+        if (Minecraft.getInstance().isSingleplayer()) {
+            String warn = fr
+                    ? "\u26A0 Les lootbox boutique sont disponibles uniquement sur le serveur officiel"
+                    : "\u26A0 Shop lootboxes are only available on the official server";
+            g.drawCenteredString(font, Component.literal("§c" + warn), cx, contentBottom + 2, 0xFFFF5555);
+        }
+
         // Shop button
         int btnW = 220, btnH = 22, btnX = cx - btnW / 2, btnY = height - 38;
         boolean btnHov = mouseX >= btnX && mouseX < btnX + btnW && mouseY >= btnY && mouseY < btnY + btnH;

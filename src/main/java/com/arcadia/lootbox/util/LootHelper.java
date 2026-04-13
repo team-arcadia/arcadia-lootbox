@@ -147,11 +147,15 @@ public final class LootHelper {
             }
         }
 
-        // Key check
-        ItemStack heldItem = player.getMainHandItem();
+        // Key check — search entire inventory (main hand first, then inventory)
         ResourceLocation keyRes = ResourceLocation.tryParse(def.keyItem());
-        if (keyRes == null || !BuiltInRegistries.ITEM.getKey(heldItem.getItem()).equals(keyRes)) {
-            return false;
+        if (keyRes == null) return false;
+
+        ItemStack keyStack = findKeyInInventory(player, keyRes);
+        if (keyStack == null) {
+            boolean fr = LanguageHelper.isFrench(player);
+            player.sendSystemMessage(ArcadiaMessages.error(LanguageHelper.get(player, "lootbox.no.key")));
+            return true;
         }
 
         // Cooldown check
@@ -177,7 +181,7 @@ public final class LootHelper {
         }
 
         CooldownManager.set(player.getUUID(), cooldownKey, cooldownTicks * 50L);
-        openLootboxLogic((ServerLevel) level, pos, player, def, heldItem, id);
+        openLootboxLogic((ServerLevel) level, pos, player, def, keyStack, id);
         return true;
     }
 
@@ -426,6 +430,34 @@ public final class LootHelper {
                 "player", player.getName().getString(), "lootbox", def.displayName(),
                 "item", name, "count", String.valueOf(count), "rarity", rarity));
         for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) p.sendSystemMessage(msg);
+    }
+
+    // --- Key search ---
+
+    /**
+     * Searches the player's entire inventory for the required key.
+     * Checks main hand first, then offhand, then all inventory slots.
+     * Returns the ItemStack reference (for shrinking later), or null if not found.
+     */
+    private static ItemStack findKeyInInventory(ServerPlayer player, ResourceLocation keyRes) {
+        // Main hand first
+        ItemStack mainHand = player.getMainHandItem();
+        if (!mainHand.isEmpty() && BuiltInRegistries.ITEM.getKey(mainHand.getItem()).equals(keyRes)) {
+            return mainHand;
+        }
+        // Offhand
+        ItemStack offHand = player.getOffhandItem();
+        if (!offHand.isEmpty() && BuiltInRegistries.ITEM.getKey(offHand.getItem()).equals(keyRes)) {
+            return offHand;
+        }
+        // Full inventory scan
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            ItemStack slot = player.getInventory().getItem(i);
+            if (!slot.isEmpty() && BuiltInRegistries.ITEM.getKey(slot.getItem()).equals(keyRes)) {
+                return slot;
+            }
+        }
+        return null;
     }
 
     // --- Utility ---
