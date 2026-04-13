@@ -139,8 +139,9 @@ public final class LootHelper {
             }
         }
 
-        // Sneak check
-        if (def.requireSneakToOpen() || LootboxConfig.REQUIRE_SNEAK_DEFAULT.get()) {
+        // Sneak check (skip if opened from hub — no block at position)
+        boolean fromBlock = level.isLoaded(pos) && level.getBlockState(pos).getBlock() instanceof net.minecraft.world.level.block.ShulkerBoxBlock;
+        if (fromBlock && (def.requireSneakToOpen() || LootboxConfig.REQUIRE_SNEAK_DEFAULT.get())) {
             if (!player.isShiftKeyDown()) {
                 player.sendSystemMessage(ArcadiaMessages.info(LanguageHelper.get(player, "lootbox.sneak.required")));
                 return true;
@@ -173,11 +174,14 @@ public final class LootHelper {
             return true;
         }
 
-        // Usage check
-        BlockEntity be = level.getBlockEntity(pos);
-        if (be != null && !UsageTracker.hasUsesRemaining(be, def.maxUses())) {
-            player.sendSystemMessage(ArcadiaMessages.warning(LanguageHelper.get(player, "lootbox.no.uses")));
-            return true;
+        // Usage check (only if there's a block at the position)
+        boolean hasBlock = level.isLoaded(pos) && level.getBlockState(pos).getBlock() instanceof net.minecraft.world.level.block.ShulkerBoxBlock;
+        if (hasBlock) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be != null && !UsageTracker.hasUsesRemaining(be, def.maxUses())) {
+                player.sendSystemMessage(ArcadiaMessages.warning(LanguageHelper.get(player, "lootbox.no.uses")));
+                return true;
+            }
         }
 
         CooldownManager.set(player.getUUID(), cooldownKey, cooldownTicks * 50L);
@@ -189,7 +193,8 @@ public final class LootHelper {
 
     private static void openLootboxLogic(ServerLevel level, BlockPos pos, ServerPlayer player,
                                          LootboxDefinition def, ItemStack keyStack, String lootboxId) {
-        if (!level.isLoaded(pos) || !(level.getBlockState(pos).getBlock() instanceof ShulkerBoxBlock)) return;
+        // Check if there's an actual lootbox block at this position (may be null if opened from hub)
+        boolean hasBlock = level.isLoaded(pos) && level.getBlockState(pos).getBlock() instanceof ShulkerBoxBlock;
 
         var random = level.random;
         playSound(level, pos, def.openSound());
@@ -243,17 +248,19 @@ public final class LootHelper {
         // Consume key
         if (!player.isCreative()) keyStack.shrink(1);
 
-        // Track usage
-        BlockEntity be = level.getBlockEntity(pos);
-        if (be != null) {
-            int usageCount = UsageTracker.incrementUsage(be);
-            if (def.destroyOnOpen() || (def.maxUses() > 0 && usageCount >= def.maxUses())) {
-                SchedulerService.delayed(5, () -> {
-                    if (level.isLoaded(pos)) {
-                        level.destroyBlock(pos, false);
-                        UsageTracker.removeFromCache(pos);
-                    }
-                });
+        // Track usage (only if there's an actual lootbox block)
+        if (hasBlock) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be != null) {
+                int usageCount = UsageTracker.incrementUsage(be);
+                if (def.destroyOnOpen() || (def.maxUses() > 0 && usageCount >= def.maxUses())) {
+                    SchedulerService.delayed(5, () -> {
+                        if (level.isLoaded(pos)) {
+                            level.destroyBlock(pos, false);
+                            UsageTracker.removeFromCache(pos);
+                        }
+                    });
+                }
             }
         }
 
