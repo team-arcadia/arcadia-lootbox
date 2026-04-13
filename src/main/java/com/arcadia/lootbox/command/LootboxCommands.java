@@ -130,13 +130,27 @@ public final class LootboxCommands {
         var src = ctx.getSource();
         if (LootboxConfig.ASYNC_CONFIG_RELOAD.get()) {
             src.sendSuccess(() -> ArcadiaMessages.info("Reloading..."), true);
-            LootboxManager.reloadAsync().thenAccept(c ->
-                    src.sendSuccess(() -> ArcadiaMessages.success("Reloaded " + c + " lootbox definitions."), true));
+            LootboxManager.reloadAsync().thenAccept(c -> {
+                src.sendSuccess(() -> ArcadiaMessages.success("Reloaded " + c + " lootbox definitions."), true);
+                // Re-sync all connected clients
+                syncAllClients(src);
+            });
         } else {
             int c = LootboxManager.reload();
             src.sendSuccess(() -> ArcadiaMessages.success("Reloaded " + c + " lootbox definitions."), true);
+            // Re-sync all connected clients
+            syncAllClients(src);
         }
         return 1;
+    }
+
+    private static void syncAllClients(CommandSourceStack src) {
+        var server = src.getServer();
+        if (server != null) {
+            for (net.minecraft.server.level.ServerPlayer p : server.getPlayerList().getPlayers()) {
+                com.arcadia.lootbox.ArcadiaLootbox.syncLootboxList(p);
+            }
+        }
     }
 
     private static int cmdList(CommandContext<CommandSourceStack> ctx) {
@@ -261,7 +275,7 @@ public final class LootboxCommands {
         LootboxDefinition def = new LootboxDefinition(name, "white", "minecraft:tripwire_hook", "minecraft:block.chest.open", "",
                 List.of(), List.of("minecraft:flame"), "weighted", "", 1, 1, "common", false, "", false, -1, "",
                 LootboxDefinition.AnimationConfig.defaults(), false, 20, "", false, "", "", List.of(), 0, "", 0, true,
-                "", "", "", "",
+                0, "", "", "", "",
                 false, 72, "", 48, "");
         if (LootboxManager.createDefinition(id, def)) {
             ctx.getSource().sendSuccess(() -> ArcadiaMessages.success("Created '" + id + "'. Edit the JSON file to add loot."), true);

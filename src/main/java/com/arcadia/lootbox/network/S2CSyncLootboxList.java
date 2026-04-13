@@ -19,7 +19,7 @@ import java.util.List;
  */
 public record S2CSyncLootboxList(List<LootboxEntry> entries, String shopUrl) implements CustomPacketPayload {
 
-    public record LootboxEntry(String id, String displayName, String rarity, String keyItem, int lootCount, String type) {}
+    public record LootboxEntry(String id, String displayName, String rarity, String keyItem, int lootCount, String type, int sortOrder) {}
 
     public static final Type<S2CSyncLootboxList> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(ArcadiaLootbox.MODID, "sync_lootbox_list"));
@@ -31,7 +31,7 @@ public record S2CSyncLootboxList(List<LootboxEntry> entries, String shopUrl) imp
         buf.writeVarInt(pkt.entries.size());
         for (LootboxEntry e : pkt.entries) {
             buf.writeUtf(e.id); buf.writeUtf(e.displayName); buf.writeUtf(e.rarity);
-            buf.writeUtf(e.keyItem); buf.writeVarInt(e.lootCount); buf.writeUtf(e.type);
+            buf.writeUtf(e.keyItem); buf.writeVarInt(e.lootCount); buf.writeUtf(e.type); buf.writeVarInt(e.sortOrder);
         }
         buf.writeUtf(pkt.shopUrl != null ? pkt.shopUrl : "");
     }
@@ -40,7 +40,7 @@ public record S2CSyncLootboxList(List<LootboxEntry> entries, String shopUrl) imp
         int size = buf.readVarInt();
         List<LootboxEntry> list = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            list.add(new LootboxEntry(buf.readUtf(), buf.readUtf(), buf.readUtf(), buf.readUtf(), buf.readVarInt(), buf.readUtf()));
+            list.add(new LootboxEntry(buf.readUtf(), buf.readUtf(), buf.readUtf(), buf.readUtf(), buf.readVarInt(), buf.readUtf(), buf.readVarInt()));
         }
         String url = buf.readUtf();
         return new S2CSyncLootboxList(list, url);

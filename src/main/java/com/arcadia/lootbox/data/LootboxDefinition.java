@@ -47,6 +47,8 @@ public record LootboxDefinition(
         String requiredBiome,
         int requiredLevel,
         boolean logOpening,
+        // v1.2.0 — ordering
+        int sortOrder,
         // v1.2.0 — French translations (optional, falls back to EN fields)
         String displayNameFR,
         String openMessageFR,
@@ -134,6 +136,7 @@ public record LootboxDefinition(
                 requiredBiome != null ? requiredBiome : "",
                 requiredLevel,
                 logOpening,
+                sortOrder,
                 displayNameFR != null ? displayNameFR : "",
                 openMessageFR != null ? openMessageFR : "",
                 openTitleFR != null ? openTitleFR : "",

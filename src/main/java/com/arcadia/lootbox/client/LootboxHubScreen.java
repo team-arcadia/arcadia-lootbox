@@ -65,6 +65,11 @@ public class LootboxHubScreen extends Screen {
             String cat = extractCategory(entry.keyItem());
             categorized.computeIfAbsent(cat, k -> new ArrayList<>()).add(entry);
         }
+
+        // Sort entries within each category by sortOrder
+        for (var list : categorized.values()) {
+            list.sort(java.util.Comparator.comparingInt(S2CSyncLootboxList.LootboxEntry::sortOrder));
+        }
     }
 
     @Override

@@ -179,7 +179,8 @@ public class ArcadiaLootbox {
                     def.rarity() != null ? def.rarity() : "common",
                     def.keyItem(),
                     def.lootTable().size(),
-                    def.type() != null ? def.type() : "weighted"
+                    def.type() != null ? def.type() : "weighted",
+                    def.sortOrder()
             ));
         }
         String shopUrl = "";
