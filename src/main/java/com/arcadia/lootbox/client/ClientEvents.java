@@ -25,7 +25,7 @@ public final class ClientEvents {
             ArcadiaModRegistry.registerCard(new ArcadiaModCard(
                     "lootbox", "\uD83C\uDF81",
                     "arcadialootbox.hub.title", "arcadialootbox.hub.subtitle",
-                    0xFFAA00, 30, true
+                    0xFFAA00, 2, 1, true
             ));
             ArcadiaModRegistry.registerCardClickHandler("lootbox", LootboxHubScreen::open);
         });
