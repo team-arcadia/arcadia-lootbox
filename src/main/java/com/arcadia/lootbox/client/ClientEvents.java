@@ -22,11 +22,13 @@ public final class ClientEvents {
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             // Always register — config is SERVER type, not available at client setup
+            // row 1, position 2, tabIndex -1 (custom screen, not a dashboard tab)
             ArcadiaModRegistry.registerCard(new ArcadiaModCard(
                     "lootbox", "\uD83C\uDF81",
                     "arcadialootbox.hub.title", "arcadialootbox.hub.subtitle",
-                    0xFFAA00, 2, 1, true
+                    0xFFAA00, 2, 1, -1, true
             ));
+            // Custom click handler — opens the lootbox hub screen instead of a dashboard tab
             ArcadiaModRegistry.registerCardClickHandler("lootbox", LootboxHubScreen::open);
         });
     }
