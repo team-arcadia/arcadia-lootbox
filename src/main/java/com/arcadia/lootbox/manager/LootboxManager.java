@@ -44,7 +44,11 @@ public final class LootboxManager {
             if (!Files.exists(dir)) {
                 Files.createDirectories(dir);
             }
-            createExamples(dir);
+            // Only generate examples if no JSON files exist yet (first launch)
+            File[] existing = dir.toFile().listFiles((d, n) -> n.endsWith(".json"));
+            if (existing == null || existing.length == 0) {
+                createExamples(dir);
+            }
             createTutorial(dir);
             reload();
             initialized = true;
