@@ -26,7 +26,7 @@ public final class ClientEvents {
             ArcadiaModRegistry.registerCard(new ArcadiaModCard(
                     "lootbox", "\uD83C\uDF81",
                     "arcadialootbox.hub.title", "arcadialootbox.hub.subtitle",
-                    0xFFAA00, 2, 1, -1, true
+                    0xFFAA00, 2, 1, -1, true, null, "lootbox.hub"
             ));
             // Custom click handler — opens the lootbox hub screen instead of a dashboard tab
             ArcadiaModRegistry.registerCardClickHandler("lootbox", LootboxHubScreen::open);
