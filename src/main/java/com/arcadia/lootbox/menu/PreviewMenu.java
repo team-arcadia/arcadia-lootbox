@@ -85,7 +85,7 @@ public class PreviewMenu extends ChestMenu {
                 ? (fr ? "§a\u2714 Garanti §7(1 objet + garanti)" : "§a\u2714 Guaranteed §7(1 item + guaranteed)")
                 : (fr ? "§e\u2696 Pondéré §7(% par objet)" : "§e\u2696 Weighted §7(% per item)");
 
-        ItemBuilder info = ItemBuilder.of(Items.NETHER_STAR)
+        ItemBuilder info = ItemBuilder.of(com.arcadia.lib.LibModItems.ARCADIA_STAR.get())
                 .name(Component.literal(def.rarityColor() + "§l\u2B50 " + name))
                 .addLore("")
                 .addLore("§8\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550")
