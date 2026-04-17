@@ -83,10 +83,13 @@ public final class LootHelper {
         List<Component> lore = new ArrayList<>();
         String rarityName = fr ? LanguageHelper.getFR("rarity." + (def.rarity() != null ? def.rarity().toLowerCase() : "common"))
                 : def.rarityDisplayName();
-        lore.add(Component.literal("§7" + (fr ? "Rareté" : "Rarity") + ": " + def.rarityColor() + rarityName));
-        lore.add(Component.literal("§7" + (fr ? "Clé" : "Key") + ": §f" + def.keyItem()));
-        lore.add(Component.literal("§7Type: §f" + (def.isGuaranteedType() ? (fr ? "Garanti" : "Guaranteed") : (fr ? "Pondéré" : "Weighted"))));
-        if (def.maxUses() > 0) lore.add(Component.literal("§7" + (fr ? "Utilisations" : "Max Uses") + ": §f" + def.maxUses()));
+        lore.add(Component.translatable("arcadialootbox.lore.rarity",
+                def.rarityColor() + rarityName));
+        lore.add(Component.translatable("arcadialootbox.lore.key", def.keyItem()));
+        lore.add(Component.translatable("arcadialootbox.lore.type",
+                Component.translatable(def.isGuaranteedType()
+                        ? "arcadialootbox.type.guaranteed" : "arcadialootbox.type.weighted")));
+        if (def.maxUses() > 0) lore.add(Component.translatable("arcadialootbox.lore.max_uses", def.maxUses()));
         stack.set(DataComponents.LORE, new ItemLore(lore));
 
         if (!player.getInventory().add(stack)) player.drop(stack, false);

@@ -53,5 +53,11 @@
   "arcadialootbox.hub.title": "Lootbox",
   "arcadialootbox.hub.subtitle": "Keys & Crates",
   "tooltip.arcadialootbox.key.use": "Use on a Lootbox to open it",
-  "tooltip.arcadialootbox.key.mod": "Arcadia Lootbox Key"
+  "tooltip.arcadialootbox.key.mod": "Arcadia Lootbox Key",
+  "arcadialootbox.lore.rarity": "§7Rarity: %s",
+  "arcadialootbox.lore.key": "§7Key: §f%s",
+  "arcadialootbox.lore.type": "§7Type: §f%s",
+  "arcadialootbox.lore.max_uses": "§7Max Uses: §f%s",
+  "arcadialootbox.type.guaranteed": "Guaranteed",
+  "arcadialootbox.type.weighted": "Weighted"
 }

@@ -52,6 +52,12 @@
   "itemGroup.arcadialootbox.lootbox_keys": "Cles Arcadia Lootbox",
   "arcadialootbox.hub.title": "Lootbox",
   "arcadialootbox.hub.subtitle": "Cles & Coffres",
-  "tooltip.arcadialootbox.key.use": "Utilisez sur une Lootbox pour l ouvrir",
-  "tooltip.arcadialootbox.key.mod": "Cle Arcadia Lootbox"
+  "tooltip.arcadialootbox.key.use": "Utilise sur une Lootbox pour l'ouvrir",
+  "tooltip.arcadialootbox.key.mod": "Clé Arcadia Lootbox",
+  "arcadialootbox.lore.rarity": "§7Rareté : %s",
+  "arcadialootbox.lore.key": "§7Clé : §f%s",
+  "arcadialootbox.lore.type": "§7Type : §f%s",
+  "arcadialootbox.lore.max_uses": "§7Utilisations : §f%s",
+  "arcadialootbox.type.guaranteed": "Garanti",
+  "arcadialootbox.type.weighted": "Pondéré"
 }
