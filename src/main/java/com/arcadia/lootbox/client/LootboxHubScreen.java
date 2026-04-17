@@ -50,7 +50,7 @@ public class LootboxHubScreen extends Screen {
     }
     private final List<CardHitbox> cardHitboxes = new ArrayList<>();
 
-    public LootboxHubScreen() { super(Component.literal("Arcadia Lootbox Hub")); }
+    public LootboxHubScreen() { super(Component.translatable("arcadialootbox.gui.hub_title")); }
 
     public static void open() { Minecraft.getInstance().setScreen(new LootboxHubScreen()); }
 
@@ -79,13 +79,13 @@ public class LootboxHubScreen extends Screen {
         boolean fr = isFrench();
 
         // Title
-        ArcadiaTheme.drawTitleBar(g, Component.literal(fr ? "Hub Lootbox" : "Lootbox Hub"), cx, 14, width - 80);
-        g.drawCenteredString(font, Component.literal(fr ? "Parcourir les lootbox disponibles" : "Browse available lootboxes"),
+        ArcadiaTheme.drawTitleBar(g, Component.translatable("arcadialootbox.gui.hub_title"), cx, 14, width - 80);
+        g.drawCenteredString(font, Component.translatable("arcadialootbox.gui.hub_subtitle"),
                 cx, 30, ArcadiaTheme.TEXT_SECONDARY);
         ArcadiaTheme.drawSeparator(g, 40, 42, width - 80, ArcadiaTheme.withAlpha(ArcadiaTheme.COPPER, 0x44));
 
         if (categorized == null || categorized.isEmpty()) {
-            ArcadiaTheme.drawCenteredText(g, Component.literal(fr ? "Aucune lootbox disponible" : "No lootboxes available"),
+            ArcadiaTheme.drawCenteredText(g, Component.translatable("arcadialootbox.gui.none_available"),
                     cx, height / 2, ArcadiaTheme.TEXT_DIM);
             super.render(g, mouseX, mouseY, pt);
             return;
@@ -148,20 +148,18 @@ public class LootboxHubScreen extends Screen {
 
         // Singleplayer warning
         if (Minecraft.getInstance().isSingleplayer()) {
-            String warn = fr
-                    ? "\u26A0 Les lootbox boutique sont disponibles uniquement sur le serveur officiel"
-                    : "\u26A0 Shop lootboxes are only available on the official server";
-            g.drawCenteredString(font, Component.literal("§c" + warn), cx, contentBottom + 2, 0xFFFF5555);
+            g.drawCenteredString(font, Component.translatable("arcadialootbox.gui.shop_warning"),
+                    cx, contentBottom + 2, 0xFFFF5555);
         }
 
         // Shop button
         int btnW = 220, btnH = 22, btnX = cx - btnW / 2, btnY = height - 38;
         boolean btnHov = mouseX >= btnX && mouseX < btnX + btnW && mouseY >= btnY && mouseY < btnY + btnH;
         ArcadiaTheme.drawPanel(g, btnX, btnY, btnW, btnH, btnHov, ArcadiaTheme.PATINA);
-        g.drawCenteredString(font, Component.literal(fr ? "\uD83D\uDED2 Acheter des Cles" : "\uD83D\uDED2 Buy Lootbox Keys"),
+        g.drawCenteredString(font, Component.translatable("arcadialootbox.gui.buy_keys"),
                 cx, btnY + 7, btnHov ? ArcadiaTheme.TEXT_PRIMARY : ArcadiaTheme.TEXT_SECONDARY);
 
-        g.drawCenteredString(font, Component.literal(fr ? "ESC pour fermer" : "ESC to close"),
+        g.drawCenteredString(font, Component.translatable("arcadialootbox.gui.esc_close"),
                 cx, height - 12, ArcadiaTheme.TEXT_DIM);
 
         super.render(g, mouseX, mouseY, pt);
@@ -182,11 +180,11 @@ public class LootboxHubScreen extends Screen {
         // Rarity
         g.drawCenteredString(font, Component.literal(fr ? frRarity(e.rarity()) : cap(e.rarity())), cx, y + 33, accent | 0xFF000000);
         // Type
-        String typeLabel = e.type().equalsIgnoreCase("guaranteed")
-                ? (fr ? "Garanti" : "Guaranteed") : (fr ? "Pondere" : "Weighted");
-        g.drawCenteredString(font, Component.literal(typeLabel), cx, y + 46, ArcadiaTheme.TEXT_SECONDARY);
+        Component typeLabel = Component.translatable(e.type().equalsIgnoreCase("guaranteed")
+                ? "arcadialootbox.type.guaranteed" : "arcadialootbox.type.weighted");
+        g.drawCenteredString(font, typeLabel, cx, y + 46, ArcadiaTheme.TEXT_SECONDARY);
         // Drops count
-        g.drawCenteredString(font, Component.literal(e.lootCount() + " drops"), cx, y + 58, ArcadiaTheme.TEXT_DIM);
+        g.drawCenteredString(font, Component.translatable("arcadialootbox.gui.drops", e.lootCount()), cx, y + 58, ArcadiaTheme.TEXT_DIM);
     }
 
     @Override

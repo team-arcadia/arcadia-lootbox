@@ -81,31 +81,33 @@ public class PreviewMenu extends ChestMenu {
         }
 
         // ── Info (slot 4) ──────────────────────────────────────────────
-        String typeStr = def.isGuaranteedType()
-                ? (fr ? "§a\u2714 Garanti §7(1 objet + garanti)" : "§a\u2714 Guaranteed §7(1 item + guaranteed)")
-                : (fr ? "§e\u2696 Pondéré §7(% par objet)" : "§e\u2696 Weighted §7(% per item)");
+        Component typeLine = Component.translatable(def.isGuaranteedType()
+                ? "arcadialootbox.gui.preview.guaranteed_lore"
+                : "arcadialootbox.gui.preview.weighted_lore");
 
         ItemBuilder info = ItemBuilder.of(com.arcadia.lib.LibModItems.ARCADIA_STAR.get())
                 .name(Component.literal(def.rarityColor() + "§l\u2B50 " + name))
                 .addLore("")
                 .addLore("§8\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550")
-                .addLore("  §7" + (fr ? "Rareté" : "Rarity") + " : " + def.rarityColor() + (fr ? frRarity(def.rarity()) : def.rarityDisplayName()))
-                .addLore("  §7" + (fr ? "Clé requise" : "Required Key") + " : §f" + shortItem(def.keyItem()))
-                .addLore("  §7Type : " + typeStr)
-                .addLore("  §7" + (fr ? "Récompenses" : "Rewards") + " : §f" + def.lootTable().size() + (fr ? " objets" : " items"))
+                .addLore(Component.translatable("arcadialootbox.gui.preview.rarity").copy()
+                        .append(Component.literal(def.rarityColor() + (fr ? frRarity(def.rarity()) : def.rarityDisplayName()))))
+                .addLore(Component.translatable("arcadialootbox.gui.preview.key_required").copy()
+                        .append(Component.literal(shortItem(def.keyItem()))))
+                .addLore(Component.translatable("arcadialootbox.lore.type", typeLine))
+                .addLore(Component.translatable("arcadialootbox.gui.preview.rewards", def.lootTable().size()))
                 .addLore("§8\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550");
 
         if (def.isGuaranteedType() && def.guaranteedItem() != null && !def.guaranteedItem().isEmpty()) {
-            info.addLore("  §a\u2714 " + (fr ? "Garanti" : "Guaranteed") + " : §f" + shortItem(def.guaranteedItem()) +
-                    " §7(" + def.guaranteedMinCount() + "-" + def.guaranteedMaxCount() + ")");
+            info.addLore("  §a\u2714 §f" + shortItem(def.guaranteedItem())
+                    + " §7(" + def.guaranteedMinCount() + "-" + def.guaranteedMaxCount() + ")");
         }
         if (def.freeEnabled() && viewer instanceof ServerPlayer sp) {
             info.addLore("");
             if (FreeLootboxManager.canClaim(sp, lootboxId, def)) {
-                info.addLore(fr ? "  §a§l\u2605 Réclamation GRATUITE !" : "  §a§l\u2605 FREE claim available!");
+                info.addLore(Component.translatable("arcadialootbox.gui.preview.free_claim"));
             } else {
                 String remaining = FreeLootboxManager.getRemainingFormatted(sp, lootboxId, def);
-                info.addLore("  §7" + (fr ? "Gratuit dans" : "Free in") + " : §e" + remaining);
+                info.addLore(Component.translatable("arcadialootbox.gui.preview.free_in", remaining));
             }
         }
         if (totalPages() > 1) {
@@ -113,17 +115,17 @@ public class PreviewMenu extends ChestMenu {
             info.addLore("  §7Page §e" + (currentPage + 1) + "§7/" + totalPages());
         }
         info.addLore("");
-        info.addLore(fr ? "  §e\u25B6 Cliquez sur 'Tirer' pour ouvrir !" : "  §e\u25B6 Click 'Draw' to open!");
+        info.addLore(Component.translatable("arcadialootbox.gui.preview.click_open"));
         c.setItem(4, info.enchanted().build());
 
         // ── Draw button (slot 49) ──────────────────────────────────────
         c.setItem(DRAW_BUTTON_SLOT, ItemBuilder.of(Items.TRIPWIRE_HOOK)
-                .name(Component.literal("§6§l\u2699 " + (fr ? "TIRER !" : "DRAW!")))
+                .name(Component.translatable("arcadialootbox.gui.preview.draw"))
                 .addLore("")
-                .addLore(fr ? "  §7Cliquez pour ouvrir la lootbox" : "  §7Click to open the lootbox")
-                .addLore(fr ? "  §7La clé sera prise de l'inventaire" : "  §7Key will be taken from inventory")
+                .addLore(Component.translatable("arcadialootbox.gui.preview.click_instructions"))
+                .addLore(Component.translatable("arcadialootbox.gui.preview.key_deducted"))
                 .addLore("")
-                .addLore(fr ? "  §e\u25B6 Clic pour lancer le tirage !" : "  §e\u25B6 Click to roll!")
+                .addLore(Component.translatable("arcadialootbox.gui.preview.click_roll"))
                 .enchanted()
                 .build());
 
@@ -131,13 +133,13 @@ public class PreviewMenu extends ChestMenu {
         if (totalPages() > 1) {
             if (currentPage > 0) {
                 c.setItem(PREV_PAGE_SLOT, ItemBuilder.of(Items.ARROW)
-                        .name(Component.literal("§e\u25C0 " + (fr ? "Page précédente" : "Previous Page")))
+                        .name(Component.translatable("arcadialootbox.gui.preview.prev"))
                         .addLore("§7Page " + currentPage + "/" + totalPages())
                         .build());
             }
             if (currentPage < totalPages() - 1) {
                 c.setItem(NEXT_PAGE_SLOT, ItemBuilder.of(Items.ARROW)
-                        .name(Component.literal("§e" + (fr ? "Page suivante" : "Next Page") + " \u25B6"))
+                        .name(Component.translatable("arcadialootbox.gui.preview.next"))
                         .addLore("§7Page " + (currentPage + 2) + "/" + totalPages())
                         .build());
             }
@@ -162,16 +164,21 @@ public class PreviewMenu extends ChestMenu {
             String eName = entry.displayName() != null ? entry.displayName() : shortItem(entry.item());
             String eRarityName = fr ? frRarity(eRarity) : capitalize(eRarity);
 
-            String chanceStr = def.isGuaranteedType()
-                    ? String.format("%.2f", entry.chance()) + " " + (fr ? "poids" : "weight")
+            String chanceRaw = def.isGuaranteedType()
+                    ? String.format("%.2f", entry.chance())
                     : String.format("%.1f%%", entry.chance() * 100);
 
             ItemStack display = ItemBuilder.of(item)
                     .name(Component.literal(eColor + "§l" + eName))
                     .addLore("")
                     .addLore("  " + eColor + "\u25C6 " + eRarityName)
-                    .addLore("  §7" + (fr ? "Probabilité" : "Chance") + " : §e" + chanceStr)
-                    .addLore("  §7" + (fr ? "Quantité" : "Quantity") + " : §f" + entry.minCount() + " - " + entry.maxCount())
+                    .addLore(Component.literal("  §7").append(
+                            Component.translatable("arcadialootbox.gui.preview.chance"))
+                            .append(Component.literal(" : §e" + chanceRaw
+                                    + (def.isGuaranteedType() ? " " : ""))))
+                    .addLore(Component.literal("  §7").append(
+                            Component.translatable("arcadialootbox.gui.preview.quantity"))
+                            .append(Component.literal(" : §f" + entry.minCount() + " - " + entry.maxCount())))
                     .addLore("")
                     .build();
 
