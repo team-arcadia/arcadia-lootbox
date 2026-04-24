@@ -1,0 +1,35 @@
+{
+    "displayName": "§9Superior Vote Box",
+    "displayNameFR": "§9Boite de Vote Superieure",
+    "color": "blue",
+    "keyItem": "arcadialootbox:vote_key_superior",
+    "openSound": "minecraft:ui.toast.challenge_complete",
+    "openMessage": "§9You opened a §lSuperior Vote Box§9!",
+    "openMessageFR": "§9Vous avez ouvert une §lBoite de Vote Superieure§9!",
+    "rarity": "uncommon",
+    "sortOrder": 4,
+    "destroyOnOpen": true,
+    "lootTable": [
+        {
+            "item": "minecraft:diamond",
+            "minCount": 4,
+            "maxCount": 8,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:emerald",
+            "minCount": 6,
+            "maxCount": 12,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:netherite_scrap",
+            "minCount": 1,
+            "maxCount": 2,
+            "chance": 0.2
+        }
+    ],
+    "particles": [
+        "minecraft:enchant"
+    ]
+}

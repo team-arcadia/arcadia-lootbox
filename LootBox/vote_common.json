@@ -1,0 +1,29 @@
+{
+    "displayName": "§fCommon Vote Box",
+    "displayNameFR": "§fBoite de Vote Commune",
+    "color": "white",
+    "keyItem": "arcadialootbox:vote_key_common",
+    "openSound": "minecraft:ui.toast.challenge_complete",
+    "openMessage": "§fYou opened a §lCommon Vote Box§f!",
+    "openMessageFR": "§fVous avez ouvert une §lBoite de Vote Commune§f!",
+    "rarity": "common",
+    "sortOrder": 1,
+    "destroyOnOpen": true,
+    "lootTable": [
+        {
+            "item": "minecraft:iron_ingot",
+            "minCount": 2,
+            "maxCount": 6,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:gold_ingot",
+            "minCount": 1,
+            "maxCount": 3,
+            "chance": 0.4
+        }
+    ],
+    "particles": [
+        "minecraft:crit"
+    ]
+}

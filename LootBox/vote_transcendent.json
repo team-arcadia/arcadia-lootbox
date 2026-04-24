@@ -1,0 +1,45 @@
+{
+    "displayName": "§dTranscendent Vote Box",
+    "displayNameFR": "§dBoite de Vote Transcendante",
+    "color": "light_purple",
+    "keyItem": "arcadialootbox:vote_key_transcendent",
+    "openSound": "minecraft:ui.toast.challenge_complete",
+    "openMessage": "§dYou opened a §lTranscendent Vote Box§d!",
+    "openMessageFR": "§dVous avez ouvert une §lBoite de Vote Transcendante§d!",
+    "rarity": "epic",
+    "sortOrder": 10,
+    "destroyOnOpen": true,
+    "broadcastRare": true,
+    "broadcastMessage": "§d%player% §fhas opened the §d§lTranscendent Vote Box§f!",
+    "lootTable": [
+        {
+            "item": "minecraft:netherite_block",
+            "minCount": 2,
+            "maxCount": 4,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:nether_star",
+            "minCount": 4,
+            "maxCount": 8,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:dragon_egg",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.3
+        },
+        {
+            "item": "minecraft:elytra",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 1.0
+        }
+    ],
+    "particles": [
+        "minecraft:end_rod",
+        "minecraft:dragon_breath",
+        "minecraft:totem_of_undying"
+    ]
+}

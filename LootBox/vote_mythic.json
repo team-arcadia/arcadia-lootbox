@@ -1,0 +1,38 @@
+{
+    "displayName": "§cMythic Vote Box",
+    "displayNameFR": "§cBoite de Vote Mythique",
+    "color": "red",
+    "keyItem": "arcadialootbox:vote_key_mythic",
+    "openSound": "minecraft:ui.toast.challenge_complete",
+    "openMessage": "§cYou opened a §lMythic Vote Box§c!",
+    "openMessageFR": "§cVous avez ouvert une §lBoite de Vote Mythique§c!",
+    "rarity": "epic",
+    "sortOrder": 7,
+    "destroyOnOpen": true,
+    "broadcastRare": true,
+    "broadcastMessage": "§c%player% §fhas opened a §c§lMythic Vote Box§f!",
+    "lootTable": [
+        {
+            "item": "minecraft:netherite_ingot",
+            "minCount": 2,
+            "maxCount": 4,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:enchanted_golden_apple",
+            "minCount": 4,
+            "maxCount": 8,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:nether_star",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.2
+        }
+    ],
+    "particles": [
+        "minecraft:totem_of_undying",
+        "minecraft:end_rod"
+    ]
+}

@@ -1,0 +1,38 @@
+{
+    "displayName": "§eCelestial Vote Box",
+    "displayNameFR": "§eBoite de Vote Celeste",
+    "color": "yellow",
+    "keyItem": "arcadialootbox:vote_key_celestial",
+    "openSound": "minecraft:ui.toast.challenge_complete",
+    "openMessage": "§eYou opened a §lCelestial Vote Box§e!",
+    "openMessageFR": "§eVous avez ouvert une §lBoite de Vote Celeste§e!",
+    "rarity": "epic",
+    "sortOrder": 9,
+    "destroyOnOpen": true,
+    "broadcastRare": true,
+    "broadcastMessage": "§e%player% §fhas opened a §e§lCelestial Vote Box§f!",
+    "lootTable": [
+        {
+            "item": "minecraft:netherite_block",
+            "minCount": 1,
+            "maxCount": 2,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:nether_star",
+            "minCount": 2,
+            "maxCount": 4,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:elytra",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.5
+        }
+    ],
+    "particles": [
+        "minecraft:end_rod",
+        "minecraft:totem_of_undying"
+    ]
+}

@@ -1,0 +1,29 @@
+{
+    "displayName": "§7Uncommon Vote Box",
+    "displayNameFR": "§7Boite de Vote Peu Commune",
+    "color": "gray",
+    "keyItem": "arcadialootbox:vote_key_uncommon",
+    "openSound": "minecraft:ui.toast.challenge_complete",
+    "openMessage": "§7You opened an §lUncommon Vote Box§7!",
+    "openMessageFR": "§7Vous avez ouvert une §lBoite de Vote Peu Commune§7!",
+    "rarity": "common",
+    "sortOrder": 2,
+    "destroyOnOpen": true,
+    "lootTable": [
+        {
+            "item": "minecraft:gold_ingot",
+            "minCount": 2,
+            "maxCount": 6,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:diamond",
+            "minCount": 1,
+            "maxCount": 2,
+            "chance": 0.3
+        }
+    ],
+    "particles": [
+        "minecraft:crit"
+    ]
+}

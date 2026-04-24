@@ -1,0 +1,38 @@
+{
+    "displayName": "§bDivine Vote Box",
+    "displayNameFR": "§bBoite de Vote Divine",
+    "color": "aqua",
+    "keyItem": "arcadialootbox:vote_key_divine",
+    "openSound": "minecraft:ui.toast.challenge_complete",
+    "openMessage": "§bYou opened a §lDivine Vote Box§b!",
+    "openMessageFR": "§bVous avez ouvert une §lBoite de Vote Divine§b!",
+    "rarity": "epic",
+    "sortOrder": 8,
+    "destroyOnOpen": true,
+    "broadcastRare": true,
+    "broadcastMessage": "§b%player% §fhas opened a §b§lDivine Vote Box§f!",
+    "lootTable": [
+        {
+            "item": "minecraft:netherite_ingot",
+            "minCount": 4,
+            "maxCount": 8,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:nether_star",
+            "minCount": 1,
+            "maxCount": 2,
+            "chance": 0.5
+        },
+        {
+            "item": "minecraft:dragon_egg",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.1
+        }
+    ],
+    "particles": [
+        "minecraft:end_rod",
+        "minecraft:dragon_breath"
+    ]
+}

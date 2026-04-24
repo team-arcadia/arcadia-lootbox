@@ -1,0 +1,37 @@
+{
+    "displayName": "§6Legendary Vote Box",
+    "displayNameFR": "§6Boite de Vote Legendaire",
+    "color": "gold",
+    "keyItem": "arcadialootbox:vote_key_legendary",
+    "openSound": "minecraft:ui.toast.challenge_complete",
+    "openMessage": "§6You opened a §lLegendary Vote Box§6!",
+    "openMessageFR": "§6Vous avez ouvert une §lBoite de Vote Legendaire§6!",
+    "rarity": "rare",
+    "sortOrder": 6,
+    "destroyOnOpen": true,
+    "broadcastRare": true,
+    "broadcastMessage": "§6%player% §fhas opened a §6§lLegendary Vote Box§f!",
+    "lootTable": [
+        {
+            "item": "minecraft:netherite_ingot",
+            "minCount": 1,
+            "maxCount": 2,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:enchanted_golden_apple",
+            "minCount": 2,
+            "maxCount": 4,
+            "chance": 1.0
+        },
+        {
+            "item": "minecraft:elytra",
+            "minCount": 1,
+            "maxCount": 1,
+            "chance": 0.05
+        }
+    ],
+    "particles": [
+        "minecraft:totem_of_undying"
+    ]
+}
