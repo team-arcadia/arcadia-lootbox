@@ -4,6 +4,26 @@ All notable changes to Arcadia LootBox are documented here.
 
 ---
 
+## [1.2.2] - 2026-04-30
+
+### Changed
+
+- **Preview menu cleaned up** — The bottom of the lootbox preview was crowded: filter chips, pagination arrows and the Draw button all shared the same row. The layout now has three distinct zones: items grid (rows 1–3, 21 slots), rarity filter row (row 4), action bar (row 5) with the Draw button centered and prev/next arrows on its sides.
+- **Three-band frame** — Orange glass for the content frame (top + sides), yellow accents on the filter row, black glass anchoring the action bar. Visual cue tells the player at a glance which row does what.
+- **Item tooltip refresh** — Cleaner separators (`§8:` / `§8-`) and a single trailing line removed; reads better at a glance.
+- **Info pane refresh** — Heavy `═` separators replaced by lighter `▬`; sections are visually grouped (header → guaranteed → filter → keys → page).
+
+---
+
+### Modifications
+
+- **Menu Preview nettoyé** — Le bas du menu était surchargé : les puces de filtre, les flèches de pagination et le bouton Draw partageaient la même rangée. Le layout est maintenant en trois zones distinctes : grille d'objets (rangées 1–3, 21 slots), rangée de filtres de rareté (rangée 4), barre d'action (rangée 5) avec le bouton Draw centré et les flèches précédent/suivant sur ses côtés.
+- **Cadre en trois bandes** — Verre orange pour le cadre du contenu (haut + côtés), accents jaune sur la rangée des filtres, verre noir ancrant la barre d'action. L'œil identifie immédiatement à quoi sert chaque rangée.
+- **Tooltip d'objet rafraîchi** — Séparateurs plus propres (`§8:` / `§8-`) et une ligne vide superflue retirée ; plus lisible d'un coup d'œil.
+- **Panneau Info rafraîchi** — Séparateurs lourds `═` remplacés par des `▬` plus légers ; les sections sont visuellement regroupées (en-tête → garanti → filtre → clés → page).
+
+---
+
 ## [1.2.1] - 2026-04-30
 
 ### Added

@@ -23,38 +23,39 @@ import java.util.*;
 /**
  * Server-side lootbox preview GUI.
  *
- * <p>Layout (54 slots, GENERIC_9x6):
- * <ul>
- *   <li>Slot 4 = info panel</li>
- *   <li>Slots 10–34 = items (28 visible, paginated)</li>
- *   <li>Slots 45–47 = rarity filter chips (only those present in the loot table)</li>
- *   <li>Slot 48 = previous page (if needed)</li>
- *   <li>Slot 49 = Draw button (left=1, right=all keys cap 10, shift=10)</li>
- *   <li>Slot 50 = next page (if needed)</li>
- * </ul>
+ * <p>Layout (54 slots, 9x6, in three clean zones):
+ * <pre>
+ *   Row 0 (0-8)   ░░░░ ⭐INFO ░░░░       — top border + info pane (slot 4)
+ *   Row 1 (9-17)  ░ items 10-16  ░       — content
+ *   Row 2 (18-26) ░ items 19-25  ░
+ *   Row 3 (27-35) ░ items 28-34  ░
+ *   Row 4 (36-44) ░ F0 F1 .. F6  ░       — rarity filter chips (only present rarities)
+ *   Row 5 (45-53) ░ ◀ . ★DRAW . ▶ ░     — action bar: prev (47), Draw (49), next (51)
+ * </pre>
  *
  * @author vyrriox
  */
 public class PreviewMenu extends ChestMenu {
 
-    private static final int DRAW_BUTTON_SLOT = 49;
-    private static final int PREV_PAGE_SLOT = 48;
-    private static final int NEXT_PAGE_SLOT = 50;
+    // Action bar slots
     private static final int INFO_SLOT = 4;
-    private static final int FILTER_ALL_SLOT = 45;
+    private static final int PREV_PAGE_SLOT = 47;
+    private static final int DRAW_BUTTON_SLOT = 49;
+    private static final int NEXT_PAGE_SLOT = 51;
 
+    /** 3 rows × 7 columns = 21 items per page. */
     private static final int[] ITEM_SLOTS = {
             10, 11, 12, 13, 14, 15, 16,
             19, 20, 21, 22, 23, 24, 25,
-            28, 29, 30, 31, 32, 33, 34,
-            37, 38, 39, 40, 41, 42, 43
+            28, 29, 30, 31, 32, 33, 34
     };
-    private static final int ITEMS_PER_PAGE = ITEM_SLOTS.length; // 28
+    private static final int ITEMS_PER_PAGE = ITEM_SLOTS.length; // 21
 
-    /** Filter chip slots reserved for rarities (right after the All chip). */
-    private static final int[] FILTER_RARITY_SLOTS = {46, 47, 51, 52, 53};
+    /** Filter row, centered horizontally (slot 36 = "All", 37-43 = up to 7 rarities). */
+    private static final int FILTER_ALL_SLOT = 36;
+    private static final int[] FILTER_RARITY_SLOTS = {37, 38, 39, 40, 41, 42, 43};
 
-    /** Rarity render order, highest first (so they sort top-of-list). */
+    /** Rarity render order, highest first. */
     private static final List<String> RARITY_ORDER = List.of(
             "mythic", "legendary", "epic", "rare", "uncommon", "common"
     );
@@ -64,13 +65,9 @@ public class PreviewMenu extends ChestMenu {
     private final LootboxDefinition def;
     private final boolean fr;
 
-    /** All items, sorted (rarity desc, then chance asc). Stable across rebuilds. */
     private final List<LootboxDefinition.LootEntry> allSorted;
-
-    /** Set of rarities actually present in this lootbox, in render order. */
     private final List<String> presentRarities;
 
-    /** Current filter — null = show all, otherwise lowercase rarity key. */
     private String filter = null;
     private int page = 0;
 
@@ -115,17 +112,16 @@ public class PreviewMenu extends ChestMenu {
     private void rebuild(Player viewer) {
         var c = this.getContainer();
         clearAll(c);
-        drawBorder(c);
+        drawFrame(c);
 
         List<LootboxDefinition.LootEntry> visible = filteredItems();
         int totalPages = Math.max(1, (visible.size() + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE);
         if (page >= totalPages) page = totalPages - 1;
         if (page < 0) page = 0;
 
-        // Info slot
         c.setItem(INFO_SLOT, buildInfo(viewer, visible.size(), totalPages));
 
-        // Items for current page
+        // Items
         int start = page * ITEMS_PER_PAGE;
         int end = Math.min(start + ITEMS_PER_PAGE, visible.size());
         for (int i = start; i < end; i++) {
@@ -135,20 +131,17 @@ public class PreviewMenu extends ChestMenu {
             if (icon != null) c.setItem(ITEM_SLOTS[slotIdx], icon);
         }
 
-        // Filter chips — only show if multiple rarities exist
+        // Filter row — only when more than one rarity exists
         if (presentRarities.size() > 1) {
             c.setItem(FILTER_ALL_SLOT, buildFilterAllChip());
             int chips = Math.min(presentRarities.size(), FILTER_RARITY_SLOTS.length);
             for (int i = 0; i < chips; i++) {
-                String r = presentRarities.get(i);
-                c.setItem(FILTER_RARITY_SLOTS[i], buildFilterChip(r));
+                c.setItem(FILTER_RARITY_SLOTS[i], buildFilterChip(presentRarities.get(i)));
             }
         }
 
-        // Draw button
+        // Action bar — Draw centered, prev/next on its sides
         c.setItem(DRAW_BUTTON_SLOT, buildDrawButton(viewer));
-
-        // Pagination — only if multi-page; place around the Draw button
         if (totalPages > 1) {
             if (page > 0) {
                 c.setItem(PREV_PAGE_SLOT, ItemBuilder.of(Items.ARROW)
@@ -186,30 +179,31 @@ public class PreviewMenu extends ChestMenu {
         ItemBuilder info = ItemBuilder.of(com.arcadia.lib.LibModItems.ARCADIA_STAR.get())
                 .name(Component.literal(def.rarityColor() + "§l⭐ " + name))
                 .addLore("")
-                .addLore("§8════════════════════")
+                .addLore("§8▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬")
                 .addLore(Component.translatable("arcadialootbox.gui.preview.rarity").copy()
                         .append(Component.literal(def.rarityColor()
                                 + (fr ? frRarity(def.rarity()) : def.rarityDisplayName()))))
                 .addLore(Component.translatable("arcadialootbox.gui.preview.key_required").copy()
                         .append(Component.literal(shortItem(def.keyItem()))))
                 .addLore(Component.translatable("arcadialootbox.lore.type", typeLine))
-                .addLore(Component.translatable("arcadialootbox.gui.preview.rewards", visibleCount))
-                .addLore("§8════════════════════");
+                .addLore(Component.translatable("arcadialootbox.gui.preview.rewards", visibleCount));
 
         if (def.isGuaranteedType() && def.guaranteedItem() != null && !def.guaranteedItem().isEmpty()) {
+            info.addLore("§8▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
             info.addLore(Component.translatable("arcadialootbox.gui.preview.guaranteed_section"));
             info.addLore("  §a✔ §f" + shortItem(def.guaranteedItem())
                     + " §7(" + def.guaranteedMinCount() + "-" + def.guaranteedMaxCount() + ")");
         }
 
         if (filter != null) {
+            info.addLore("§8▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
             String color = rarityColor(filter);
             String rarityName = fr ? frRarity(filter) : capitalize(filter);
-            info.addLore("");
             info.addLore("§7" + (fr ? "Filtre :" : "Filter:") + " " + color + rarityName);
         }
 
         if (viewer instanceof ServerPlayer sp) {
+            info.addLore("§8▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
             int keysHeld = LootHelper.countKeysInInventory(sp, lootboxId);
             info.addLore(Component.translatable("arcadialootbox.gui.preview.keys_held",
                     String.valueOf(keysHeld)));
@@ -225,10 +219,8 @@ public class PreviewMenu extends ChestMenu {
 
         if (totalPages > 1) {
             info.addLore("");
-            info.addLore("  §7Page §e" + (page + 1) + "§7/" + totalPages);
+            info.addLore("  §8» §7Page §e" + (page + 1) + "§7/" + totalPages);
         }
-        info.addLore("");
-        info.addLore(Component.translatable("arcadialootbox.gui.preview.click_open"));
         return info.enchanted().build();
     }
 
@@ -250,14 +242,13 @@ public class PreviewMenu extends ChestMenu {
         ItemStack display = ItemBuilder.of(item)
                 .name(Component.literal(eColor + "§l" + eName))
                 .addLore("")
-                .addLore("  " + eColor + "◆ " + eRarityName)
+                .addLore("  " + eColor + "◆ §r" + eColor + eRarityName)
                 .addLore(Component.literal("  §7").append(
                         Component.translatable("arcadialootbox.gui.preview.chance"))
-                        .append(Component.literal(" : §e" + chanceRaw)))
+                        .append(Component.literal(" §8: §e" + chanceRaw)))
                 .addLore(Component.literal("  §7").append(
                         Component.translatable("arcadialootbox.gui.preview.quantity"))
-                        .append(Component.literal(" : §f" + entry.minCount() + " - " + entry.maxCount())))
-                .addLore("")
+                        .append(Component.literal(" §8: §f" + entry.minCount() + "§8-§f" + entry.maxCount())))
                 .build();
 
         if ("legendary".equals(eRarity) || "mythic".equals(eRarity) || "epic".equals(eRarity)) {
@@ -268,12 +259,16 @@ public class PreviewMenu extends ChestMenu {
 
     private ItemStack buildFilterAllChip() {
         boolean active = filter == null;
-        ItemBuilder b = ItemBuilder.of(active ? Items.NETHER_STAR : Items.WHITE_DYE)
-                .name(Component.literal((active ? "§e§l" : "§7") + (fr ? "Toutes les raretés" : "All rarities")))
+        ItemBuilder b = ItemBuilder.of(active ? Items.NETHER_STAR : Items.BOOK)
+                .name(Component.literal((active ? "§e§l✦ " : "§7") + (fr ? "Toutes les raretés" : "All rarities")))
                 .addLore("")
-                .addLore("§7" + allSorted.size() + (fr ? " objets au total" : " items total"));
-        if (active) b.enchanted();
-        else b.addLore("§6▶ " + (fr ? "Clique pour afficher tout" : "Click to show all"));
+                .addLore("§8▸ §7" + allSorted.size() + (fr ? " objets au total" : " items total"));
+        if (active) {
+            b.addLore("§8» §a" + (fr ? "Filtre actif" : "Active filter"));
+            b.enchanted();
+        } else {
+            b.addLore("§8» §6" + (fr ? "Clique pour tout afficher" : "Click to show all"));
+        }
         return b.build();
     }
 
@@ -287,15 +282,14 @@ public class PreviewMenu extends ChestMenu {
             if (r.equals(rarity)) count++;
         }
         ItemBuilder b = ItemBuilder.of(filterIconFor(rarity))
-                .name(Component.literal(color + (active ? "§l" : "") + rarityName))
+                .name(Component.literal(color + (active ? "§l◆ " : "") + rarityName))
                 .addLore("")
-                .addLore("§7" + count + (fr ? " objet(s)" : " item(s)"))
-                .addLore("");
+                .addLore("§8▸ §7" + count + (fr ? " objet(s)" : " item(s)"));
         if (active) {
-            b.addLore("§e" + (fr ? "Filtre actif" : "Active filter"));
+            b.addLore("§8» §a" + (fr ? "Filtre actif" : "Active filter"));
             b.enchanted();
         } else {
-            b.addLore("§6▶ " + (fr ? "Clique pour filtrer" : "Click to filter"));
+            b.addLore("§8» §6" + (fr ? "Clique pour filtrer" : "Click to filter"));
         }
         return b.build();
     }
@@ -334,14 +328,12 @@ public class PreviewMenu extends ChestMenu {
 
     @Override
     public void clicked(int slotId, int button, ClickType clickType, Player player) {
-        // Block any item movement out of the GUI
         if (clickType == ClickType.QUICK_MOVE
                 || clickType == ClickType.SWAP
                 || clickType == ClickType.QUICK_CRAFT
                 || clickType == ClickType.THROW
                 || clickType == ClickType.CLONE
                 || clickType == ClickType.PICKUP_ALL) {
-            // Shift-click on Draw → bulk open instead of vanilla quick-move
             if (slotId == DRAW_BUTTON_SLOT && clickType == ClickType.QUICK_MOVE
                     && player instanceof ServerPlayer sp) {
                 int held = LootHelper.countKeysInInventory(sp, lootboxId);
@@ -353,7 +345,6 @@ public class PreviewMenu extends ChestMenu {
             return;
         }
 
-        // Draw button — left=1, right=all-keys (cap 10)
         if (slotId == DRAW_BUTTON_SLOT && player instanceof ServerPlayer sp) {
             if (button == 1) {
                 int held = LootHelper.countKeysInInventory(sp, lootboxId);
@@ -368,7 +359,6 @@ public class PreviewMenu extends ChestMenu {
             return;
         }
 
-        // Pagination
         if (slotId == PREV_PAGE_SLOT && page > 0) {
             page--;
             rebuild(player);
@@ -381,7 +371,6 @@ public class PreviewMenu extends ChestMenu {
             return;
         }
 
-        // Filter chips
         if (slotId == FILTER_ALL_SLOT && presentRarities.size() > 1) {
             filter = null;
             page = 0;
@@ -400,9 +389,7 @@ public class PreviewMenu extends ChestMenu {
             }
         }
 
-        // Block all other clicks in the chest area
         if (slotId >= 0 && slotId < 54) return;
-        // Player-inventory clicks: ignored
     }
 
     @Override
@@ -422,14 +409,39 @@ public class PreviewMenu extends ChestMenu {
         for (int i = 0; i < 54; i++) c.setItem(i, ItemStack.EMPTY);
     }
 
-    private void drawBorder(net.minecraft.world.Container c) {
-        ItemStack border = ItemBuilder.of(Items.ORANGE_STAINED_GLASS_PANE).name(Component.literal(" ")).build();
-        for (int i = 0; i < 9; i++) c.setItem(i, border.copy());
-        for (int i = 45; i < 54; i++) c.setItem(i, border.copy());
-        for (int row = 1; row < 5; row++) {
-            c.setItem(row * 9, border.copy());
-            c.setItem(row * 9 + 8, border.copy());
+    /**
+     * Three-band frame:
+     *   - top/sides/middle separator: orange glass (warm tone matches Arcadia theme)
+     *   - filter row corners: yellow glass (visual cue: "you can click here")
+     *   - action row corners: black glass (anchors the Draw button)
+     */
+    private void drawFrame(net.minecraft.world.Container c) {
+        ItemStack warm = pane(Items.ORANGE_STAINED_GLASS_PANE);
+        ItemStack accent = pane(Items.YELLOW_STAINED_GLASS_PANE);
+        ItemStack base = pane(Items.BLACK_STAINED_GLASS_PANE);
+
+        // Top row (info bar)
+        for (int i = 0; i < 9; i++) {
+            if (i != INFO_SLOT) c.setItem(i, warm.copy());
         }
+        // Side columns for content rows 1-3
+        for (int row = 1; row <= 3; row++) {
+            c.setItem(row * 9, warm.copy());
+            c.setItem(row * 9 + 8, warm.copy());
+        }
+        // Filter row: side accents only (chips fill the middle)
+        c.setItem(36, accent.copy()); // overwritten if filters shown — placeholder behind
+        c.setItem(44, accent.copy());
+        // Action row: black base everywhere except prev/draw/next
+        for (int i = 45; i < 54; i++) {
+            if (i != PREV_PAGE_SLOT && i != DRAW_BUTTON_SLOT && i != NEXT_PAGE_SLOT) {
+                c.setItem(i, base.copy());
+            }
+        }
+    }
+
+    private static ItemStack pane(net.minecraft.world.item.Item paneItem) {
+        return ItemBuilder.of(paneItem).name(Component.literal(" ")).build();
     }
 
     private static net.minecraft.world.item.Item filterIconFor(String rarity) {
@@ -439,7 +451,7 @@ public class PreviewMenu extends ChestMenu {
             case "epic" -> Items.AMETHYST_SHARD;
             case "legendary" -> Items.GOLD_INGOT;
             case "mythic" -> Items.NETHER_STAR;
-            default -> Items.WHITE_DYE;
+            default -> Items.BONE_MEAL;
         };
     }
 
