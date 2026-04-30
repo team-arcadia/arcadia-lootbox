@@ -84,5 +84,18 @@
   "arcadialootbox.gui.preview.quantity": "Quantity",
   "arcadialootbox.gui.preview.guaranteed_lore": "§a✔ Guaranteed §7(1 item + guaranteed)",
   "arcadialootbox.gui.preview.weighted_lore": "§e⚖ Weighted §7(% per item)",
-  "arcadialootbox.gui.preview.guaranteed_tag": " (guaranteed)"
+  "arcadialootbox.gui.preview.guaranteed_tag": " (guaranteed)",
+  "arcadialootbox.gui.preview.category_title": "%s Rewards",
+  "arcadialootbox.gui.preview.category_count": "§7%s item(s) in this category",
+  "arcadialootbox.gui.preview.category_click": "§6▶ Click to view items",
+  "arcadialootbox.gui.preview.back": "§e◀ Back to categories",
+  "arcadialootbox.gui.preview.back_lore": "§7Return to the rarity overview",
+  "arcadialootbox.gui.preview.draw_left": "§a▶ Left-click §7: open §f1 §7lootbox",
+  "arcadialootbox.gui.preview.draw_right": "§b▶ Right-click §7: open §f%s §7(all your keys)",
+  "arcadialootbox.gui.preview.draw_shift": "§e▶ Shift-click §7: open §f%s §7(up to 10)",
+  "arcadialootbox.gui.preview.keys_held": "§7Keys held: §e%s",
+  "arcadialootbox.gui.preview.no_keys": "§c⚠ You have no keys",
+  "arcadialootbox.gui.preview.bulk_summary": "§a%s lootboxes opened — §e%s items received",
+  "arcadialootbox.gui.preview.bulk_limit": "§c⚠ Multi-open limited to %s per click",
+  "arcadialootbox.gui.preview.guaranteed_section": "§6§l★ Guaranteed Drop"
 }

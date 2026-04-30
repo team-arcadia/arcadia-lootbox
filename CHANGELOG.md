@@ -4,6 +4,46 @@ All notable changes to Arcadia LootBox are documented here.
 
 ---
 
+## [1.2.1] - 2026-04-30
+
+### Added
+
+- **Collapsible Hub categories** — The Lootbox Hub now opens with every category folded so the screen stays readable. Click a header to expand it; chevron icon flips between `▶` and `▼`. Per-category state is preserved across resizes and reopens.
+- **Expand-all / Collapse-all buttons** — Top-right shortcuts on the Hub to deploy or fold every category at once.
+- **Rarity-grouped Preview menu** — The lootbox preview no longer dumps every drop on a single page. Items are bucketed by rarity (Common → Mythic). The overview shows one icon per rarity with the count and a 3-item teaser; clicking a bucket opens a dedicated 28-slot detail view with its own pagination and a back button.
+- **Multi-draw on the Draw button** — Open multiple lootboxes in one click when you hold several keys: left-click = 1, right-click = up to all keys held (capped at 10), shift-click = up to 10. Per-lootbox cooldown is applied once after the bulk run; anti-autoclicker and usage caps are still enforced per opening.
+- **Bulk-open helper** — `LootHelper.handleBulkLootboxAttempt` and `LootHelper.countKeysInInventory` for the new flow, with a hard `BULK_OPEN_LIMIT` of 10.
+- **Keys-held indicator** — The info panel and the Draw button now display how many matching keys the player has on them.
+
+### Fixed
+
+- **Shift-click giving the lootbox shulker on Draw** — `PreviewMenu.clicked` now blocks every non-pickup click type (`QUICK_MOVE`, `SWAP`, `THROW`, `CLONE`, `PICKUP_ALL`, `QUICK_CRAFT`) and routes shift-click on the Draw slot to the bulk-open path instead of the vanilla quick-move that occasionally moved the GUI item back to the player.
+
+### Performance
+
+- **Single-pass rarity grouping** — The Preview menu groups its loot table once at construction and reuses the ordered map across overview/category views.
+
+---
+
+### Ajouts
+
+- **Catégories repliables dans le Hub** — Le Hub des Lootbox s'ouvre désormais avec toutes les catégories fermées pour rester lisible. Clic sur l'en-tête pour la déployer ; le chevron passe de `▶` à `▼`. L'état par catégorie est conservé entre les redimensionnements et les réouvertures.
+- **Boutons Tout déployer / Replier** — Raccourcis en haut à droite du Hub pour ouvrir ou refermer toutes les catégories d'un coup.
+- **Menu Preview groupé par rareté** — L'aperçu de lootbox n'affiche plus tous les drops sur une seule page. Les objets sont regroupés par rareté (Commune → Mythique). La vue d'ensemble affiche une icône par rareté avec le nombre d'objets et un aperçu de 3 ; un clic ouvre une vue détaillée 28 slots avec sa propre pagination et un bouton retour.
+- **Multi-tirage sur le bouton Draw** — Ouvrir plusieurs lootbox en un clic si vous avez plusieurs clés : clic gauche = 1, clic droit = toutes les clés (max 10), shift-clic = jusqu'à 10. Le cooldown par-lootbox n'est appliqué qu'une fois en fin de série ; l'anti-autoclicker et les limites d'utilisations restent appliqués à chaque ouverture.
+- **Helper multi-ouverture** — `LootHelper.handleBulkLootboxAttempt` et `LootHelper.countKeysInInventory` pour le nouveau flux, avec un plafond `BULK_OPEN_LIMIT` de 10.
+- **Indicateur de clés possédées** — Le panneau d'info et le bouton Draw affichent maintenant le nombre de clés correspondantes dans l'inventaire.
+
+### Correctifs
+
+- **Shift-clic sur Draw qui donnait le shulker lootbox** — `PreviewMenu.clicked` bloque maintenant tous les types de clic non-pickup (`QUICK_MOVE`, `SWAP`, `THROW`, `CLONE`, `PICKUP_ALL`, `QUICK_CRAFT`) et redirige le shift-clic sur le slot Draw vers le multi-tirage au lieu du quick-move vanilla qui faisait remonter l'objet GUI dans l'inventaire.
+
+### Performance
+
+- **Regroupement par rareté en une passe** — Le menu Preview construit son map ordonné une seule fois à la création et le réutilise entre la vue d'ensemble et la vue catégorie.
+
+---
+
 ## [1.2.0] - 2026-04-12
 
 ### Added

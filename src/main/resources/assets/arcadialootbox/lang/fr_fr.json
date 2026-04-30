@@ -84,5 +84,18 @@
   "arcadialootbox.gui.preview.quantity": "Quantité",
   "arcadialootbox.gui.preview.guaranteed_lore": "§a✔ Garanti §7(1 objet + garanti)",
   "arcadialootbox.gui.preview.weighted_lore": "§e⚖ Pondéré §7(% par objet)",
-  "arcadialootbox.gui.preview.guaranteed_tag": " (garanti)"
+  "arcadialootbox.gui.preview.guaranteed_tag": " (garanti)",
+  "arcadialootbox.gui.preview.category_title": "Récompenses %s",
+  "arcadialootbox.gui.preview.category_count": "§7%s objet(s) dans cette catégorie",
+  "arcadialootbox.gui.preview.category_click": "§6▶ Clique pour voir les objets",
+  "arcadialootbox.gui.preview.back": "§e◀ Retour aux catégories",
+  "arcadialootbox.gui.preview.back_lore": "§7Revenir à la vue par rareté",
+  "arcadialootbox.gui.preview.draw_left": "§a▶ Clic gauche §7: ouvrir §f1 §7lootbox",
+  "arcadialootbox.gui.preview.draw_right": "§b▶ Clic droit §7: ouvrir §f%s §7(toutes tes clés)",
+  "arcadialootbox.gui.preview.draw_shift": "§e▶ Shift-clic §7: ouvrir §f%s §7(jusqu'à 10)",
+  "arcadialootbox.gui.preview.keys_held": "§7Clés possédées : §e%s",
+  "arcadialootbox.gui.preview.no_keys": "§c⚠ Tu n'as aucune clé",
+  "arcadialootbox.gui.preview.bulk_summary": "§a%s lootbox ouvertes — §e%s objets reçus",
+  "arcadialootbox.gui.preview.bulk_limit": "§c⚠ Multi-ouverture limitée à %s par clic",
+  "arcadialootbox.gui.preview.guaranteed_section": "§6§l★ Drop Garanti"
 }

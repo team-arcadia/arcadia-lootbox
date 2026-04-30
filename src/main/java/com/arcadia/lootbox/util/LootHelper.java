@@ -129,6 +129,82 @@ public final class LootHelper {
 
     // --- Lootbox opening attempt ---
 
+    /**
+     * Counts how many copies of a lootbox's key the player currently holds.
+     */
+    public static int countKeysInInventory(ServerPlayer player, String id) {
+        LootboxDefinition def = LootboxManager.get(id);
+        if (def == null) return 0;
+        ResourceLocation keyRes = ResourceLocation.tryParse(def.keyItem());
+        if (keyRes == null) return 0;
+        int total = 0;
+        var inv = player.getInventory();
+        for (int i = 0; i < inv.getContainerSize(); i++) {
+            ItemStack slot = inv.getItem(i);
+            if (!slot.isEmpty() && BuiltInRegistries.ITEM.getKey(slot.getItem()).equals(keyRes)) {
+                total += slot.getCount();
+            }
+        }
+        // Offhand is included in inv.getContainerSize() on 1.21
+        return total;
+    }
+
+    /**
+     * Hard cap on how many lootboxes can be opened in one bulk action.
+     * Prevents lag spikes and griefing via inventory spam.
+     */
+    public static final int BULK_OPEN_LIMIT = 10;
+
+    /**
+     * Opens up to {@code requested} lootboxes in a row, consuming one key per success.
+     * Skips per-lootbox cooldown (only the first opening sets it) but enforces autoclicker
+     * and usage caps. Returns the number of successful openings.
+     */
+    public static int handleBulkLootboxAttempt(Level level, BlockPos pos, ServerPlayer player, String id, int requested) {
+        if (id == null || id.isEmpty() || requested <= 0) return 0;
+        LootboxDefinition def = LootboxManager.get(id);
+        if (def == null) return 0;
+
+        if (!def.permission().isEmpty() && !PermissionHelper.hasPermission(player, def.permission())) {
+            player.sendSystemMessage(ArcadiaMessages.error(LanguageHelper.get(player, "lootbox.no.permission")));
+            return 0;
+        }
+
+        if (HistoryManager.checkAutoclicker(player.getUUID())) {
+            player.sendSystemMessage(ArcadiaMessages.error(LanguageHelper.get(player, "lootbox.autoclicker")));
+            return 0;
+        }
+
+        ResourceLocation keyRes = ResourceLocation.tryParse(def.keyItem());
+        if (keyRes == null) return 0;
+
+        int cap = Math.min(requested, BULK_OPEN_LIMIT);
+        int opened = 0;
+        for (int i = 0; i < cap; i++) {
+            ItemStack keyStack = findKeyInInventory(player, keyRes);
+            if (keyStack == null) break;
+
+            // Usage cap (re-check each iteration so block destruction halts the loop)
+            boolean hasBlock = level.isLoaded(pos) && level.getBlockState(pos).getBlock() instanceof ShulkerBoxBlock;
+            if (hasBlock) {
+                BlockEntity be = level.getBlockEntity(pos);
+                if (be != null && !UsageTracker.hasUsesRemaining(be, def.maxUses())) {
+                    player.sendSystemMessage(ArcadiaMessages.warning(LanguageHelper.get(player, "lootbox.no.uses")));
+                    break;
+                }
+            }
+
+            openLootboxLogic((ServerLevel) level, pos, player, def, keyStack, id);
+            opened++;
+        }
+
+        if (opened > 0) {
+            int cdTicks = def.cooldownTicks() > 0 ? def.cooldownTicks() : LootboxConfig.DEFAULT_COOLDOWN_TICKS.get();
+            CooldownManager.set(player.getUUID(), COOLDOWN_PREFIX + id, cdTicks * 50L);
+        }
+        return opened;
+    }
+
     public static boolean handleLootboxAttempt(Level level, BlockPos pos, ServerPlayer player, String id) {
         if (id == null || id.isEmpty()) return false;
         LootboxDefinition def = LootboxManager.get(id);
