@@ -10,7 +10,8 @@ All notable changes to Arcadia LootBox are documented here.
 
 - **Collapsible Hub categories** — The Lootbox Hub now opens with every category folded so the screen stays readable. Click a header to expand it; chevron icon flips between `▶` and `▼`. Per-category state is preserved across resizes and reopens.
 - **Expand-all / Collapse-all buttons** — Top-right shortcuts on the Hub to deploy or fold every category at once.
-- **Rarity-grouped Preview menu** — The lootbox preview no longer dumps every drop on a single page. Items are bucketed by rarity (Common → Mythic). The overview shows one icon per rarity with the count and a 3-item teaser; clicking a bucket opens a dedicated 28-slot detail view with its own pagination and a back button.
+- **Preview menu shows every reward at once with rarity filters** — The lootbox preview lists all drops directly, sorted by rarity (Mythic → Common). When more than one rarity is present, filter chips on the bottom row let you isolate a single rarity; an "All" chip resets the filter. Pagination kicks in past 28 items.
+- **Right-click in air with a key opens its lootbox preview** — `LootboxKeyItem.use` resolves the key to its matching lootbox: 0 matches no-op, 1 match opens the preview directly, 2+ matches open the Hub so the player can pick which one.
 - **Multi-draw on the Draw button** — Open multiple lootboxes in one click when you hold several keys: left-click = 1, right-click = up to all keys held (capped at 10), shift-click = up to 10. Per-lootbox cooldown is applied once after the bulk run; anti-autoclicker and usage caps are still enforced per opening.
 - **Bulk-open helper** — `LootHelper.handleBulkLootboxAttempt` and `LootHelper.countKeysInInventory` for the new flow, with a hard `BULK_OPEN_LIMIT` of 10.
 - **Keys-held indicator** — The info panel and the Draw button now display how many matching keys the player has on them.
@@ -21,7 +22,7 @@ All notable changes to Arcadia LootBox are documented here.
 
 ### Performance
 
-- **Single-pass rarity grouping** — The Preview menu groups its loot table once at construction and reuses the ordered map across overview/category views.
+- **Single-pass sort & filter** — The Preview menu sorts its loot table once at construction (rarity desc, then chance asc) and applies filters as a cheap in-memory predicate.
 
 ---
 
@@ -29,7 +30,8 @@ All notable changes to Arcadia LootBox are documented here.
 
 - **Catégories repliables dans le Hub** — Le Hub des Lootbox s'ouvre désormais avec toutes les catégories fermées pour rester lisible. Clic sur l'en-tête pour la déployer ; le chevron passe de `▶` à `▼`. L'état par catégorie est conservé entre les redimensionnements et les réouvertures.
 - **Boutons Tout déployer / Replier** — Raccourcis en haut à droite du Hub pour ouvrir ou refermer toutes les catégories d'un coup.
-- **Menu Preview groupé par rareté** — L'aperçu de lootbox n'affiche plus tous les drops sur une seule page. Les objets sont regroupés par rareté (Commune → Mythique). La vue d'ensemble affiche une icône par rareté avec le nombre d'objets et un aperçu de 3 ; un clic ouvre une vue détaillée 28 slots avec sa propre pagination et un bouton retour.
+- **Menu Preview affiche toutes les récompenses avec filtres de rareté** — Le menu liste tous les drops directement, triés par rareté (Mythique → Commune). Quand plusieurs raretés sont présentes, des puces de filtre en bas permettent d'isoler une rareté ; une puce "Toutes" réinitialise le filtre. Pagination automatique au-delà de 28 objets.
+- **Clic-droit dans le vide avec une clé ouvre la lootbox correspondante** — `LootboxKeyItem.use` retrouve la lootbox associée à la clé : 0 correspondance → rien, 1 correspondance → ouvre l'aperçu directement, 2+ → ouvre le Hub pour laisser le joueur choisir.
 - **Multi-tirage sur le bouton Draw** — Ouvrir plusieurs lootbox en un clic si vous avez plusieurs clés : clic gauche = 1, clic droit = toutes les clés (max 10), shift-clic = jusqu'à 10. Le cooldown par-lootbox n'est appliqué qu'une fois en fin de série ; l'anti-autoclicker et les limites d'utilisations restent appliqués à chaque ouverture.
 - **Helper multi-ouverture** — `LootHelper.handleBulkLootboxAttempt` et `LootHelper.countKeysInInventory` pour le nouveau flux, avec un plafond `BULK_OPEN_LIMIT` de 10.
 - **Indicateur de clés possédées** — Le panneau d'info et le bouton Draw affichent maintenant le nombre de clés correspondantes dans l'inventaire.
@@ -40,7 +42,7 @@ All notable changes to Arcadia LootBox are documented here.
 
 ### Performance
 
-- **Regroupement par rareté en une passe** — Le menu Preview construit son map ordonné une seule fois à la création et le réutilise entre la vue d'ensemble et la vue catégorie.
+- **Tri et filtre en une passe** — Le menu Preview trie sa table de loot une seule fois à la construction (rareté desc puis chance asc) et applique le filtre comme un prédicat en mémoire.
 
 ---
 

@@ -21,19 +21,16 @@ import net.minecraft.world.item.Items;
 import java.util.*;
 
 /**
- * Server-side lootbox preview GUI with collapsible rarity categories.
+ * Server-side lootbox preview GUI.
  *
- * <p>Two views:
+ * <p>Layout (54 slots, GENERIC_9x6):
  * <ul>
- *   <li>OVERVIEW — slot 22 = info, rarity buckets in slot row 2/3, Draw button slot 49</li>
- *   <li>CATEGORY — items of a single rarity, with Back button slot 45</li>
- * </ul>
- *
- * <p>Draw click semantics:
- * <ul>
- *   <li>Left-click = open 1 lootbox</li>
- *   <li>Right-click = open up to all keys held (capped at {@link LootHelper#BULK_OPEN_LIMIT})</li>
- *   <li>Shift-click = open up to {@link LootHelper#BULK_OPEN_LIMIT}</li>
+ *   <li>Slot 4 = info panel</li>
+ *   <li>Slots 10–34 = items (28 visible, paginated)</li>
+ *   <li>Slots 45–47 = rarity filter chips (only those present in the loot table)</li>
+ *   <li>Slot 48 = previous page (if needed)</li>
+ *   <li>Slot 49 = Draw button (left=1, right=all keys cap 10, shift=10)</li>
+ *   <li>Slot 50 = next page (if needed)</li>
  * </ul>
  *
  * @author vyrriox
@@ -41,21 +38,25 @@ import java.util.*;
 public class PreviewMenu extends ChestMenu {
 
     private static final int DRAW_BUTTON_SLOT = 49;
-    private static final int BACK_BUTTON_SLOT = 45;
+    private static final int PREV_PAGE_SLOT = 48;
+    private static final int NEXT_PAGE_SLOT = 50;
     private static final int INFO_SLOT = 4;
+    private static final int FILTER_ALL_SLOT = 45;
 
-    // Slot grid for items inside a category (4 rows of 7 slots = 28)
-    private static final int[] CATEGORY_ITEM_SLOTS = {
+    private static final int[] ITEM_SLOTS = {
             10, 11, 12, 13, 14, 15, 16,
             19, 20, 21, 22, 23, 24, 25,
             28, 29, 30, 31, 32, 33, 34,
             37, 38, 39, 40, 41, 42, 43
     };
-    private static final int CATEGORY_ITEMS_PER_PAGE = CATEGORY_ITEM_SLOTS.length;
+    private static final int ITEMS_PER_PAGE = ITEM_SLOTS.length; // 28
 
-    // Rarities in display order (low → high)
+    /** Filter chip slots reserved for rarities (right after the All chip). */
+    private static final int[] FILTER_RARITY_SLOTS = {46, 47, 51, 52, 53};
+
+    /** Rarity render order, highest first (so they sort top-of-list). */
     private static final List<String> RARITY_ORDER = List.of(
-            "common", "uncommon", "rare", "epic", "legendary", "mythic"
+            "mythic", "legendary", "epic", "rare", "uncommon", "common"
     );
 
     private final String lootboxId;
@@ -63,12 +64,15 @@ public class PreviewMenu extends ChestMenu {
     private final LootboxDefinition def;
     private final boolean fr;
 
-    /** Loot grouped by rarity, in render order. */
-    private final LinkedHashMap<String, List<LootboxDefinition.LootEntry>> byRarity;
+    /** All items, sorted (rarity desc, then chance asc). Stable across rebuilds. */
+    private final List<LootboxDefinition.LootEntry> allSorted;
 
-    /** When non-null, we're showing items of that rarity instead of the overview. */
-    private String openCategory = null;
-    private int categoryPage = 0;
+    /** Set of rarities actually present in this lootbox, in render order. */
+    private final List<String> presentRarities;
+
+    /** Current filter — null = show all, otherwise lowercase rarity key. */
+    private String filter = null;
+    private int page = 0;
 
     public PreviewMenu(int containerId, Inventory playerInv, String id, BlockPos pos,
                        LootboxDefinition def, String language) {
@@ -77,46 +81,101 @@ public class PreviewMenu extends ChestMenu {
         this.targetPos = pos;
         this.def = def;
         this.fr = language != null && language.startsWith("fr");
-        this.byRarity = groupByRarity(def.lootTable());
+
+        Comparator<LootboxDefinition.LootEntry> byRarity = Comparator.comparingInt(
+                e -> rarityRank(e.rarity()));
+        Comparator<LootboxDefinition.LootEntry> byChance = Comparator.comparingDouble(
+                LootboxDefinition.LootEntry::chance);
+        this.allSorted = def.lootTable().stream()
+                .sorted(byRarity.thenComparing(byChance))
+                .toList();
+
+        Set<String> seen = new LinkedHashSet<>();
+        for (String r : RARITY_ORDER) {
+            for (var e : def.lootTable()) {
+                if (r.equalsIgnoreCase(e.rarity() != null ? e.rarity() : "common")) {
+                    seen.add(r);
+                    break;
+                }
+            }
+        }
+        this.presentRarities = new ArrayList<>(seen);
+
         rebuild(playerInv.player);
     }
 
-    private static LinkedHashMap<String, List<LootboxDefinition.LootEntry>> groupByRarity(
-            List<LootboxDefinition.LootEntry> loot) {
-        Map<String, List<LootboxDefinition.LootEntry>> raw = new HashMap<>();
-        for (var e : loot) {
-            String r = e.rarity() != null ? e.rarity().toLowerCase() : "common";
-            raw.computeIfAbsent(r, k -> new ArrayList<>()).add(e);
-        }
-        LinkedHashMap<String, List<LootboxDefinition.LootEntry>> ordered = new LinkedHashMap<>();
-        for (String r : RARITY_ORDER) {
-            if (raw.containsKey(r) && !raw.get(r).isEmpty()) {
-                List<LootboxDefinition.LootEntry> list = raw.get(r);
-                list.sort(Comparator.comparingDouble(LootboxDefinition.LootEntry::chance));
-                ordered.put(r, list);
-            }
-        }
-        for (var e : raw.entrySet()) {
-            if (!ordered.containsKey(e.getKey())) {
-                e.getValue().sort(Comparator.comparingDouble(LootboxDefinition.LootEntry::chance));
-                ordered.put(e.getKey(), e.getValue());
-            }
-        }
-        return ordered;
+    private static int rarityRank(String r) {
+        if (r == null) return RARITY_ORDER.indexOf("common");
+        int idx = RARITY_ORDER.indexOf(r.toLowerCase());
+        return idx < 0 ? RARITY_ORDER.size() : idx;
     }
+
+    // ── Build ───────────────────────────────────────────────────────────────
 
     private void rebuild(Player viewer) {
-        if (openCategory != null) buildCategoryView(viewer);
-        else buildOverviewView(viewer);
-    }
-
-    // ── Overview ────────────────────────────────────────────────────────────
-
-    private void buildOverviewView(Player viewer) {
         var c = this.getContainer();
         clearAll(c);
         drawBorder(c);
 
+        List<LootboxDefinition.LootEntry> visible = filteredItems();
+        int totalPages = Math.max(1, (visible.size() + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE);
+        if (page >= totalPages) page = totalPages - 1;
+        if (page < 0) page = 0;
+
+        // Info slot
+        c.setItem(INFO_SLOT, buildInfo(viewer, visible.size(), totalPages));
+
+        // Items for current page
+        int start = page * ITEMS_PER_PAGE;
+        int end = Math.min(start + ITEMS_PER_PAGE, visible.size());
+        for (int i = start; i < end; i++) {
+            int slotIdx = i - start;
+            if (slotIdx >= ITEM_SLOTS.length) break;
+            ItemStack icon = buildItemIcon(visible.get(i));
+            if (icon != null) c.setItem(ITEM_SLOTS[slotIdx], icon);
+        }
+
+        // Filter chips — only show if multiple rarities exist
+        if (presentRarities.size() > 1) {
+            c.setItem(FILTER_ALL_SLOT, buildFilterAllChip());
+            int chips = Math.min(presentRarities.size(), FILTER_RARITY_SLOTS.length);
+            for (int i = 0; i < chips; i++) {
+                String r = presentRarities.get(i);
+                c.setItem(FILTER_RARITY_SLOTS[i], buildFilterChip(r));
+            }
+        }
+
+        // Draw button
+        c.setItem(DRAW_BUTTON_SLOT, buildDrawButton(viewer));
+
+        // Pagination — only if multi-page; place around the Draw button
+        if (totalPages > 1) {
+            if (page > 0) {
+                c.setItem(PREV_PAGE_SLOT, ItemBuilder.of(Items.ARROW)
+                        .name(Component.translatable("arcadialootbox.gui.preview.prev"))
+                        .addLore("§7Page " + page + "/" + totalPages)
+                        .build());
+            }
+            if (page < totalPages - 1) {
+                c.setItem(NEXT_PAGE_SLOT, ItemBuilder.of(Items.ARROW)
+                        .name(Component.translatable("arcadialootbox.gui.preview.next"))
+                        .addLore("§7Page " + (page + 2) + "/" + totalPages)
+                        .build());
+            }
+        }
+    }
+
+    private List<LootboxDefinition.LootEntry> filteredItems() {
+        if (filter == null) return allSorted;
+        List<LootboxDefinition.LootEntry> out = new ArrayList<>();
+        for (var e : allSorted) {
+            String r = e.rarity() != null ? e.rarity().toLowerCase() : "common";
+            if (r.equals(filter)) out.add(e);
+        }
+        return out;
+    }
+
+    private ItemStack buildInfo(Player viewer, int visibleCount, int totalPages) {
         String name = (fr && def.displayNameFR() != null && !def.displayNameFR().isEmpty())
                 ? def.displayNameFR() : def.displayName();
 
@@ -129,16 +188,31 @@ public class PreviewMenu extends ChestMenu {
                 .addLore("")
                 .addLore("§8════════════════════")
                 .addLore(Component.translatable("arcadialootbox.gui.preview.rarity").copy()
-                        .append(Component.literal(def.rarityColor() + (fr ? frRarity(def.rarity()) : def.rarityDisplayName()))))
+                        .append(Component.literal(def.rarityColor()
+                                + (fr ? frRarity(def.rarity()) : def.rarityDisplayName()))))
                 .addLore(Component.translatable("arcadialootbox.gui.preview.key_required").copy()
                         .append(Component.literal(shortItem(def.keyItem()))))
                 .addLore(Component.translatable("arcadialootbox.lore.type", typeLine))
-                .addLore(Component.translatable("arcadialootbox.gui.preview.rewards", def.lootTable().size()))
+                .addLore(Component.translatable("arcadialootbox.gui.preview.rewards", visibleCount))
                 .addLore("§8════════════════════");
+
+        if (def.isGuaranteedType() && def.guaranteedItem() != null && !def.guaranteedItem().isEmpty()) {
+            info.addLore(Component.translatable("arcadialootbox.gui.preview.guaranteed_section"));
+            info.addLore("  §a✔ §f" + shortItem(def.guaranteedItem())
+                    + " §7(" + def.guaranteedMinCount() + "-" + def.guaranteedMaxCount() + ")");
+        }
+
+        if (filter != null) {
+            String color = rarityColor(filter);
+            String rarityName = fr ? frRarity(filter) : capitalize(filter);
+            info.addLore("");
+            info.addLore("§7" + (fr ? "Filtre :" : "Filter:") + " " + color + rarityName);
+        }
 
         if (viewer instanceof ServerPlayer sp) {
             int keysHeld = LootHelper.countKeysInInventory(sp, lootboxId);
-            info.addLore(Component.translatable("arcadialootbox.gui.preview.keys_held", String.valueOf(keysHeld)));
+            info.addLore(Component.translatable("arcadialootbox.gui.preview.keys_held",
+                    String.valueOf(keysHeld)));
             if (def.freeEnabled()) {
                 if (FreeLootboxManager.canClaim(sp, lootboxId, def)) {
                     info.addLore(Component.translatable("arcadialootbox.gui.preview.free_claim"));
@@ -148,52 +222,95 @@ public class PreviewMenu extends ChestMenu {
                 }
             }
         }
+
+        if (totalPages > 1) {
+            info.addLore("");
+            info.addLore("  §7Page §e" + (page + 1) + "§7/" + totalPages);
+        }
         info.addLore("");
         info.addLore(Component.translatable("arcadialootbox.gui.preview.click_open"));
-        c.setItem(INFO_SLOT, info.enchanted().build());
+        return info.enchanted().build();
+    }
 
-        // ── Rarity category buckets (row 3, slots 28-34) ─────────────
-        List<String> rarities = new ArrayList<>(byRarity.keySet());
-        // Center across row 3 (slots 28-34)
-        int total = rarities.size();
-        int startIdx = Math.max(0, (7 - total) / 2);
-        for (int i = 0; i < total && i < 7; i++) {
-            String rarity = rarities.get(i);
-            List<LootboxDefinition.LootEntry> items = byRarity.get(rarity);
-            int slot = 28 + startIdx + i;
-            c.setItem(slot, buildBucketIcon(rarity, items));
+    private ItemStack buildItemIcon(LootboxDefinition.LootEntry entry) {
+        ResourceLocation res = ResourceLocation.tryParse(entry.item());
+        if (res == null) return null;
+        var item = BuiltInRegistries.ITEM.get(res);
+        if (item == Items.AIR) return null;
+
+        String eRarity = entry.rarity() != null ? entry.rarity() : "common";
+        String eColor = rarityColor(eRarity);
+        String eName = entry.displayName() != null ? entry.displayName() : shortItem(entry.item());
+        String eRarityName = fr ? frRarity(eRarity) : capitalize(eRarity);
+
+        String chanceRaw = def.isGuaranteedType()
+                ? String.format(Locale.ROOT, "%.2f", entry.chance())
+                : String.format(Locale.ROOT, "%.1f%%", entry.chance() * 100);
+
+        ItemStack display = ItemBuilder.of(item)
+                .name(Component.literal(eColor + "§l" + eName))
+                .addLore("")
+                .addLore("  " + eColor + "◆ " + eRarityName)
+                .addLore(Component.literal("  §7").append(
+                        Component.translatable("arcadialootbox.gui.preview.chance"))
+                        .append(Component.literal(" : §e" + chanceRaw)))
+                .addLore(Component.literal("  §7").append(
+                        Component.translatable("arcadialootbox.gui.preview.quantity"))
+                        .append(Component.literal(" : §f" + entry.minCount() + " - " + entry.maxCount())))
+                .addLore("")
+                .build();
+
+        if ("legendary".equals(eRarity) || "mythic".equals(eRarity) || "epic".equals(eRarity)) {
+            display = ItemBuilder.of(display).enchanted().build();
         }
+        return display;
+    }
 
-        // ── Guaranteed item (if any) ─────────────────────────────────
-        if (def.isGuaranteedType() && def.guaranteedItem() != null && !def.guaranteedItem().isEmpty()) {
-            ResourceLocation gRes = ResourceLocation.tryParse(def.guaranteedItem());
-            if (gRes != null) {
-                var gItem = BuiltInRegistries.ITEM.get(gRes);
-                if (gItem != Items.AIR) {
-                    ItemStack guaranteed = ItemBuilder.of(gItem)
-                            .name(Component.translatable("arcadialootbox.gui.preview.guaranteed_section"))
-                            .addLore("")
-                            .addLore("  §a✔ §f" + shortItem(def.guaranteedItem()))
-                            .addLore("  §7" + def.guaranteedMinCount() + " - " + def.guaranteedMaxCount())
-                            .addLore("")
-                            .enchanted()
-                            .build();
-                    c.setItem(16, guaranteed);
-                }
-            }
+    private ItemStack buildFilterAllChip() {
+        boolean active = filter == null;
+        ItemBuilder b = ItemBuilder.of(active ? Items.NETHER_STAR : Items.WHITE_DYE)
+                .name(Component.literal((active ? "§e§l" : "§7") + (fr ? "Toutes les raretés" : "All rarities")))
+                .addLore("")
+                .addLore("§7" + allSorted.size() + (fr ? " objets au total" : " items total"));
+        if (active) b.enchanted();
+        else b.addLore("§6▶ " + (fr ? "Clique pour afficher tout" : "Click to show all"));
+        return b.build();
+    }
+
+    private ItemStack buildFilterChip(String rarity) {
+        boolean active = rarity.equals(filter);
+        String color = rarityColor(rarity);
+        String rarityName = fr ? frRarity(rarity) : capitalize(rarity);
+        int count = 0;
+        for (var e : allSorted) {
+            String r = e.rarity() != null ? e.rarity().toLowerCase() : "common";
+            if (r.equals(rarity)) count++;
         }
+        ItemBuilder b = ItemBuilder.of(filterIconFor(rarity))
+                .name(Component.literal(color + (active ? "§l" : "") + rarityName))
+                .addLore("")
+                .addLore("§7" + count + (fr ? " objet(s)" : " item(s)"))
+                .addLore("");
+        if (active) {
+            b.addLore("§e" + (fr ? "Filtre actif" : "Active filter"));
+            b.enchanted();
+        } else {
+            b.addLore("§6▶ " + (fr ? "Clique pour filtrer" : "Click to filter"));
+        }
+        return b.build();
+    }
 
-        // ── Draw button ──────────────────────────────────────────────
+    private ItemStack buildDrawButton(Player viewer) {
+        ItemBuilder draw = ItemBuilder.of(Items.TRIPWIRE_HOOK)
+                .name(Component.translatable("arcadialootbox.gui.preview.draw"))
+                .addLore("")
+                .addLore(Component.translatable("arcadialootbox.gui.preview.click_instructions"))
+                .addLore(Component.translatable("arcadialootbox.gui.preview.key_deducted"))
+                .addLore("");
+
         if (viewer instanceof ServerPlayer sp) {
             int keysHeld = LootHelper.countKeysInInventory(sp, lootboxId);
             int bulkCap = Math.min(keysHeld, LootHelper.BULK_OPEN_LIMIT);
-
-            ItemBuilder draw = ItemBuilder.of(Items.TRIPWIRE_HOOK)
-                    .name(Component.translatable("arcadialootbox.gui.preview.draw"))
-                    .addLore("")
-                    .addLore(Component.translatable("arcadialootbox.gui.preview.click_instructions"))
-                    .addLore(Component.translatable("arcadialootbox.gui.preview.key_deducted"))
-                    .addLore("");
 
             if (keysHeld <= 0) {
                 draw.addLore(Component.translatable("arcadialootbox.gui.preview.no_keys"));
@@ -203,173 +320,30 @@ public class PreviewMenu extends ChestMenu {
                     draw.addLore(Component.translatable("arcadialootbox.gui.preview.draw_right",
                             String.valueOf(bulkCap)));
                     draw.addLore(Component.translatable("arcadialootbox.gui.preview.draw_shift",
-                            String.valueOf(Math.min(keysHeld, LootHelper.BULK_OPEN_LIMIT))));
+                            String.valueOf(bulkCap)));
                 }
             }
             draw.addLore("");
-            draw.addLore(Component.translatable("arcadialootbox.gui.preview.keys_held", String.valueOf(keysHeld)));
-
-            c.setItem(DRAW_BUTTON_SLOT, draw.enchanted().build());
-        } else {
-            c.setItem(DRAW_BUTTON_SLOT, ItemBuilder.of(Items.TRIPWIRE_HOOK)
-                    .name(Component.translatable("arcadialootbox.gui.preview.draw"))
-                    .enchanted().build());
+            draw.addLore(Component.translatable("arcadialootbox.gui.preview.keys_held",
+                    String.valueOf(keysHeld)));
         }
-    }
-
-    private ItemStack buildBucketIcon(String rarity, List<LootboxDefinition.LootEntry> items) {
-        var iconItem = bucketIconFor(rarity);
-        String color = rarityColor(rarity);
-        String rarityName = fr ? frRarity(rarity) : capitalize(rarity);
-
-        ItemBuilder b = ItemBuilder.of(iconItem)
-                .name(Component.translatable("arcadialootbox.gui.preview.category_title",
-                        color + "§l" + rarityName))
-                .addLore("")
-                .addLore(Component.translatable("arcadialootbox.gui.preview.category_count",
-                        String.valueOf(items.size())))
-                .addLore("");
-
-        // Preview up to 3 sample item names
-        int preview = Math.min(3, items.size());
-        for (int i = 0; i < preview; i++) {
-            var e = items.get(i);
-            String n = e.displayName() != null ? e.displayName() : shortItem(e.item());
-            b.addLore("  §7• §f" + n);
-        }
-        if (items.size() > preview) {
-            b.addLore("  §8... +" + (items.size() - preview));
-        }
-        b.addLore("");
-        b.addLore(Component.translatable("arcadialootbox.gui.preview.category_click"));
-
-        if ("legendary".equals(rarity) || "mythic".equals(rarity) || "epic".equals(rarity)) {
-            b.enchanted();
-        }
-        b.count(Math.min(64, Math.max(1, items.size())));
-        return b.build();
-    }
-
-    private static net.minecraft.world.item.Item bucketIconFor(String rarity) {
-        return switch (rarity == null ? "common" : rarity.toLowerCase()) {
-            case "uncommon" -> Items.LIME_DYE;
-            case "rare" -> Items.LAPIS_LAZULI;
-            case "epic" -> Items.AMETHYST_SHARD;
-            case "legendary" -> Items.GOLD_INGOT;
-            case "mythic" -> Items.NETHER_STAR;
-            default -> Items.WHITE_DYE;
-        };
-    }
-
-    // ── Category view ───────────────────────────────────────────────────────
-
-    private void buildCategoryView(Player viewer) {
-        var c = this.getContainer();
-        clearAll(c);
-        drawBorder(c);
-
-        List<LootboxDefinition.LootEntry> items = byRarity.getOrDefault(openCategory, List.of());
-        int totalPages = Math.max(1, (items.size() + CATEGORY_ITEMS_PER_PAGE - 1) / CATEGORY_ITEMS_PER_PAGE);
-        if (categoryPage >= totalPages) categoryPage = totalPages - 1;
-
-        String color = rarityColor(openCategory);
-        String rarityName = fr ? frRarity(openCategory) : capitalize(openCategory);
-
-        // Info slot — current category title
-        ItemBuilder info = ItemBuilder.of(bucketIconFor(openCategory))
-                .name(Component.translatable("arcadialootbox.gui.preview.category_title",
-                        color + "§l" + rarityName))
-                .addLore("")
-                .addLore(Component.translatable("arcadialootbox.gui.preview.category_count",
-                        String.valueOf(items.size())));
-        if (totalPages > 1) {
-            info.addLore("  §7Page §e" + (categoryPage + 1) + "§7/" + totalPages);
-        }
-        c.setItem(INFO_SLOT, info.enchanted().build());
-
-        // Back button
-        c.setItem(BACK_BUTTON_SLOT, ItemBuilder.of(Items.ARROW)
-                .name(Component.translatable("arcadialootbox.gui.preview.back"))
-                .addLore(Component.translatable("arcadialootbox.gui.preview.back_lore"))
-                .build());
-
-        // Pagination (slot 53 = next, slot 51 = prev) when needed
-        if (totalPages > 1) {
-            if (categoryPage > 0) {
-                c.setItem(48, ItemBuilder.of(Items.ARROW)
-                        .name(Component.translatable("arcadialootbox.gui.preview.prev"))
-                        .addLore("§7Page " + categoryPage + "/" + totalPages)
-                        .build());
-            }
-            if (categoryPage < totalPages - 1) {
-                c.setItem(50, ItemBuilder.of(Items.ARROW)
-                        .name(Component.translatable("arcadialootbox.gui.preview.next"))
-                        .addLore("§7Page " + (categoryPage + 2) + "/" + totalPages)
-                        .build());
-            }
-        }
-
-        // Draw button still available from category view
-        c.setItem(DRAW_BUTTON_SLOT, ItemBuilder.of(Items.TRIPWIRE_HOOK)
-                .name(Component.translatable("arcadialootbox.gui.preview.draw"))
-                .addLore("")
-                .addLore(Component.translatable("arcadialootbox.gui.preview.click_roll"))
-                .enchanted().build());
-
-        // Items for current page
-        int startIdx = categoryPage * CATEGORY_ITEMS_PER_PAGE;
-        int endIdx = Math.min(startIdx + CATEGORY_ITEMS_PER_PAGE, items.size());
-        for (int i = startIdx; i < endIdx; i++) {
-            int slotIdx = i - startIdx;
-            if (slotIdx >= CATEGORY_ITEM_SLOTS.length) break;
-
-            LootboxDefinition.LootEntry entry = items.get(i);
-            ResourceLocation res = ResourceLocation.tryParse(entry.item());
-            if (res == null) continue;
-            var item = BuiltInRegistries.ITEM.get(res);
-            if (item == Items.AIR) continue;
-
-            String eRarity = entry.rarity() != null ? entry.rarity() : "common";
-            String eColor = rarityColor(eRarity);
-            String eName = entry.displayName() != null ? entry.displayName() : shortItem(entry.item());
-
-            String chanceRaw = def.isGuaranteedType()
-                    ? String.format(Locale.ROOT, "%.2f", entry.chance())
-                    : String.format(Locale.ROOT, "%.1f%%", entry.chance() * 100);
-
-            ItemStack display = ItemBuilder.of(item)
-                    .name(Component.literal(eColor + "§l" + eName))
-                    .addLore("")
-                    .addLore(Component.literal("  §7").append(
-                            Component.translatable("arcadialootbox.gui.preview.chance"))
-                            .append(Component.literal(" : §e" + chanceRaw)))
-                    .addLore(Component.literal("  §7").append(
-                            Component.translatable("arcadialootbox.gui.preview.quantity"))
-                            .append(Component.literal(" : §f" + entry.minCount() + " - " + entry.maxCount())))
-                    .addLore("")
-                    .build();
-
-            if ("legendary".equals(eRarity) || "mythic".equals(eRarity) || "epic".equals(eRarity)) {
-                display = ItemBuilder.of(display).enchanted().build();
-            }
-            c.setItem(CATEGORY_ITEM_SLOTS[slotIdx], display);
-        }
+        return draw.enchanted().build();
     }
 
     // ── Click handling ──────────────────────────────────────────────────────
 
     @Override
     public void clicked(int slotId, int button, ClickType clickType, Player player) {
-        // BLOCK any item movement out of the GUI: shift-click, double-click, swap, drop, etc.
+        // Block any item movement out of the GUI
         if (clickType == ClickType.QUICK_MOVE
                 || clickType == ClickType.SWAP
                 || clickType == ClickType.QUICK_CRAFT
                 || clickType == ClickType.THROW
                 || clickType == ClickType.CLONE
                 || clickType == ClickType.PICKUP_ALL) {
-            // For the Draw button, treat shift-click as a bulk-open instead of a quick-move.
+            // Shift-click on Draw → bulk open instead of vanilla quick-move
             if (slotId == DRAW_BUTTON_SLOT && clickType == ClickType.QUICK_MOVE
-                    && openCategory == null && player instanceof ServerPlayer sp) {
+                    && player instanceof ServerPlayer sp) {
                 int held = LootHelper.countKeysInInventory(sp, lootboxId);
                 int requested = Math.min(held, LootHelper.BULK_OPEN_LIMIT);
                 if (requested <= 0) return;
@@ -379,9 +353,8 @@ public class PreviewMenu extends ChestMenu {
             return;
         }
 
-        // Draw button (overview only — in category view we keep it too for convenience)
+        // Draw button — left=1, right=all-keys (cap 10)
         if (slotId == DRAW_BUTTON_SLOT && player instanceof ServerPlayer sp) {
-            // button: 0 = left, 1 = right
             if (button == 1) {
                 int held = LootHelper.countKeysInInventory(sp, lootboxId);
                 int requested = Math.min(held, LootHelper.BULK_OPEN_LIMIT);
@@ -395,50 +368,41 @@ public class PreviewMenu extends ChestMenu {
             return;
         }
 
-        // Back button (category view only)
-        if (slotId == BACK_BUTTON_SLOT && openCategory != null) {
-            openCategory = null;
-            categoryPage = 0;
+        // Pagination
+        if (slotId == PREV_PAGE_SLOT && page > 0) {
+            page--;
+            rebuild(player);
+            return;
+        }
+        int totalPages = Math.max(1, (filteredItems().size() + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE);
+        if (slotId == NEXT_PAGE_SLOT && page < totalPages - 1) {
+            page++;
             rebuild(player);
             return;
         }
 
-        // Pagination in category view
-        if (openCategory != null) {
-            if (slotId == 48 && categoryPage > 0) {
-                categoryPage--;
-                rebuild(player);
-                return;
-            }
-            int totalPages = Math.max(1, (byRarity.getOrDefault(openCategory, List.of()).size()
-                    + CATEGORY_ITEMS_PER_PAGE - 1) / CATEGORY_ITEMS_PER_PAGE);
-            if (slotId == 50 && categoryPage < totalPages - 1) {
-                categoryPage++;
-                rebuild(player);
-                return;
-            }
+        // Filter chips
+        if (slotId == FILTER_ALL_SLOT && presentRarities.size() > 1) {
+            filter = null;
+            page = 0;
+            rebuild(player);
+            return;
         }
-
-        // Bucket click in overview → open category
-        if (openCategory == null && slotId >= 28 && slotId <= 34) {
-            int idx = slotId - 28;
-            List<String> rarities = new ArrayList<>(byRarity.keySet());
-            int total = rarities.size();
-            int startIdx = Math.max(0, (7 - total) / 2);
-            int rarityIdx = idx - startIdx;
-            if (rarityIdx >= 0 && rarityIdx < total) {
-                openCategory = rarities.get(rarityIdx);
-                categoryPage = 0;
-                rebuild(player);
-                return;
+        if (presentRarities.size() > 1) {
+            for (int i = 0; i < FILTER_RARITY_SLOTS.length && i < presentRarities.size(); i++) {
+                if (slotId == FILTER_RARITY_SLOTS[i]) {
+                    String clicked = presentRarities.get(i);
+                    filter = clicked.equals(filter) ? null : clicked;
+                    page = 0;
+                    rebuild(player);
+                    return;
+                }
             }
         }
 
         // Block all other clicks in the chest area
         if (slotId >= 0 && slotId < 54) return;
-
-        // Player-inventory clicks: block them entirely so nothing is ever moved/swapped here
-        // (super.clicked would handle drops outside the GUI; we disable that too)
+        // Player-inventory clicks: ignored
     }
 
     @Override
@@ -466,6 +430,17 @@ public class PreviewMenu extends ChestMenu {
             c.setItem(row * 9, border.copy());
             c.setItem(row * 9 + 8, border.copy());
         }
+    }
+
+    private static net.minecraft.world.item.Item filterIconFor(String rarity) {
+        return switch (rarity == null ? "common" : rarity.toLowerCase()) {
+            case "uncommon" -> Items.LIME_DYE;
+            case "rare" -> Items.LAPIS_LAZULI;
+            case "epic" -> Items.AMETHYST_SHARD;
+            case "legendary" -> Items.GOLD_INGOT;
+            case "mythic" -> Items.NETHER_STAR;
+            default -> Items.WHITE_DYE;
+        };
     }
 
     private static String shortItem(String fullId) {
