@@ -239,16 +239,16 @@ public class PreviewMenu extends ChestMenu {
                 ? String.format(Locale.ROOT, "%.2f", entry.chance())
                 : String.format(Locale.ROOT, "%.1f%%", entry.chance() * 100);
 
+        // Single, compact tooltip — the bold colored name already conveys rarity.
         ItemStack display = ItemBuilder.of(item)
-                .name(Component.literal(eColor + "§l" + eName))
+                .name(Component.literal(eColor + "§l" + eName + " §8• " + eColor + eRarityName))
                 .addLore("")
-                .addLore("  " + eColor + "◆ §r" + eColor + eRarityName)
-                .addLore(Component.literal("  §7").append(
+                .addLore(Component.literal(" §7").append(
                         Component.translatable("arcadialootbox.gui.preview.chance"))
-                        .append(Component.literal(" §8: §e" + chanceRaw)))
-                .addLore(Component.literal("  §7").append(
+                        .append(Component.literal(" §8» §e" + chanceRaw)))
+                .addLore(Component.literal(" §7").append(
                         Component.translatable("arcadialootbox.gui.preview.quantity"))
-                        .append(Component.literal(" §8: §f" + entry.minCount() + "§8-§f" + entry.maxCount())))
+                        .append(Component.literal(" §8» §f" + entry.minCount() + "§8-§f" + entry.maxCount())))
                 .build();
 
         if ("legendary".equals(eRarity) || "mythic".equals(eRarity) || "epic".equals(eRarity)) {
@@ -259,7 +259,7 @@ public class PreviewMenu extends ChestMenu {
 
     private ItemStack buildFilterAllChip() {
         boolean active = filter == null;
-        ItemBuilder b = ItemBuilder.of(active ? Items.NETHER_STAR : Items.BOOK)
+        ItemBuilder b = ItemBuilder.of(Items.GLASS_PANE)
                 .name(Component.literal((active ? "§e§l✦ " : "§7") + (fr ? "Toutes les raretés" : "All rarities")))
                 .addLore("")
                 .addLore("§8▸ §7" + allSorted.size() + (fr ? " objets au total" : " items total"));
@@ -410,15 +410,13 @@ public class PreviewMenu extends ChestMenu {
     }
 
     /**
-     * Three-band frame:
-     *   - top/sides/middle separator: orange glass (warm tone matches Arcadia theme)
-     *   - filter row corners: yellow glass (visual cue: "you can click here")
-     *   - action row corners: black glass (anchors the Draw button)
+     * Single-tone orange frame, with a yellow "pedestal" highlighting the Draw button.
+     * Keeping the entire frame in the same warm tone removes the visual noise of v1.2.2's
+     * mixed-color rows; the only accent is the yellow pedestal that draws the eye to Draw.
      */
     private void drawFrame(net.minecraft.world.Container c) {
         ItemStack warm = pane(Items.ORANGE_STAINED_GLASS_PANE);
-        ItemStack accent = pane(Items.YELLOW_STAINED_GLASS_PANE);
-        ItemStack base = pane(Items.BLACK_STAINED_GLASS_PANE);
+        ItemStack pedestal = pane(Items.YELLOW_STAINED_GLASS_PANE);
 
         // Top row (info bar)
         for (int i = 0; i < 9; i++) {
@@ -429,13 +427,16 @@ public class PreviewMenu extends ChestMenu {
             c.setItem(row * 9, warm.copy());
             c.setItem(row * 9 + 8, warm.copy());
         }
-        // Filter row: side accents only (chips fill the middle)
-        c.setItem(36, accent.copy()); // overwritten if filters shown — placeholder behind
-        c.setItem(44, accent.copy());
-        // Action row: black base everywhere except prev/draw/next
+        // Filter row sides (chips overwrite the inner slots)
+        c.setItem(36, warm.copy());
+        c.setItem(44, warm.copy());
+        // Action row: orange ends, yellow pedestal flanking the Draw button
         for (int i = 45; i < 54; i++) {
-            if (i != PREV_PAGE_SLOT && i != DRAW_BUTTON_SLOT && i != NEXT_PAGE_SLOT) {
-                c.setItem(i, base.copy());
+            if (i == PREV_PAGE_SLOT || i == DRAW_BUTTON_SLOT || i == NEXT_PAGE_SLOT) continue;
+            if (i == 48 || i == 50) {
+                c.setItem(i, pedestal.copy());
+            } else {
+                c.setItem(i, warm.copy());
             }
         }
     }
@@ -444,14 +445,19 @@ public class PreviewMenu extends ChestMenu {
         return ItemBuilder.of(paneItem).name(Component.literal(" ")).build();
     }
 
+    /**
+     * Filter chip icons use stained-glass panes that match the rarity color.
+     * Glass panes read clearly as "buttons/tabs" rather than as more loot — solving the
+     * visual confusion where dyes/lingots mixed in with the actual rewards.
+     */
     private static net.minecraft.world.item.Item filterIconFor(String rarity) {
         return switch (rarity == null ? "common" : rarity.toLowerCase()) {
-            case "uncommon" -> Items.LIME_DYE;
-            case "rare" -> Items.LAPIS_LAZULI;
-            case "epic" -> Items.AMETHYST_SHARD;
-            case "legendary" -> Items.GOLD_INGOT;
-            case "mythic" -> Items.NETHER_STAR;
-            default -> Items.BONE_MEAL;
+            case "uncommon" -> Items.LIME_STAINED_GLASS_PANE;
+            case "rare" -> Items.BLUE_STAINED_GLASS_PANE;
+            case "epic" -> Items.PURPLE_STAINED_GLASS_PANE;
+            case "legendary" -> Items.YELLOW_STAINED_GLASS_PANE;
+            case "mythic" -> Items.MAGENTA_STAINED_GLASS_PANE;
+            default -> Items.WHITE_STAINED_GLASS_PANE;
         };
     }
 

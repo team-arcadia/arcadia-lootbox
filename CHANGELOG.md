@@ -4,6 +4,26 @@ All notable changes to Arcadia LootBox are documented here.
 
 ---
 
+## [1.2.3] - 2026-04-30
+
+### Changed
+
+- **Filter chips now use stained-glass panes** — Previously rarity filters were dyes / lapis / amethyst / gold ingot / nether star, which blended visually with actual loot items and made the filter row look like more rewards. Each rarity now gets a stained-glass pane in its own color (lime/blue/purple/yellow/magenta/white). Glass panes read clearly as "tabs/buttons", not as drops.
+- **Yellow pedestal around the Draw button** — Slots 48 and 50 (flanking the Draw) now show yellow stained-glass panes, framing the Draw button as a centerpiece instead of letting it float in a dark row.
+- **Uniform orange frame** — The whole border now uses one warm tone instead of mixed orange/blue/gray rows. Only the Draw pedestal breaks the pattern in yellow, keeping the visual focus where it belongs.
+- **Tighter item tooltip** — The redundant rarity line was merged into the item name (`Item Name • Rarity`). Each tooltip now uses three lines instead of five, with `»` arrows replacing colons for a more polished look.
+
+---
+
+### Modifications
+
+- **Puces de filtre en vitres teintées** — Avant, les filtres étaient des teintures / lapis / améthyste / lingot d'or / nether star, qui se confondaient visuellement avec les vrais objets et donnaient l'impression que la rangée de filtres contenait encore plus de drops. Chaque rareté a maintenant une vitre teintée à sa couleur (lime/bleu/violet/jaune/magenta/blanc). Une vitre se lit clairement comme un "onglet/bouton", pas comme un drop.
+- **Piédestal jaune autour du bouton Draw** — Les slots 48 et 50 (autour du Draw) affichent désormais des vitres jaunes, encadrant le bouton Draw comme la pièce maîtresse au lieu de le laisser perdu dans une rangée sombre.
+- **Cadre orange uniforme** — Toute la bordure utilise désormais une seule teinte chaude au lieu de mélanger orange/bleu/gris. Seul le piédestal du Draw rompt le motif en jaune, gardant l'attention visuelle là où il faut.
+- **Tooltip d'objet plus serré** — La ligne de rareté redondante est fusionnée dans le nom (`Nom • Rareté`). Chaque tooltip passe de cinq à trois lignes, avec des flèches `»` à la place des deux-points pour un rendu plus propre.
+
+---
+
 ## [1.2.2] - 2026-04-30
 
 ### Changed
