@@ -8,7 +8,7 @@
 
 <p>&nbsp;</p>
 
-<p style="text-align: center;"><img src="https://img.shields.io/badge/Minecraft-1.21.1-62B47A?style=flat-square&amp;logo=minecraft&amp;logoColor=white" alt="MC 1.21.1">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/NeoForge-21.1.42+-F16436?style=flat-square" alt="NeoForge">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Java-21-007396?style=flat-square&amp;logo=openjdk&amp;logoColor=white" alt="Java 21">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Arcadia_Lib-bundled-9C27B0?style=flat-square" alt="Arcadia Lib bundled">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/LuckPerms-optional-2196F3?style=flat-square" alt="LuckPerms optional">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/License-All_Rights_Reserved-FFA500?style=flat-square" alt="All Rights Reserved">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Languages-EN%20%2F%20FR-2196F3?style=flat-square" alt="EN / FR"></p>
+<p style="text-align: center;"><img src="https://img.shields.io/badge/Minecraft-1.21.1-62B47A?style=flat-square&amp;logo=minecraft&amp;logoColor=white" alt="MC 1.21.1">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/NeoForge-21.1.42+-F16436?style=flat-square" alt="NeoForge">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Java-21-007396?style=flat-square&amp;logo=openjdk&amp;logoColor=white" alt="Java 21">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Arcadia_Lib-bundled-9C27B0?style=flat-square" alt="Arcadia Lib bundled">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/LuckPerms-optional-2196F3?style=flat-square" alt="LuckPerms optional">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/License-LGPL--3.0-FFA500?style=flat-square" alt="LGPL-3.0">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Languages-EN%20%2F%20FR-2196F3?style=flat-square" alt="EN / FR"></p>
 
 <p>&nbsp;</p>
 
@@ -689,4 +689,4 @@
 
 <p>&nbsp;</p>
 
-<p style="text-align: center;"><span style="font-size: small;">&copy; 2026 Arcadia Lootbox | Created by vyrriox / Team Arcadia | All Rights Reserved | Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</span></p>
+<p style="text-align: center;"><span style="font-size: small;">&copy; 2026 Arcadia Lootbox | Created by vyrriox / Team Arcadia | LGPL-3.0-or-later | Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</span></p>

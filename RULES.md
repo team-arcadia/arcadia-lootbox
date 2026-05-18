@@ -16,7 +16,7 @@
 | **Minecraft** | 1.21.1 |
 | **Java** | 21 |
 | **Author** | vyrriox |
-| **License** | All Rights Reserved |
+| **License** | LGPL-3.0-or-later |
 | **Dependency** | Arcadia Lib (`com.arcadia.lib`) in `libs/arcadia-lib-*.jar` |
 
 ---
