@@ -127,6 +127,145 @@
 
 <hr style="border: 1px solid #FFA500;">
 
+<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>🛠️ Creating a Lootbox (JSON)</strong></span></p>
+
+<p style="text-align: center;">Every lootbox is a single JSON file in <code>config/arcadia/arcadialootbox/</code>. The file name becomes the lootbox ID. Two examples are generated on first launch — <code>example_weighted.json</code> and <code>example_guaranteed.json</code> — alongside a <code>README.txt</code> cheat sheet.</p>
+
+<p>&nbsp;</p>
+
+<table style="margin-left: auto; margin-right: auto; max-width: 950px;">
+<tbody>
+<tr>
+<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500;">
+<p style="text-align: center;"><span style="color: #ffa500;"><strong>🎲 Weighted Mode</strong></span></p>
+<p>Each item in <code>lootTable</code> rolls <strong>independently</strong> against its <code>chance</code> (0.0 to 1.0). Multiple items can drop on the same open, or none at all if you set low chances.</p>
+<pre><code>{
+  "displayName": "Treasure Chest",
+  "color": "yellow",
+  "keyItem": "arcadialootbox:shop_key_rare",
+  "rarity": "rare",
+  "type": "weighted",
+  "broadcastRare": true,
+  "lootTable": [
+    { "item": "minecraft:diamond",
+      "minCount": 1, "maxCount": 3,
+      "chance": 0.3, "rarity": "rare",
+      "displayName": "Diamond",
+      "broadcast": true },
+    { "item": "minecraft:gold_ingot",
+      "minCount": 2, "maxCount": 5,
+      "chance": 0.6, "rarity": "uncommon",
+      "displayName": "Gold Ingot" },
+    { "item": "minecraft:iron_ingot",
+      "minCount": 5, "maxCount": 10,
+      "chance": 1.0, "rarity": "common",
+      "displayName": "Iron Ingot" }
+  ],
+  "particles": ["minecraft:flame"],
+  "openSound": "minecraft:block.chest.open",
+  "openMessage": "§aLootbox opened!"
+}</code></pre>
+</td>
+<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500;">
+<p style="text-align: center;"><span style="color: #ffa500;"><strong>🎯 Guaranteed Mode</strong></span></p>
+<p>The player always receives <code>guaranteedItem</code> <strong>and</strong> exactly <strong>one</strong> entry from <code>lootTable</code>, picked using <code>chance</code> as a <strong>weight</strong> (higher = more likely).</p>
+<pre><code>{
+  "displayName": "Lucky Box",
+  "color": "lime",
+  "keyItem": "arcadialootbox:vote_key_common",
+  "rarity": "uncommon",
+  "type": "guaranteed",
+  "guaranteedItem": "minecraft:bread",
+  "guaranteedMinCount": 1,
+  "guaranteedMaxCount": 3,
+  "lootTable": [
+    { "item": "minecraft:diamond",
+      "minCount": 1, "maxCount": 1,
+      "chance": 0.05, "rarity": "legendary" },
+    { "item": "minecraft:emerald",
+      "minCount": 1, "maxCount": 3,
+      "chance": 0.15, "rarity": "rare" },
+    { "item": "minecraft:gold_ingot",
+      "minCount": 2, "maxCount": 5,
+      "chance": 0.30, "rarity": "uncommon" },
+    { "item": "minecraft:iron_ingot",
+      "minCount": 3, "maxCount": 8,
+      "chance": 0.50, "rarity": "common" }
+  ],
+  "freeEnabled": true,
+  "freeCooldownHours": 72,
+  "freeReducedCooldownHours": 48,
+  "freeReducedPermission": "arcadialootbox.free.reduced",
+  "experienceReward": 5
+}</code></pre>
+</td>
+</tr>
+</tbody>
+</table>
+
+<p>&nbsp;</p>
+
+<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: x-large; color: #ffa500;"><strong>🧩 Key fields you'll use most</strong></span></p>
+
+<table style="margin-left: auto; margin-right: auto; max-width: 900px; border-collapse: collapse;">
+<thead>
+<tr style="background-color: rgba(255, 165, 0, 0.18);">
+<th style="text-align: center; padding: 8px 16px; border: 1px solid #FFA500;"><span style="color: #ffa500;">Field</span></th>
+<th style="text-align: center; padding: 8px 16px; border: 1px solid #FFA500;"><span style="color: #ffa500;">What it does</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>keyItem</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">The item the player must hold to open. Pick one of the 50 registered keys (e.g. <code>arcadialootbox:dungeon_key_rare</code>) or any vanilla item id.</td>
+</tr>
+<tr style="background-color: rgba(255, 165, 0, 0.06);">
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>type</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>"weighted"</code> or <code>"guaranteed"</code> — chooses the drop algorithm above.</td>
+</tr>
+<tr>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>rarity</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>common, uncommon, rare, epic, legendary, mythic</code>. Drives color, broadcast threshold, sort order.</td>
+</tr>
+<tr style="background-color: rgba(255, 165, 0, 0.06);">
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>permission</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">LuckPerms node required to open. Empty = no check.</td>
+</tr>
+<tr>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>cooldownTicks</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">Per-player cooldown between two opens (20 = 1 second).</td>
+</tr>
+<tr style="background-color: rgba(255, 165, 0, 0.06);">
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>maxUses</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">Hard cap of opens per placed block. <code>-1</code> = unlimited.</td>
+</tr>
+<tr>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>freeEnabled</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">Allow the player to claim this lootbox for free every <code>freeCooldownHours</code> hours.</td>
+</tr>
+<tr style="background-color: rgba(255, 165, 0, 0.06);">
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>broadcastRare</code> / <code>broadcast</code> per entry</td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">Auto-broadcast drops above the global rarity threshold, or force a broadcast on a specific item.</td>
+</tr>
+<tr>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>commandRewards</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">Array of <code>{ command, chance, asConsole }</code> — runs as console or player, <code>{player}</code> is replaced safely.</td>
+</tr>
+<tr style="background-color: rgba(255, 165, 0, 0.06);">
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>displayNameFR</code>, <code>openMessageFR</code>, <code>openTitleFR</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">Optional French overrides. Fall back to the English fields when empty.</td>
+</tr>
+</tbody>
+</table>
+
+<p>&nbsp;</p>
+
+<p style="text-align: center;"><em>Full field reference (35+ parameters) is documented in the project <a href="https://github.com/Team-Arcadia/Arcadia-LootBox/blob/main/README.md" target="_blank" rel="nofollow noopener">README.md</a>. After editing any JSON, run <code>/arcadia_lootbox reload</code> — the reload is async, so the tick loop never stalls.</em></p>
+
+<p>&nbsp;</p>
+
+<hr style="border: 1px solid #FFA500;">
+
 <p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>📦 Requirements</strong></span></p>
 
 <table style="margin-left: auto; margin-right: auto; max-width: 700px; border-collapse: collapse;">
@@ -275,6 +414,145 @@
 </tr>
 </tbody>
 </table>
+
+<p>&nbsp;</p>
+
+<hr style="border: 1px solid #FFA500;">
+
+<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>🛠️ Créer une lootbox (JSON)</strong></span></p>
+
+<p style="text-align: center;">Chaque lootbox est un unique fichier JSON dans <code>config/arcadia/arcadialootbox/</code>. Le nom du fichier devient l'ID de la lootbox. Deux exemples sont générés au premier lancement — <code>example_weighted.json</code> et <code>example_guaranteed.json</code> — accompagnés d'une feuille de triche <code>README.txt</code>.</p>
+
+<p>&nbsp;</p>
+
+<table style="margin-left: auto; margin-right: auto; max-width: 950px;">
+<tbody>
+<tr>
+<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500;">
+<p style="text-align: center;"><span style="color: #ffa500;"><strong>🎲 Mode Weighted</strong></span></p>
+<p>Chaque item dans <code>lootTable</code> tire <strong>indépendamment</strong> contre son <code>chance</code> (0.0 à 1.0). Plusieurs items peuvent drop sur la même ouverture, ou aucun si vous mettez des chances faibles.</p>
+<pre><code>{
+  "displayName": "Coffre au Trésor",
+  "color": "yellow",
+  "keyItem": "arcadialootbox:shop_key_rare",
+  "rarity": "rare",
+  "type": "weighted",
+  "broadcastRare": true,
+  "lootTable": [
+    { "item": "minecraft:diamond",
+      "minCount": 1, "maxCount": 3,
+      "chance": 0.3, "rarity": "rare",
+      "displayName": "Diamant",
+      "broadcast": true },
+    { "item": "minecraft:gold_ingot",
+      "minCount": 2, "maxCount": 5,
+      "chance": 0.6, "rarity": "uncommon",
+      "displayName": "Lingot d'or" },
+    { "item": "minecraft:iron_ingot",
+      "minCount": 5, "maxCount": 10,
+      "chance": 1.0, "rarity": "common",
+      "displayName": "Lingot de fer" }
+  ],
+  "particles": ["minecraft:flame"],
+  "openSound": "minecraft:block.chest.open",
+  "openMessage": "§aLootbox ouverte !"
+}</code></pre>
+</td>
+<td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500;">
+<p style="text-align: center;"><span style="color: #ffa500;"><strong>🎯 Mode Guaranteed</strong></span></p>
+<p>Le joueur reçoit toujours <code>guaranteedItem</code> <strong>et</strong> exactement <strong>une</strong> entrée du <code>lootTable</code>, choisie avec <code>chance</code> utilisé comme <strong>poids</strong> (plus élevé = plus probable).</p>
+<pre><code>{
+  "displayName": "Boîte Chanceuse",
+  "color": "lime",
+  "keyItem": "arcadialootbox:vote_key_common",
+  "rarity": "uncommon",
+  "type": "guaranteed",
+  "guaranteedItem": "minecraft:bread",
+  "guaranteedMinCount": 1,
+  "guaranteedMaxCount": 3,
+  "lootTable": [
+    { "item": "minecraft:diamond",
+      "minCount": 1, "maxCount": 1,
+      "chance": 0.05, "rarity": "legendary" },
+    { "item": "minecraft:emerald",
+      "minCount": 1, "maxCount": 3,
+      "chance": 0.15, "rarity": "rare" },
+    { "item": "minecraft:gold_ingot",
+      "minCount": 2, "maxCount": 5,
+      "chance": 0.30, "rarity": "uncommon" },
+    { "item": "minecraft:iron_ingot",
+      "minCount": 3, "maxCount": 8,
+      "chance": 0.50, "rarity": "common" }
+  ],
+  "freeEnabled": true,
+  "freeCooldownHours": 72,
+  "freeReducedCooldownHours": 48,
+  "freeReducedPermission": "arcadialootbox.free.reduced",
+  "experienceReward": 5
+}</code></pre>
+</td>
+</tr>
+</tbody>
+</table>
+
+<p>&nbsp;</p>
+
+<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: x-large; color: #ffa500;"><strong>🧩 Les champs que vous utiliserez le plus</strong></span></p>
+
+<table style="margin-left: auto; margin-right: auto; max-width: 900px; border-collapse: collapse;">
+<thead>
+<tr style="background-color: rgba(255, 165, 0, 0.18);">
+<th style="text-align: center; padding: 8px 16px; border: 1px solid #FFA500;"><span style="color: #ffa500;">Champ</span></th>
+<th style="text-align: center; padding: 8px 16px; border: 1px solid #FFA500;"><span style="color: #ffa500;">Effet</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>keyItem</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">L'item que le joueur doit tenir pour ouvrir. Choisissez une des 50 clés intégrées (ex. <code>arcadialootbox:dungeon_key_rare</code>) ou n'importe quel id d'item vanilla.</td>
+</tr>
+<tr style="background-color: rgba(255, 165, 0, 0.06);">
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>type</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>"weighted"</code> ou <code>"guaranteed"</code> — choisit l'algorithme de drop ci-dessus.</td>
+</tr>
+<tr>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>rarity</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>common, uncommon, rare, epic, legendary, mythic</code>. Pilote couleur, seuil broadcast, ordre de tri.</td>
+</tr>
+<tr style="background-color: rgba(255, 165, 0, 0.06);">
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>permission</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">Node LuckPerms requis pour ouvrir. Vide = pas de check.</td>
+</tr>
+<tr>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>cooldownTicks</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">Cooldown par joueur entre deux ouvertures (20 = 1 seconde).</td>
+</tr>
+<tr style="background-color: rgba(255, 165, 0, 0.06);">
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>maxUses</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">Plafond d'ouvertures par bloc posé. <code>-1</code> = illimité.</td>
+</tr>
+<tr>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>freeEnabled</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">Autorise le joueur à réclamer cette lootbox gratuitement toutes les <code>freeCooldownHours</code> heures.</td>
+</tr>
+<tr style="background-color: rgba(255, 165, 0, 0.06);">
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>broadcastRare</code> / <code>broadcast</code> par entrée</td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">Annonce auto les drops au-dessus du seuil global, ou force un broadcast sur un item précis.</td>
+</tr>
+<tr>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>commandRewards</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">Tableau de <code>{ command, chance, asConsole }</code> — exécute en console ou joueur, <code>{player}</code> est remplacé de manière sûre.</td>
+</tr>
+<tr style="background-color: rgba(255, 165, 0, 0.06);">
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>displayNameFR</code>, <code>openMessageFR</code>, <code>openTitleFR</code></td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">Overrides français optionnels. Retombent sur les champs anglais si vides.</td>
+</tr>
+</tbody>
+</table>
+
+<p>&nbsp;</p>
+
+<p style="text-align: center;"><em>La référence complète des champs (35+ paramètres) est documentée dans le <a href="https://github.com/Team-Arcadia/Arcadia-LootBox/blob/main/README.md" target="_blank" rel="nofollow noopener">README.md</a> du projet. Après chaque édition de JSON, lancez <code>/arcadia_lootbox reload</code> — le rechargement est asynchrone, donc le tick loop ne bloque jamais.</em></p>
 
 <p>&nbsp;</p>
 

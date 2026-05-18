@@ -1,299 +1,393 @@
-<p align="center">
-  <img src="https://img.shields.io/badge/Minecraft-1.21.1-brightgreen?style=for-the-badge&logo=mojangstudios" alt="Minecraft 1.21.1"/>
-  <img src="https://img.shields.io/badge/NeoForge-21.1+-orange?style=for-the-badge" alt="NeoForge"/>
-  <img src="https://img.shields.io/badge/Java-21-red?style=for-the-badge&logo=openjdk" alt="Java 21"/>
-  <img src="https://img.shields.io/github/v/release/Team-Arcadia/Arcadia-LootBox?style=for-the-badge&label=Version&color=blue" alt="Version"/>
-  <img src="https://img.shields.io/github/actions/workflow/status/Team-Arcadia/Arcadia-LootBox/build.yml?style=for-the-badge&label=Build" alt="Build"/>
-  <img src="https://img.shields.io/github/license/Team-Arcadia/Arcadia-LootBox?style=for-the-badge" alt="License"/>
-</p>
+# Arcadia LootBox
 
-<h1 align="center">Arcadia LootBox</h1>
+[Consult the full CurseForge description](./CURSEFORGE_PAGE.md)
 
-<p align="center">
-  <b>Premium lootbox system for Minecraft servers</b><br/>
-  <i>Powered by <a href="https://github.com/Team-Arcadia">Arcadia Lib</a> | Built for NeoForge 1.21.1</i>
-</p>
-
-<p align="center">
-  <a href="#features">Features</a> |
-  <a href="#commands">Commands</a> |
-  <a href="#installation">Installation</a> |
-  <a href="#configuration">Configuration</a> |
-  <a href="#key-categories">Keys</a> |
-  <a href="#contributing">Contributing</a> |
-  <a href="#version-fran%C3%A7aise">Francais</a>
-</p>
-
----
-
-## Overview
-
-Arcadia LootBox is a feature-rich, optimized lootbox system designed for Minecraft modded servers. It provides dual lootbox types (weighted & guaranteed), 50 integrated key items, free timed lootboxes with configurable cooldowns, Arcadia Hub integration with steampunk theming, and a complete permission system with optional LuckPerms support.
+Arcadia LootBox is a NeoForge Minecraft mod that adds a complete, data-driven crate system for servers and singleplayer. Players collect themed keys, right-click matching shulker-box "lootboxes", and roll randomized rewards. Lootboxes are defined entirely in JSON — no Java, no KubeJS scripts, no datapacks — and admins manage everything through a single `/arcadia_lootbox` command tree. A polished Hub UI browses every lootbox on the server, and a Preview menu shows exactly what each one drops before you spend a key.
 
 ## Features
 
-| Feature | Description |
-|---|---|
-| **Dual Lootbox Types** | "Weighted" (each item rolls with its own %) and "Guaranteed" (one random item + guaranteed drop) |
-| **50 Key Items** | Dungeon, Shop, Vote, Lootable, Event, Boss keys across multiple tiers with custom textures |
-| **Free Timed Lootboxes** | Per-lootbox configurable cooldowns (72h default), reducible to 48h with permissions. Persistent across restarts |
-| **Steampunk Hub** | ArcadiaTheme client-side lootbox browser with configurable shop link |
-| **6 Rarity Tiers** | Common, Uncommon, Rare, Epic, Legendary, Mythic with colored display |
-| **Server Broadcasts** | Announce rare drops server-wide with configurable rarity threshold |
-| **Soft LuckPerms** | Full LuckPerms integration that works gracefully without LP installed (vanilla OP fallback) |
-| **Opening History** | Per-player history tracking with admin commands to view and clear |
-| **Usage Limits** | Per-block maxUses with NBT persistence and admin override |
-| **Anti-Autoclicker** | Rate-limiting protection against rapid-fire abuse |
-| **Command Rewards** | Execute server/player commands as lootbox rewards with independent chances |
-| **XP Rewards** | Grant experience points on opening |
-| **Bilingual** | Automatic language detection (English/French) based on client settings |
-| **30+ Config Params** | Cooldowns, broadcasts, hub, performance, security, animation, sounds, free timers |
-| **Optimized** | Thread-safe managers, atomic map swap, async reload, batched particles, tick-friendly |
+- **Data-driven JSON lootboxes** — Every crate is one JSON file in `config/arcadia/arcadialootbox/`. Hot-reload with `/arcadia_lootbox reload` (async, no tick freeze).
+- **Two drop modes** — `weighted` (each item rolls independently with its own chance %) or `guaranteed` (one weighted pick from the pool + one always-given item).
+- **50 themed key items** — Dungeon, Shop, Vote, Lootable, Event and Boss families with up to 10 tiers each, custom textures and bilingual tooltips. Defined in `KeyRegistry`; not modifiable by config.
+- **Hub UI with collapsible categories** — Steampunk-styled client screen; categories fold by default, click a header to expand. Expand-all / collapse-all controls keep large key collections readable.
+- **Preview menu with rarity filters** — Single clickable action row, 28 items per page, filter chips by rarity, multi-draw (left = 1, right = all your keys, shift = up to 10).
+- **Right-click in air with a key** — Opens the matching lootbox preview directly (or the Hub if several lootboxes share the key).
+- **Free timed lootboxes** — Per-lootbox free claims with configurable cooldown (72 h default, 48 h with `freeReducedPermission`). Persistent across restarts via `free_claims.json`, auto-saved every 5 min.
+- **Soft LuckPerms integration** — `PermissionHelper` checks LuckPerms when present and silently falls back to vanilla OP checks when it isn't. Per-lootbox `permission` node, `freePermission`, `freeReducedPermission` all supported.
+- **Server-safe** — `ClientEvents` and `LootboxHubScreen` are isolated under `Dist.CLIENT`; the dedicated server starts cleanly with no missing-class errors.
+- **Hardened** — Anti-autoclicker (rate-limited rapid clicks), per-lootbox cooldowns, `maxUses` per placed block (NBT-persisted), `BULK_OPEN_LIMIT = 10` hard cap, strict slot-id bounds in the menu, 75 ms anti-spam on filter clicks, 250 ms anti-spam on key right-click-in-air, null-safe registry lookups, tooltip string sanitization.
+- **Bilingual UI** — Every user-facing string flows through `LanguageHelper` (EN + FR), language detected per-player via `clientInformation().language()`.
+
+## How a lootbox works
+
+```
+                   1. Player right-clicks the placed lootbox with the matching key
+                   2. Server runs LootHelper.handleLootboxAttempt
+                            |
+                            v
+       +---------------- permission check (per-lootbox + LuckPerms / OP) ----------------+
+       |                                                                                  |
+       |  passes                                                                          |
+       v                                                                                  |
+       sneak check  ->  key search (main hand, offhand, full inventory)                   |
+       |                                                                                  |
+       v                                                                                  |
+       per-lootbox cooldown  ->  anti-autoclicker  ->  maxUses check (NBT on block)       |
+       |                                                                                  |
+       v                                                                                  |
+       openLootboxLogic:                                                                  |
+         - "weighted": each LootEntry rolls vs. its chance, all matches drop              |
+         - "guaranteed": ONE weighted-random pick + the always-given guaranteedItem       |
+         - command rewards roll independently                                             |
+         - XP, particles, title animation, optional rare-drop broadcast                   |
+         - consume key (skipped in creative)                                              |
+         - increment block usage, destroy if destroyOnOpen or maxUses reached             |
+         - record opening in history                                                      |
+                                                                                          |
+       fails at any step  ----->  localized chat error, no key consumed  ----------------+
+```
+
+Multi-draw routes the same way: `LootHelper.handleBulkLootboxAttempt` loops up to 10 times, re-checking key availability and `maxUses` each iteration, and sets the per-lootbox cooldown once at the end.
+
+## Creating a lootbox
+
+Drop a new `.json` file into `config/arcadia/arcadialootbox/`. The file name becomes the lootbox ID (e.g. `treasure_chest.json` → `/arcadia_lootbox give @p treasure_chest`). Two starter examples (`example_weighted.json`, `example_guaranteed.json`) and a `README.txt` cheat sheet are generated automatically on first launch.
+
+### Minimal weighted example
+
+```json
+{
+  "displayName": "Treasure Chest",
+  "color": "yellow",
+  "keyItem": "arcadialootbox:shop_key_rare",
+  "rarity": "rare",
+  "type": "weighted",
+  "broadcastRare": true,
+  "lootTable": [
+    { "item": "minecraft:diamond",   "minCount": 1, "maxCount": 3, "chance": 0.3,  "rarity": "rare",     "displayName": "Diamond",    "broadcast": true  },
+    { "item": "minecraft:gold_ingot","minCount": 2, "maxCount": 5, "chance": 0.6,  "rarity": "uncommon", "displayName": "Gold Ingot", "broadcast": false },
+    { "item": "minecraft:iron_ingot","minCount": 5, "maxCount": 10,"chance": 1.0,  "rarity": "common",   "displayName": "Iron Ingot", "broadcast": false }
+  ],
+  "particles":  ["minecraft:flame", "minecraft:happy_villager"],
+  "openSound":  "minecraft:block.chest.open",
+  "openMessage":"§aLootbox opened!"
+}
+```
+
+Behavior: each entry of `lootTable` rolls **independently** against its `chance` (`0.0–1.0`). With the values above, on a single open the player could get 0 diamonds + 0 gold + 5 iron, or all three at once. `broadcast: true` on a single entry forces a server-wide message when it drops; `broadcastRare: true` at the top level triggers a broadcast whenever an entry's `rarity` meets the global broadcast threshold (`lootbox.toml > Broadcast`).
+
+### Guaranteed example with free timer
+
+```json
+{
+  "displayName": "Lucky Box",
+  "color": "lime",
+  "keyItem": "arcadialootbox:vote_key_common",
+  "rarity": "uncommon",
+  "type": "guaranteed",
+  "guaranteedItem": "minecraft:bread",
+  "guaranteedMinCount": 1,
+  "guaranteedMaxCount": 3,
+  "lootTable": [
+    { "item": "minecraft:diamond",   "minCount": 1, "maxCount": 1, "chance": 0.05, "rarity": "legendary", "displayName": "Diamond" },
+    { "item": "minecraft:emerald",   "minCount": 1, "maxCount": 3, "chance": 0.15, "rarity": "rare",      "displayName": "Emerald" },
+    { "item": "minecraft:gold_ingot","minCount": 2, "maxCount": 5, "chance": 0.30, "rarity": "uncommon",  "displayName": "Gold Ingot" },
+    { "item": "minecraft:iron_ingot","minCount": 3, "maxCount": 8, "chance": 0.50, "rarity": "common",    "displayName": "Iron Ingot" }
+  ],
+  "freeEnabled": true,
+  "freeCooldownHours": 72,
+  "freeReducedCooldownHours": 48,
+  "freeReducedPermission": "arcadialootbox.free.reduced",
+  "experienceReward": 5,
+  "openMessage": "§aYou got something!"
+}
+```
+
+Behavior: the player always receives 1–3 bread (`guaranteedItem`) **and** exactly one entry from `lootTable`, picked with `chance` used as a **weight** (higher = more likely). With these weights the player rolls iron ~50 % of the time, gold ~30 %, emerald ~15 %, diamond ~5 % — proportional to the sum of weights. The lootbox is also claimable for free every 72 h (48 h for players with the `arcadialootbox.free.reduced` LuckPerms node).
+
+### Full field reference
+
+| Field | Type | Default | What it does |
+|---|---|---|---|
+| `displayName` | string | `"Lootbox"` | Human name shown in tooltips, titles, broadcasts. |
+| `displayNameFR` | string | `""` | Optional French override. Falls back to `displayName`. |
+| `color` | string | `"white"` | Dye color of the shulker-box. `"random"` picks a random color per stack. |
+| `keyItem` | resource id | `"minecraft:tripwire_hook"` | Item the player must hold to open the lootbox. Usually one of the 50 registered keys. |
+| `rarity` | string | `"common"` | One of `common, uncommon, rare, epic, legendary, mythic`. Drives color, broadcast threshold, sort order. |
+| `type` | string | `"weighted"` | `"weighted"` or `"guaranteed"`. |
+| `lootTable` | array | `[]` | Entries with `item, minCount, maxCount, chance (or weight in guaranteed mode), rarity, displayName, broadcast`. |
+| `guaranteedItem` | resource id | `""` | (Guaranteed mode) Always-given item. |
+| `guaranteedMinCount` / `guaranteedMaxCount` | int | `1 / 1` | (Guaranteed mode) Count range for the always-given item. |
+| `permission` | string | `""` | LuckPerms node required to open. Empty = no check. |
+| `cooldownTicks` | int | `20` | Per-player cooldown between two opens (20 = 1 s). |
+| `maxUses` | int | `-1` | Hard cap of opens per placed block. `-1` = unlimited. |
+| `destroyOnOpen` | bool | `false` | Destroy the placed block after the first open. |
+| `requireSneakToOpen` | bool | `false` | Force shift + right-click to open. |
+| `broadcastRare` | bool | `false` | Auto-broadcast drops whose `rarity` meets the global threshold. |
+| `broadcastMessage` | string | `""` | Custom broadcast format. Empty = default `§6⚙ §d✦ <player> found <rarity> <count>x <item> in <lootbox>` message. |
+| `openSound` / `closeSound` | resource id | chest open / `""` | Sounds played on opening / GUI close. |
+| `openMessage` | string | `""` | Action-bar message on open. `openMessageFR` for the French variant. |
+| `openTitle` / `openSubtitle` | string | auto | Title + subtitle shown on open. FR variants supported. |
+| `particles` | array | `["minecraft:flame"]` | Particle types spawned on open. |
+| `animation` | object | defaults | `{ type, durationTicks, particleCount, particleSpeed, particleRadius, particleType, playTitleAnimation }`. |
+| `commandRewards` | array | `[]` | `{ command: "give {player} ...", chance: 0.0–1.0, asConsole: true }` — `{player}` is replaced safely. |
+| `experienceReward` | number | `0` | XP awarded on open. |
+| `freeEnabled` | bool | `false` | Allow the player to claim this lootbox for free on a timer. |
+| `freeCooldownHours` | int | `72` | Free-claim cooldown in hours. |
+| `freeReducedCooldownHours` | int | `48` | Reduced cooldown granted by `freeReducedPermission`. |
+| `freePermission` / `freeReducedPermission` | string | `""` | LuckPerms nodes for the free-claim feature. |
+| `requiredBiome` / `requiredLevel` | string / int | `""` / `0` | Optional gating for the open attempt. |
+| `logOpening` | bool | `false` | Log every open of this lootbox to the server log. |
+| `sortOrder` | int | `0` | Display order in the Hub. |
+| `giveToInventoryOnly` | bool | `false` | Force rewards into inventory only (no ground drop). |
+
+After editing any JSON, run `/arcadia_lootbox reload` — the reload is async, so the tick loop doesn't stall.
 
 ## Commands
 
-All commands use the prefix `/arcadia_lootbox`.
+All commands live under `/arcadia_lootbox` and require OP level 2 by default. Use tab completion to discover them.
 
-### Lootbox Management
-| Command | Permission | Description |
-|---|---|---|
-| `/arcadia_lootbox give <player> <id> [amount]` | Op Level 2 | Give a lootbox to a player |
-| `/arcadia_lootbox giveall <id> [amount]` | Op Level 2 | Give a lootbox to all online players |
-| `/arcadia_lootbox givekey <player> <key_id> [amount]` | Op Level 2 | Give a key item to a player |
-| `/arcadia_lootbox reload` | Op Level 2 | Reload all JSON configurations |
-| `/arcadia_lootbox list` | Op Level 2 | List all loaded lootbox definitions |
-| `/arcadia_lootbox listkeys` | Op Level 2 | List all registered key items |
-| `/arcadia_lootbox info <id>` | Op Level 2 | Show detailed lootbox information |
-| `/arcadia_lootbox create <id> <name>` | Op Level 2 | Create a new lootbox template |
-| `/arcadia_lootbox delete <id>` | Op Level 2 | Delete a lootbox definition |
+| Command | What it does |
+|---|---|
+| `give <player> <id> [amount]` | Spawn the lootbox shulker-box in a player's inventory. |
+| `giveall <id> [amount]` | Same, but for every online player. |
+| `givekey <player> <key_id> [amount]` | Spawn a key item. |
+| `reload` | Reload all JSON definitions (async). |
+| `list` / `listkeys` | List loaded lootboxes / registered keys. |
+| `info <id>` | Detailed info for a lootbox. |
+| `create <id> <name>` / `delete <id>` | Create a starter template / remove a definition. |
+| `preview <player> <id>` | Open the preview GUI for a player. |
+| `history <player>` / `clearhistory <player>` | View / wipe the open history of a player. |
+| `setuses <pos> <uses>` | Override the usage count on a placed block. |
+| `resetcooldown <player>` | Clear all per-lootbox cooldowns for a player. |
+| `free <player> <id>` / `freetimer <player> <id>` / `resetfree <player> [id]` | Manage the free-claim timer. |
+| `stats` / `hub` | Show global stats / open the Hub UI. |
 
-### Player Interaction
-| Command | Permission | Description |
-|---|---|---|
-| `/arcadia_lootbox preview <player> <id>` | Op Level 2 | Open loot preview GUI for a player |
-| `/arcadia_lootbox history <player>` | Op Level 2 | View player opening history |
-| `/arcadia_lootbox clearhistory <player>` | Op Level 2 | Clear a player's history |
-| `/arcadia_lootbox setuses <pos> <uses>` | Op Level 2 | Set usage count on a placed block |
-| `/arcadia_lootbox resetcooldown <player>` | Op Level 2 | Reset all cooldowns for a player |
+## Requirements
 
-### Free Lootbox Timer
-| Command | Permission | Description |
-|---|---|---|
-| `/arcadia_lootbox free <player> <id>` | Op Level 2 | Claim a free lootbox for a player |
-| `/arcadia_lootbox freetimer <player> <id>` | Op Level 2 | Check remaining free cooldown |
-| `/arcadia_lootbox resetfree <player> [id]` | Op Level 2 | Reset free timer(s) for a player |
-
-### Other
-| Command | Permission | Description |
-|---|---|---|
-| `/arcadia_lootbox stats` | Op Level 2 | Show global statistics |
-| `/arcadia_lootbox hub` | Op Level 2 | Open the Arcadia Hub |
+| Dependency | Version |
+|------------|---------|
+| Minecraft | 1.21.1 |
+| NeoForge | 21.1.42+ |
+| Java | 21 |
+| Arcadia Lib | bundled in the jar |
+| LuckPerms | optional (soft integration) |
 
 ## Installation
 
-### Requirements
-- Minecraft **1.21.1**
-- NeoForge **21.1+**
-- [Arcadia Lib](https://github.com/Team-Arcadia) **>= 1.2.0**
+1. Place `ArcadiaLootbox-1.2.4.jar` in your `mods/` folder. Arcadia Lib is bundled inside.
+2. (Optional) Install [LuckPerms](https://luckperms.net/) for permission-based features.
+3. Start the server. On first launch, the mod creates `config/arcadia/arcadialootbox/` with two example lootboxes and a `README.txt` cheat sheet.
+4. Edit the example JSON files or add your own. Run `/arcadia_lootbox reload` to apply changes live.
 
-### Steps
-1. Download the latest release from the [Releases](https://github.com/Team-Arcadia/Arcadia-LootBox/releases) page
-2. Place `arcadia-lib-1.2.0.jar` in your `mods/` folder
-3. Place `ArcadiaLootbox-1.2.0.jar` in your `mods/` folder
-4. (Optional) Install [LuckPerms](https://luckperms.net/) for permission-based features
-5. Start the server — configs auto-generate in `config/arcadia/arcadialootbox/`
+## Documentation
 
-### Client Installation (Optional)
-Installing on the client enables the steampunk ArcadiaTheme rendering for the lootbox hub screen. The mod works without client installation (vanilla chest preview).
-
-## Configuration
-
-### Lootbox Definitions
-Each lootbox is a JSON file in `config/arcadia/arcadialootbox/`. Two types available:
-- **weighted** — Each item rolls independently with its own chance percentage
-- **guaranteed** — One item is picked from the pool (weighted random) + a guaranteed item always drops
-
-### Free Timed Lootboxes
-Each lootbox can enable free timed claims with these JSON fields:
-```json
-{
-  "freeEnabled": true,
-  "freeCooldownHours": 72,
-  "freePermission": "",
-  "freeReducedCooldownHours": 48,
-  "freeReducedPermission": "arcadialootbox.free.reduced"
-}
-```
-Set `freeEnabled: false` to disable free claims for specific lootboxes.
-
-### Global Config
-The TOML config at `config/arcadia/lootbox.toml` has 35+ parameters in sections: General, Broadcast, Hub, Performance, Security, Animation, Sounds, Free Lootbox.
-
-## Key Categories
-
-| Category | Tiers | Count | Source |
-|:--------:|:-----:|:-----:|:-------|
-| **Dungeon** | Common - Transcendent | 10 | Mob drops in dungeons |
-| **Shop** | Common - Transcendent | 10 | Online store purchase |
-| **Vote** | Common - Transcendent | 10 | Server vote rewards |
-| **Lootable** | Common - Transcendent | 10 | World loot (chests, fishing) |
-| **Event** | Bronze - Diamond | 5 | Limited-time events |
-| **Boss** | Minor - Overlord | 5 | Boss mob drops |
-
-## Architecture
-
-```
-com.arcadia.lootbox
-  +-- ArcadiaLootbox.java           Entry point, event registration
-  +-- client/
-  |   +-- ClientEvents.java          Hub card registration
-  |   +-- LootboxClientData.java     Client-side data cache
-  |   +-- LootboxHubScreen.java      Steampunk hub browser
-  +-- command/
-  |   +-- LootboxCommands.java       All /arcadia_lootbox commands
-  +-- config/
-  |   +-- LootboxConfig.java         Global TOML config (35+ params)
-  +-- data/
-  |   +-- LootboxDefinition.java     Per-lootbox JSON data model
-  +-- item/
-  |   +-- KeyRegistry.java           50 key item registrations
-  |   +-- LootboxKeyItem.java        Key item base class
-  +-- manager/
-  |   +-- LootboxManager.java        Config loading & caching
-  |   +-- FreeLootboxManager.java    Free claim timer persistence
-  |   +-- HistoryManager.java        Opening history tracking
-  |   +-- UsageTracker.java          Per-block usage counting
-  +-- menu/
-  |   +-- PreviewMenu.java           Server-side preview GUI
-  +-- network/
-  |   +-- LootboxNet.java            Packet registration
-  |   +-- S2COpenLootboxHub.java     Open hub packet
-  |   +-- S2CSyncLootboxList.java    Sync lootbox list packet
-  +-- util/
-      +-- LootHelper.java            Core lootbox logic
-      +-- PermissionHelper.java      Soft LuckPerms wrapper
-```
-
-## Building from Source
-
-```bash
-git clone https://github.com/Team-Arcadia/Arcadia-LootBox.git
-cd Arcadia-LootBox
-./gradlew build
-```
-
-The compiled JAR will be in `build/libs/`.
-
-## Contributing
-
-We welcome contributions! Please read our [Contributing Guide](.github/CONTRIBUTING.md) before submitting a pull request.
-
-## Links
-
-- [Arcadia: Echoes of Power](https://arcadia-echoes-of-power.fr/)
-- [Discord](https://discord.gg/xjF8Rtzyd4)
-- [Donate](https://buy.stripe.com/3cI3co6X97Vy4IK50QfIs00)
-
-## License
-
-All Rights Reserved. See [LICENSE](LICENSE) for details.
+- [CHANGELOG.md](CHANGELOG.md) — Version history.
+- [RULES.md](RULES.md) — Project conventions, architecture, AI assistant guidelines.
+- [CURSEFORGE_PAGE.md](CURSEFORGE_PAGE.md) — Long-form CurseForge description.
 
 ## Credits
 
-**Author:** vyrriox
-**Organization:** [Team Arcadia](https://github.com/Team-Arcadia)
+Author: vyrriox
+Organization: Team Arcadia
+License: All Rights Reserved — see [LICENSE](LICENSE).
+Discord: [discord.gg/xjF8Rtzyd4](https://discord.gg/xjF8Rtzyd4)
+Website: [arcadia-echoes-of-power.fr](https://arcadia-echoes-of-power.fr/)
 
 ---
 
-<h1 align="center">Arcadia LootBox (Version Francaise)</h1>
+# Arcadia LootBox (Version Française)
 
-<p align="center">
-  <b>Systeme de lootbox premium pour serveurs Minecraft</b><br/>
-  <i>Propulse par <a href="https://github.com/Team-Arcadia">Arcadia Lib</a> | Construit pour NeoForge 1.21.1</i>
-</p>
+[Consulter la description CurseForge complète](./CURSEFORGE_PAGE.md)
 
-## Apercu
+Arcadia LootBox est un mod NeoForge pour Minecraft qui ajoute un système complet de crates data-driven pour serveurs et solo. Les joueurs collectent des clés thématiques, font clic-droit sur des « lootbox » (shulker-box posées) avec la clé correspondante, et tirent des récompenses aléatoires. Les lootbox sont entièrement définies en JSON — pas de Java, pas de scripts KubeJS, pas de datapacks — et les admins gèrent tout via un unique arbre de commandes `/arcadia_lootbox`. Une UI Hub soignée parcourt toutes les lootbox du serveur, et un menu Preview montre exactement ce que chacune drop avant de dépenser une clé.
 
-Arcadia LootBox est un systeme de lootbox complet et optimise concu pour les serveurs Minecraft modes. Il propose deux types de lootbox (pondere et garanti), 50 cles integrees, des lootbox gratuites avec timer configurable, l'integration au Hub Arcadia avec theme steampunk, et un systeme de permissions complet avec support optionnel de LuckPerms.
+## Caractéristiques
 
-## Caracteristiques
+- **Lootbox JSON data-driven** — Chaque crate est un fichier JSON dans `config/arcadia/arcadialootbox/`. Rechargement à chaud via `/arcadia_lootbox reload` (asynchrone, sans freeze de tick).
+- **Deux modes de drop** — `weighted` (chaque item tire indépendamment avec son propre %) ou `guaranteed` (un pick pondéré dans la pool + un item toujours donné).
+- **50 clés thématiques** — Familles Donjon, Boutique, Vote, Trouvable, Événement, Boss avec jusqu'à 10 paliers chacune, textures custom et tooltips bilingues. Définies dans `KeyRegistry` ; pas modifiables par config.
+- **UI Hub avec catégories repliables** — Écran client steampunk ; catégories repliées par défaut, clic sur l'en-tête pour déployer. Boutons Tout déployer / Tout replier pour garder lisibles les grosses collections de clés.
+- **Menu Preview avec filtres de rareté** — Une seule rangée d'action cliquable, 28 objets par page, puces de filtre par rareté, multi-tirage (gauche = 1, droit = toutes vos clés, shift = jusqu'à 10).
+- **Clic-droit dans le vide avec une clé** — Ouvre directement l'aperçu de la lootbox correspondante (ou le Hub si plusieurs lootbox partagent la clé).
+- **Lootbox gratuites avec timer** — Réclamations gratuites par lootbox avec cooldown configurable (72 h par défaut, 48 h avec `freeReducedPermission`). Persistantes entre redémarrages via `free_claims.json`, sauvegarde auto toutes les 5 min.
+- **Intégration LuckPerms souple** — `PermissionHelper` vérifie LuckPerms si présent, et retombe silencieusement sur les checks OP vanilla sinon. Node `permission` par lootbox, `freePermission`, `freeReducedPermission` tous supportés.
+- **Sûr côté serveur** — `ClientEvents` et `LootboxHubScreen` sont isolés sous `Dist.CLIENT` ; le serveur dédié démarre proprement sans erreur de classe manquante.
+- **Durci** — Anti-autoclicker, cooldowns par lootbox, `maxUses` par bloc posé (NBT-persisté), plafond dur `BULK_OPEN_LIMIT = 10`, bornes strictes sur les slot ids du menu, anti-spam 75 ms sur les clics de filtre, anti-spam 250 ms sur clic-droit en air, lookups de registry null-safe, sanitization des tooltips.
+- **UI bilingue** — Chaque texte visible passe par `LanguageHelper` (EN + FR), langue détectée par joueur via `clientInformation().language()`.
 
-| Fonctionnalite | Description |
-|---|---|
-| **Deux types de Lootbox** | "Weighted" (% par item) et "Guaranteed" (1 aleatoire + drop garanti) |
-| **50 Items Cles** | Donjon, Boutique, Vote, Trouvable, Evenement, Boss sur plusieurs tiers |
-| **Lootbox gratuites** | Cooldown configurable par lootbox (72h defaut), reductible a 48h avec permissions. Persistant |
-| **Hub Steampunk** | Ecran client ArcadiaTheme avec lien boutique configurable |
-| **6 Niveaux de Rarete** | Common, Uncommon, Rare, Epic, Legendary, Mythic avec affichage colore |
-| **Broadcasts Serveur** | Annonces serveur pour les drops rares |
-| **LuckPerms Souple** | Integration complete, fonctionne sans LP (fallback OP vanilla) |
-| **Historique** | Suivi par joueur avec commandes admin |
-| **Limites d'Utilisation** | maxUses par lootbox placee avec persistance NBT |
-| **Anti-Autoclicker** | Protection contre l'abus |
-| **Bilingue** | Detection automatique de la langue (Anglais/Francais) |
-| **35+ Parametres** | Configuration TOML complete |
-| **Optimise** | Thread-safe, swap atomique, reload async, particules groupees |
+## Comment fonctionne une lootbox
+
+```
+                   1. Le joueur clic-droit sur la lootbox posée avec la bonne clé
+                   2. Le serveur exécute LootHelper.handleLootboxAttempt
+                            |
+                            v
+       +-------------- check permission (par-lootbox + LuckPerms / OP) -----------------+
+       |                                                                                  |
+       |  passe                                                                           |
+       v                                                                                  |
+       check sneak  ->  recherche de clé (main, offhand, inventaire complet)              |
+       |                                                                                  |
+       v                                                                                  |
+       cooldown par-lootbox  ->  anti-autoclicker  ->  check maxUses (NBT sur le bloc)    |
+       |                                                                                  |
+       v                                                                                  |
+       openLootboxLogic :                                                                 |
+         - "weighted" : chaque LootEntry tire selon son chance, tous les hits droppent    |
+         - "guaranteed" : UN pick aléatoire pondéré + le guaranteedItem toujours donné    |
+         - les command rewards tirent indépendamment                                      |
+         - XP, particules, animation de titre, broadcast optionnel sur drop rare          |
+         - consomme la clé (sauf en créatif)                                              |
+         - incrémente l'usage du bloc, le détruit si destroyOnOpen ou maxUses atteint     |
+         - enregistre l'ouverture dans l'historique                                       |
+                                                                                          |
+       échoue à toute étape  ----->  erreur localisée en chat, aucune clé consommée  ----+
+```
+
+Le multi-tirage suit le même chemin : `LootHelper.handleBulkLootboxAttempt` boucle jusqu'à 10 fois, re-vérifie à chaque tour la disponibilité de la clé et les `maxUses`, et applique le cooldown par-lootbox une seule fois en fin de série.
+
+## Créer une lootbox
+
+Déposez un nouveau fichier `.json` dans `config/arcadia/arcadialootbox/`. Le nom du fichier devient l'ID de la lootbox (ex. `treasure_chest.json` → `/arcadia_lootbox give @p treasure_chest`). Deux exemples (`example_weighted.json`, `example_guaranteed.json`) et une feuille de triche `README.txt` sont générés automatiquement au premier lancement.
+
+### Exemple weighted minimal
+
+```json
+{
+  "displayName": "Treasure Chest",
+  "color": "yellow",
+  "keyItem": "arcadialootbox:shop_key_rare",
+  "rarity": "rare",
+  "type": "weighted",
+  "broadcastRare": true,
+  "lootTable": [
+    { "item": "minecraft:diamond",   "minCount": 1, "maxCount": 3, "chance": 0.3,  "rarity": "rare",     "displayName": "Diamant",  "broadcast": true  },
+    { "item": "minecraft:gold_ingot","minCount": 2, "maxCount": 5, "chance": 0.6,  "rarity": "uncommon", "displayName": "Lingot d'or", "broadcast": false },
+    { "item": "minecraft:iron_ingot","minCount": 5, "maxCount": 10,"chance": 1.0,  "rarity": "common",   "displayName": "Lingot de fer", "broadcast": false }
+  ],
+  "particles":  ["minecraft:flame", "minecraft:happy_villager"],
+  "openSound":  "minecraft:block.chest.open",
+  "openMessage":"§aLootbox ouverte !"
+}
+```
+
+Comportement : chaque entrée de `lootTable` tire **indépendamment** contre son `chance` (`0.0–1.0`). Avec ces valeurs, sur une ouverture le joueur peut obtenir 0 diamant + 0 or + 5 fer, ou les trois d'un coup. `broadcast: true` sur une entrée force un message serveur global quand elle drop ; `broadcastRare: true` au top-level déclenche un broadcast dès qu'une entrée dont la `rarity` atteint le seuil global broadcast (`lootbox.toml > Broadcast`) drop.
+
+### Exemple guaranteed avec timer gratuit
+
+```json
+{
+  "displayName": "Lucky Box",
+  "color": "lime",
+  "keyItem": "arcadialootbox:vote_key_common",
+  "rarity": "uncommon",
+  "type": "guaranteed",
+  "guaranteedItem": "minecraft:bread",
+  "guaranteedMinCount": 1,
+  "guaranteedMaxCount": 3,
+  "lootTable": [
+    { "item": "minecraft:diamond",   "minCount": 1, "maxCount": 1, "chance": 0.05, "rarity": "legendary", "displayName": "Diamant" },
+    { "item": "minecraft:emerald",   "minCount": 1, "maxCount": 3, "chance": 0.15, "rarity": "rare",      "displayName": "Émeraude" },
+    { "item": "minecraft:gold_ingot","minCount": 2, "maxCount": 5, "chance": 0.30, "rarity": "uncommon",  "displayName": "Lingot d'or" },
+    { "item": "minecraft:iron_ingot","minCount": 3, "maxCount": 8, "chance": 0.50, "rarity": "common",    "displayName": "Lingot de fer" }
+  ],
+  "freeEnabled": true,
+  "freeCooldownHours": 72,
+  "freeReducedCooldownHours": 48,
+  "freeReducedPermission": "arcadialootbox.free.reduced",
+  "experienceReward": 5,
+  "openMessage": "§aVous avez obtenu quelque chose !"
+}
+```
+
+Comportement : le joueur reçoit toujours 1 à 3 pains (`guaranteedItem`) **et** exactement une entrée du `lootTable`, choisie avec `chance` utilisé comme **poids** (plus élevé = plus probable). Avec ces poids, le joueur tire du fer ~50 % du temps, de l'or ~30 %, des émeraudes ~15 %, du diamant ~5 % — proportionnel à la somme des poids. La lootbox est aussi réclamable gratuitement toutes les 72 h (48 h pour les joueurs avec le node LuckPerms `arcadialootbox.free.reduced`).
+
+### Référence complète des champs
+
+| Champ | Type | Défaut | Effet |
+|---|---|---|---|
+| `displayName` | string | `"Lootbox"` | Nom humain dans tooltips, titres, broadcasts. |
+| `displayNameFR` | string | `""` | Override français optionnel. Sinon `displayName`. |
+| `color` | string | `"white"` | Couleur de la shulker-box. `"random"` choisit aléatoirement par stack. |
+| `keyItem` | id resource | `"minecraft:tripwire_hook"` | Item que le joueur doit tenir pour ouvrir. Généralement une des 50 clés intégrées. |
+| `rarity` | string | `"common"` | Une de `common, uncommon, rare, epic, legendary, mythic`. Pilote couleur, seuil broadcast, ordre de tri. |
+| `type` | string | `"weighted"` | `"weighted"` ou `"guaranteed"`. |
+| `lootTable` | array | `[]` | Entrées avec `item, minCount, maxCount, chance (ou poids en guaranteed), rarity, displayName, broadcast`. |
+| `guaranteedItem` | id resource | `""` | (Guaranteed) Item toujours donné. |
+| `guaranteedMinCount` / `guaranteedMaxCount` | int | `1 / 1` | (Guaranteed) Plage de quantité de l'item garanti. |
+| `permission` | string | `""` | Node LuckPerms requis. Vide = pas de check. |
+| `cooldownTicks` | int | `20` | Cooldown par joueur entre deux ouvertures (20 = 1 s). |
+| `maxUses` | int | `-1` | Plafond d'ouvertures par bloc posé. `-1` = illimité. |
+| `destroyOnOpen` | bool | `false` | Détruit le bloc après la première ouverture. |
+| `requireSneakToOpen` | bool | `false` | Force shift + clic-droit pour ouvrir. |
+| `broadcastRare` | bool | `false` | Annonce auto les drops dont la `rarity` atteint le seuil global. |
+| `broadcastMessage` | string | `""` | Format custom de broadcast. Vide = format par défaut. |
+| `openSound` / `closeSound` | id resource | chest open / `""` | Sons à l'ouverture / à la fermeture du GUI. |
+| `openMessage` | string | `""` | Message action-bar à l'ouverture. `openMessageFR` pour la VF. |
+| `openTitle` / `openSubtitle` | string | auto | Titre + sous-titre à l'ouverture. Variantes FR supportées. |
+| `particles` | array | `["minecraft:flame"]` | Types de particules au spawn. |
+| `animation` | object | defaults | `{ type, durationTicks, particleCount, particleSpeed, particleRadius, particleType, playTitleAnimation }`. |
+| `commandRewards` | array | `[]` | `{ command: "give {player} ...", chance: 0.0–1.0, asConsole: true }` — `{player}` remplacé de manière sûre. |
+| `experienceReward` | number | `0` | XP donnée à l'ouverture. |
+| `freeEnabled` | bool | `false` | Autorise la réclamation gratuite sur timer. |
+| `freeCooldownHours` | int | `72` | Cooldown gratuit en heures. |
+| `freeReducedCooldownHours` | int | `48` | Cooldown réduit accordé par `freeReducedPermission`. |
+| `freePermission` / `freeReducedPermission` | string | `""` | Nodes LuckPerms pour la feature de claim gratuit. |
+| `requiredBiome` / `requiredLevel` | string / int | `""` / `0` | Gating optionnel de l'ouverture. |
+| `logOpening` | bool | `false` | Loggue chaque ouverture de cette lootbox dans les logs serveur. |
+| `sortOrder` | int | `0` | Ordre d'affichage dans le Hub. |
+| `giveToInventoryOnly` | bool | `false` | Force les rewards dans l'inventaire (jamais au sol). |
+
+Après chaque édition de JSON, lancez `/arcadia_lootbox reload` — le rechargement est asynchrone, donc le tick loop ne bloque pas.
 
 ## Commandes
 
-Toutes les commandes utilisent le prefixe `/arcadia_lootbox`.
+Toutes les commandes vivent sous `/arcadia_lootbox` et requièrent OP niveau 2 par défaut. Utilisez la tab-completion pour les découvrir.
 
-### Gestion des Lootbox
-| Commande | Permission | Description |
-|---|---|---|
-| `/arcadia_lootbox give <joueur> <id> [quantite]` | Op Niveau 2 | Donner une lootbox |
-| `/arcadia_lootbox giveall <id> [quantite]` | Op Niveau 2 | Donner a tous les joueurs |
-| `/arcadia_lootbox givekey <joueur> <cle_id> [quantite]` | Op Niveau 2 | Donner une cle |
-| `/arcadia_lootbox reload` | Op Niveau 2 | Recharger les configurations |
-| `/arcadia_lootbox list` | Op Niveau 2 | Lister les lootbox |
-| `/arcadia_lootbox listkeys` | Op Niveau 2 | Lister les cles |
-| `/arcadia_lootbox info <id>` | Op Niveau 2 | Details d'une lootbox |
-| `/arcadia_lootbox create <id> <nom>` | Op Niveau 2 | Creer un template |
-| `/arcadia_lootbox delete <id>` | Op Niveau 2 | Supprimer une definition |
+| Commande | Effet |
+|---|---|
+| `give <joueur> <id> [quantité]` | Spawn la shulker-box lootbox dans l'inventaire d'un joueur. |
+| `giveall <id> [quantité]` | Idem, pour tous les joueurs en ligne. |
+| `givekey <joueur> <key_id> [quantité]` | Spawn une clé. |
+| `reload` | Recharge toutes les définitions JSON (asynchrone). |
+| `list` / `listkeys` | Liste les lootbox / les clés enregistrées. |
+| `info <id>` | Infos détaillées d'une lootbox. |
+| `create <id> <nom>` / `delete <id>` | Crée un template / supprime une définition. |
+| `preview <joueur> <id>` | Ouvre le GUI preview pour un joueur. |
+| `history <joueur>` / `clearhistory <joueur>` | Voir / vider l'historique d'ouverture d'un joueur. |
+| `setuses <pos> <uses>` | Override le compteur d'usage d'un bloc posé. |
+| `resetcooldown <joueur>` | Reset tous les cooldowns par-lootbox d'un joueur. |
+| `free <joueur> <id>` / `freetimer <joueur> <id>` / `resetfree <joueur> [id]` | Gestion du timer de claim gratuit. |
+| `stats` / `hub` | Stats globales / ouvre l'UI Hub. |
 
-### Timer Lootbox Gratuites
-| Commande | Permission | Description |
-|---|---|---|
-| `/arcadia_lootbox free <joueur> <id>` | Op Niveau 2 | Reclamer une lootbox gratuite |
-| `/arcadia_lootbox freetimer <joueur> <id>` | Op Niveau 2 | Verifier le cooldown restant |
-| `/arcadia_lootbox resetfree <joueur> [id]` | Op Niveau 2 | Reinitialiser le timer |
+## Prérequis
+
+| Dépendance | Version |
+|------------|---------|
+| Minecraft | 1.21.1 |
+| NeoForge | 21.1.42+ |
+| Java | 21 |
+| Arcadia Lib | incluse dans le jar |
+| LuckPerms | optionnel (intégration souple) |
 
 ## Installation
 
-### Prerequis
-- Minecraft **1.21.1**
-- NeoForge **21.1+**
-- [Arcadia Lib](https://github.com/Team-Arcadia) **>= 1.2.0**
+1. Placez `ArcadiaLootbox-1.2.4.jar` dans votre dossier `mods/`. Arcadia Lib est incluse dedans.
+2. (Optionnel) Installez [LuckPerms](https://luckperms.net/) pour les fonctionnalités basées sur permissions.
+3. Démarrez le serveur. Au premier lancement, le mod crée `config/arcadia/arcadialootbox/` avec deux lootbox d'exemple et une feuille de triche `README.txt`.
+4. Éditez les JSON d'exemple ou ajoutez les vôtres. Lancez `/arcadia_lootbox reload` pour appliquer les changements en live.
 
-### Etapes
-1. Telecharger la derniere release depuis [Releases](https://github.com/Team-Arcadia/Arcadia-LootBox/releases)
-2. Placer `arcadia-lib-1.2.0.jar` dans le dossier `mods/`
-3. Placer `ArcadiaLootbox-1.2.0.jar` dans le dossier `mods/`
-4. (Optionnel) Installer [LuckPerms](https://luckperms.net/) pour les permissions avancees
-5. Demarrer le serveur — configs auto-generees dans `config/arcadia/arcadialootbox/`
+## Documentation
 
-### Installation Client (Optionnel)
-Installer sur le client active le rendu steampunk ArcadiaTheme pour le hub lootbox.
-
-## Compiler depuis les Sources
-
-```bash
-git clone https://github.com/Team-Arcadia/Arcadia-LootBox.git
-cd Arcadia-LootBox
-./gradlew build
-```
-
-## Contribuer
-
-Les contributions sont les bienvenues ! Lisez notre [Guide de Contribution](.github/CONTRIBUTING.md) avant de soumettre une pull request.
-
-## Liens
-
-- [Arcadia: Echoes of Power](https://arcadia-echoes-of-power.fr/)
-- [Discord](https://discord.gg/xjF8Rtzyd4)
-- [Donation](https://buy.stripe.com/3cI3co6X97Vy4IK50QfIs00)
+- [CHANGELOG.md](CHANGELOG.md) — Historique des versions.
+- [RULES.md](RULES.md) — Conventions du projet, architecture, règles pour les assistants IA.
+- [CURSEFORGE_PAGE.md](CURSEFORGE_PAGE.md) — Description longue CurseForge.
 
 ## Credits
 
-**Auteur :** vyrriox
-**Organisation :** [Team Arcadia](https://github.com/Team-Arcadia)
+Auteur : vyrriox
+Organisation : Team Arcadia
+Licence : All Rights Reserved — voir [LICENSE](LICENSE).
+Discord : [discord.gg/xjF8Rtzyd4](https://discord.gg/xjF8Rtzyd4)
+Site web : [arcadia-echoes-of-power.fr](https://arcadia-echoes-of-power.fr/)
