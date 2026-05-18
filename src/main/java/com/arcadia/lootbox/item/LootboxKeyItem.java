@@ -18,6 +18,8 @@ import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Base item class for all lootbox keys.
@@ -32,6 +34,10 @@ import java.util.List;
  * @author vyrriox
  */
 public class LootboxKeyItem extends Item {
+
+    /** Per-player anti-spam cooldown for right-click-in-air on a key. */
+    private static final long USE_COOLDOWN_MS = 250L;
+    private static final ConcurrentHashMap<UUID, Long> LAST_USE = new ConcurrentHashMap<>();
 
     public LootboxKeyItem(Properties properties) {
         super(properties);
@@ -55,12 +61,20 @@ public class LootboxKeyItem extends Item {
             return InteractionResultHolder.success(stack);
         }
 
+        // Anti-spam to avoid GUI-open flood from autoclickers
+        long now = System.currentTimeMillis();
+        Long prev = LAST_USE.put(sp.getUUID(), now);
+        if (prev != null && now - prev < USE_COOLDOWN_MS) {
+            return InteractionResultHolder.pass(stack);
+        }
+
         ResourceLocation thisKeyId = BuiltInRegistries.ITEM.getKey(stack.getItem());
         if (thisKeyId == null) return InteractionResultHolder.pass(stack);
 
         List<String> matches = new ArrayList<>();
         for (var e : LootboxManager.getAllMap().entrySet()) {
             LootboxDefinition def = e.getValue();
+            if (def == null || def.keyItem() == null) continue;
             ResourceLocation defKey = ResourceLocation.tryParse(def.keyItem());
             if (defKey != null && defKey.equals(thisKeyId)) {
                 matches.add(e.getKey());

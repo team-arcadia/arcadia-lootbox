@@ -133,6 +133,7 @@ public final class LootHelper {
      * Counts how many copies of a lootbox's key the player currently holds.
      */
     public static int countKeysInInventory(ServerPlayer player, String id) {
+        if (player == null || id == null || id.isEmpty()) return 0;
         LootboxDefinition def = LootboxManager.get(id);
         if (def == null) return 0;
         ResourceLocation keyRes = ResourceLocation.tryParse(def.keyItem());
@@ -141,7 +142,9 @@ public final class LootHelper {
         var inv = player.getInventory();
         for (int i = 0; i < inv.getContainerSize(); i++) {
             ItemStack slot = inv.getItem(i);
-            if (!slot.isEmpty() && BuiltInRegistries.ITEM.getKey(slot.getItem()).equals(keyRes)) {
+            if (slot.isEmpty()) continue;
+            ResourceLocation slotKey = BuiltInRegistries.ITEM.getKey(slot.getItem());
+            if (slotKey != null && slotKey.equals(keyRes)) {
                 total += slot.getCount();
             }
         }

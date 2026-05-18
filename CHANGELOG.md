@@ -4,6 +4,52 @@ All notable changes to Arcadia LootBox are documented here.
 
 ---
 
+## [1.2.4] - 2026-05-01
+
+### Changed
+
+- **Single clickable action row** — Only row 6 of the Preview menu is interactive now. Layout: `[All][F1][F2][◀][DRAW][▶][F3][F4][F5]`. The filter chips were moved up from row 5 onto row 6 alongside the prev/Draw/next controls, reclaiming row 5 entirely for item display.
+- **28 items per page (up from 21)** — Reclaiming row 5 for content gives 4 full rows × 7 columns of rewards. Fewer pages to flip through.
+- **Up to 5 rarity chips on the same row** — The 5 filter slots split around the Draw button (2 on the left, 3 on the right). If a lootbox somehow defines more than 5 rarities, the top 5 (highest rarity first) are shown.
+
+### Performance
+
+- **Frame baked once** — The stained-glass frame is now pre-built in the constructor and cloned into the container on each rebuild, instead of being recomputed per click.
+- **Per-rarity counts cached** — Filter chip tooltips read from a pre-computed map instead of iterating the full loot table on every click.
+- **Rarity ordering computed once** — The ordered list of present rarities is built in the constructor and reused as an immutable `List.copyOf`.
+
+### Security
+
+- **Anti-spam click cooldown** — A 75 ms minimum gap between non-Draw clicks in the Preview menu, and a 250 ms cooldown on right-click-in-air with a key. Blocks autoclicker-based GUI floods without affecting normal play.
+- **Lootbox revalidation before opening** — Every Draw click re-checks `LootboxManager.exists(id)` and the player's range before consuming a key. Prevents opening a lootbox that was just deleted/reloaded.
+- **Strict slot bounds in `clicked`** — Out-of-range slot ids are now rejected immediately, preventing crafted packets from triggering vanilla shift-click logic on player inventory slots.
+- **Null-safe key lookup** — `LootHelper.countKeysInInventory` and `LootboxKeyItem.use` both guard against `null` registry keys and `null` definitions, preventing NPEs on mods that strip item registrations between reloads.
+- **String sanitization in tooltips** — Display names from JSON are now stripped of control characters and capped at 64 chars before being rendered, defeating log-injection / overflow tricks via crafted lootbox configs.
+
+---
+
+### Modifications
+
+- **Une seule rangée cliquable** — Seule la rangée 6 du menu Preview est interactive maintenant. Disposition : `[All][F1][F2][◀][DRAW][▶][F3][F4][F5]`. Les puces de filtre sont montées de la rangée 5 vers la rangée 6, libérant la rangée 5 entièrement pour l'affichage des objets.
+- **28 objets par page (contre 21)** — La récupération de la rangée 5 pour le contenu offre 4 rangées complètes × 7 colonnes de récompenses. Moins de pages à parcourir.
+- **Jusqu'à 5 puces de rareté sur la même rangée** — Les 5 slots de filtre se répartissent autour du bouton Draw (2 à gauche, 3 à droite). Si une lootbox définit plus de 5 raretés, les 5 plus hautes (rareté décroissante) sont affichées.
+
+### Performance
+
+- **Cadre construit une seule fois** — Le cadre en vitres teintées est désormais pré-construit dans le constructeur et copié dans le conteneur à chaque reconstruction, au lieu d'être recalculé à chaque clic.
+- **Comptes par rareté en cache** — Les tooltips des puces lisent depuis une map pré-calculée au lieu de parcourir toute la table de loot à chaque clic.
+- **Ordre des raretés calculé une fois** — La liste ordonnée des raretés présentes est construite dans le constructeur et réutilisée comme `List.copyOf` immuable.
+
+### Sécurité
+
+- **Cooldown anti-spam sur les clics** — Écart minimum de 75 ms entre deux clics non-Draw dans le menu Preview, et cooldown de 250 ms sur le clic-droit dans le vide avec une clé. Bloque le flood GUI par autoclicker sans gêner le jeu normal.
+- **Revalidation de la lootbox avant ouverture** — Chaque clic Draw re-vérifie `LootboxManager.exists(id)` et la distance du joueur avant de consommer une clé. Empêche d'ouvrir une lootbox qui vient d'être supprimée/rechargée.
+- **Bornes strictes sur les slots dans `clicked`** — Les slot ids hors plage sont rejetés immédiatement, empêchant des paquets forgés de déclencher la logique vanilla de shift-clic sur les slots de l'inventaire joueur.
+- **Lookup de clé null-safe** — `LootHelper.countKeysInInventory` et `LootboxKeyItem.use` se protègent désormais contre des clés de registry et des définitions `null`, empêchant les NPE sur des mods qui dé-enregistrent des items entre les rechargements.
+- **Sanitization des chaînes dans les tooltips** — Les noms d'affichage venus du JSON sont nettoyés des caractères de contrôle et limités à 64 caractères avant rendu, neutralisant les tentatives d'injection de logs ou de débordement via des configs lootbox forgées.
+
+---
+
 ## [1.2.3] - 2026-04-30
 
 ### Changed
