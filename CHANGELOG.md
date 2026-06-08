@@ -4,6 +4,78 @@ All notable changes to Arcadia LootBox are documented here.
 
 ---
 
+## [1.2.5] - 2026-06-08
+
+### Changed
+
+- **Arcadia Lib 1.2.13** — Updated the bundled `arcadia-lib` dependency from 1.2.0 to 1.2.13 and raised the required version range to `[1.2.13,)`.
+- **NeoForge 21.1.219** — Bumped the NeoForge target from 21.1.42 to 21.1.219, aligning with the shared library and picking up the latest loader fixes.
+
+### Security
+
+- **Preview permission gate** — `LootHelper.openPreviewGui` now enforces the lootbox's own permission node before building the menu. Previously any player who could reach a preview (placed block, key item, or the `request_preview` packet) could read the full loot table — items, drop chances, quantities, guaranteed item and free-claim timer — of a restricted lootbox they were not allowed to open. The gate is centralized at the single shared chokepoint, closing all three entry paths at once.
+- **Preview open throttle** — A 250 ms per-player cooldown on opening the preview GUI from any path, so raw `C2SRequestPreview` packets can no longer bypass the item-path anti-spam cooldown and flood server-side menu construction.
+- **Safe-deny on LuckPerms error** — A transient LuckPerms backend failure during a permission check now denies the node instead of silently granting it to every OP.
+- **Bulk-open autoclicker accounting** — Each lootbox in a bulk-open burst now counts toward the per-minute anti-autoclicker cap (a 10-box burst registers as 10 opens, not one), and the per-lootbox cooldown is now also enforced on the bulk path.
+
+### Fixed
+
+- **Gated lootboxes public without a permission backend** — On servers with no permission plugin, a lootbox carrying a permission node is now treated as public rather than collapsing to OP-only, matching the intended "soft" permission behaviour across both the open and preview paths.
+- **Localized rare-drop broadcast** — The server-wide rare-drop announcement was hardcoded in French and sent identically to everyone; it is now built per recipient and shown in each player's own client language, with the rarity word localized too.
+- **Localized command output** — `/arcadia_lootbox free`, `freetimer` and `stats` no longer emit hardcoded English fragments; they route through the existing translation keys. The lootbox item name prefix ("Lootbox:") is also localized now.
+- **Rarity names beyond mythic** — Added EN/FR names for the `superior`, `divine`, `celestial` and `transcendent` tiers, and `getRarityName` now falls back to a capitalized label instead of leaking the raw translation key.
+- **Free-timer contract** — `getRemainingFormatted` now distinguishes a free-disabled lootbox ("Unavailable") from a ready one ("Ready!") instead of reporting both as ready.
+
+### Performance
+
+- **Off-main-thread config reload** — `/arcadia_lootbox reload` now performs disk read and JSON parsing on a worker thread and marshals the atomic swap, client re-sync and feedback back onto the server thread, instead of touching the player list and network off-thread.
+- **Off-main-thread autosave** — Periodic free-claim autosave now snapshots the data on the tick thread (cheap) and runs GSON serialization plus an atomic temp-file rename on a worker thread, so the server tick never blocks on disk IO. The shutdown save remains synchronous.
+- **Per-player throttle eviction** — Anti-autoclicker timestamps and the new preview-open cooldown are dropped on logout instead of accumulating across sessions.
+
+### Code Quality
+
+- **Removed deprecated API** — Dropped the `EventBusSubscriber.Bus.MOD` argument flagged for removal in 1.21.1, clearing the build warning.
+- **Per-instance pedestal pane** — Replaced a mutable static field shared across all open preview menus with a per-instance field.
+- **Defensive history copy** — Opening history now stores a defensive copy of the received-items list.
+- **Removed dead config keys** — Dropped the never-read `broadcast.format` / `broadcast.rareFormat` options now that broadcasts are localized in code.
+- **Runtime version in logs** — Startup logs read the mod version from the container instead of a hardcoded string, and stale `v1.2.0` references were removed from comments.
+
+### Modifications
+
+- **Arcadia Lib 1.2.13** — Mise à jour de la dépendance `arcadia-lib` de 1.2.0 vers 1.2.13 et relèvement de la plage de version requise à `[1.2.13,)`.
+- **NeoForge 21.1.219** — Passage de la cible NeoForge de 21.1.42 à 21.1.219, alignée sur la bibliothèque partagée et bénéficiant des derniers correctifs du loader.
+
+### Sécurité
+
+- **Contrôle de permission sur l'aperçu** — `LootHelper.openPreviewGui` vérifie désormais le nœud de permission de la lootbox avant de construire le menu. Auparavant, tout joueur pouvant atteindre un aperçu (bloc posé, objet clé ou paquet `request_preview`) pouvait lire la table de butin complète — objets, chances, quantités, objet garanti et timer gratuit — d'une lootbox restreinte qu'il n'était pas autorisé à ouvrir. Le contrôle est centralisé au point de passage unique partagé, fermant les trois chemins d'entrée d'un coup.
+- **Limitation d'ouverture de l'aperçu** — Cooldown de 250 ms par joueur sur l'ouverture du menu d'aperçu depuis n'importe quel chemin, afin que les paquets `C2SRequestPreview` bruts ne puissent plus contourner le cooldown anti-spam de l'objet et inonder la construction de menus côté serveur.
+- **Refus sécurisé en cas d'erreur LuckPerms** — Une défaillance transitoire du backend LuckPerms lors d'une vérification refuse désormais le nœud au lieu de l'accorder silencieusement à tous les OP.
+- **Comptage anti-autoclicker en multi-ouverture** — Chaque lootbox d'une rafale de multi-ouverture compte désormais dans le plafond anti-autoclicker par minute (une rafale de 10 compte pour 10, pas 1), et le cooldown par lootbox est aussi appliqué sur le chemin multi-ouverture.
+
+### Correctifs
+
+- **Lootbox restreintes publiques sans backend de permissions** — Sur les serveurs sans plugin de permissions, une lootbox portant un nœud de permission est désormais traitée comme publique au lieu de devenir OP-only, conformément au comportement « souple » prévu sur les chemins d'ouverture et d'aperçu.
+- **Annonce de drop rare localisée** — L'annonce serveur d'un drop rare était codée en dur en français et envoyée à l'identique à tout le monde ; elle est désormais construite par destinataire et affichée dans la langue de chaque joueur, rareté incluse.
+- **Sorties de commandes localisées** — `/arcadia_lootbox free`, `freetimer` et `stats` n'émettent plus de fragments en anglais codés en dur ; elles passent par les clés de traduction existantes. Le préfixe du nom d'objet lootbox (« Lootbox : ») est aussi localisé.
+- **Noms de rareté au-delà de mythique** — Ajout des noms EN/FR pour les paliers `superior`, `divine`, `celestial` et `transcendent`, et `getRarityName` retombe désormais sur un libellé capitalisé au lieu d'exposer la clé de traduction brute.
+- **Contrat du timer gratuit** — `getRemainingFormatted` distingue désormais une lootbox sans réclamation gratuite (« Indisponible ») d'une lootbox prête (« Prêt ! ») au lieu de signaler les deux comme prêtes.
+
+### Performance
+
+- **Rechargement de config hors thread principal** — `/arcadia_lootbox reload` effectue désormais la lecture disque et l'analyse JSON sur un thread worker et renvoie le swap atomique, la re-synchro des clients et le feedback sur le thread serveur, au lieu de toucher la liste des joueurs et le réseau hors thread.
+- **Sauvegarde automatique hors thread principal** — La sauvegarde périodique des réclamations gratuites prend désormais un instantané sur le thread de tick (peu coûteux) et exécute la sérialisation GSON puis un renommage atomique de fichier temporaire sur un thread worker, afin que le tick serveur ne bloque jamais sur l'IO disque. La sauvegarde à l'arrêt reste synchrone.
+- **Éviction des limiteurs par joueur** — Les horodatages anti-autoclicker et le nouveau cooldown d'ouverture d'aperçu sont supprimés à la déconnexion au lieu de s'accumuler entre les sessions.
+
+### Qualité du code
+
+- **Suppression d'API dépréciée** — Suppression de l'argument `EventBusSubscriber.Bus.MOD` marqué pour retrait en 1.21.1, éliminant l'avertissement de build.
+- **Socle (pedestal) par instance** — Remplacement d'un champ statique mutable partagé entre tous les menus d'aperçu ouverts par un champ par instance.
+- **Copie défensive de l'historique** — L'historique d'ouverture stocke désormais une copie défensive de la liste des objets reçus.
+- **Clés de config mortes supprimées** — Suppression des options jamais lues `broadcast.format` / `broadcast.rareFormat` maintenant que les annonces sont localisées dans le code.
+- **Version au runtime dans les logs** — Les logs de démarrage lisent la version du mod depuis le container au lieu d'une chaîne codée en dur, et les références obsolètes à `v1.2.0` ont été retirées des commentaires.
+
+---
+
 ## [1.2.4] - 2026-05-01
 
 ### Changed

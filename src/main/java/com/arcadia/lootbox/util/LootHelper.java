@@ -78,7 +78,7 @@ public final class LootHelper {
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(beTag));
         String name = (fr && !def.displayNameFR().isEmpty()) ? def.displayNameFR() : def.displayName();
         stack.set(DataComponents.CUSTOM_NAME, Component.literal(
-                def.rarityColor() + "Lootbox: §f" + name));
+                def.rarityColor() + LanguageHelper.get(player, "item.lootbox.prefix") + "§f" + name));
 
         List<Component> lore = new ArrayList<>();
         String rarityName = fr ? LanguageHelper.getFR("rarity." + (def.rarity() != null ? def.rarity().toLowerCase() : "common"))
@@ -112,9 +112,32 @@ public final class LootHelper {
     // Title prefix used by the client interceptor to detect lootbox preview menus
     public static final String PREVIEW_TITLE_MARKER = "\u00A7r\u00A76\u2699 ";
 
+    /** Per-player anti-spam cooldown (ms) for opening the preview GUI from any entry path. */
+    private static final long PREVIEW_OPEN_COOLDOWN_MS = 250L;
+    private static final Map<UUID, Long> LAST_PREVIEW_OPEN = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** Drops a player's preview-open timestamp. Call on logout to avoid a per-player leak. */
+    public static void clearPreviewCooldown(UUID uuid) { LAST_PREVIEW_OPEN.remove(uuid); }
+
     public static void openPreviewGui(ServerPlayer player, String id, BlockPos pos) {
         LootboxDefinition def = LootboxManager.get(id);
         if (def == null) return;
+
+        // Permission gate \u2014 mirrors the open gates in handleLootboxAttempt/handleBulkLootboxAttempt.
+        // Centralizing it here closes the preview-disclosure bypass across all entry paths
+        // (placed block, key item, and the C2SRequestPreview packet). Without a permission
+        // backend a gated box is treated as public (not OP-only), matching the open path.
+        if (!def.permission().isEmpty() && !PermissionHelper.hasPermissionOrDefault(player, def.permission(), true)) {
+            player.sendSystemMessage(ArcadiaMessages.error(LanguageHelper.get(player, "lootbox.no.permission")));
+            return;
+        }
+
+        // Anti-spam \u2014 throttle repeated preview opens so raw packets can't bypass the
+        // item-path cooldown and flood server-side menu construction.
+        long now = System.currentTimeMillis();
+        Long prev = LAST_PREVIEW_OPEN.put(player.getUUID(), now);
+        if (prev != null && now - prev < PREVIEW_OPEN_COOLDOWN_MS) return;
+
         String lang = player.clientInformation() != null ? player.clientInformation().language() : "en_us";
         boolean fr = lang.startsWith("fr");
         String rarityName = LanguageHelper.getRarityName(player, def.rarity());
@@ -168,13 +191,16 @@ public final class LootHelper {
         LootboxDefinition def = LootboxManager.get(id);
         if (def == null) return 0;
 
-        if (!def.permission().isEmpty() && !PermissionHelper.hasPermission(player, def.permission())) {
+        if (!def.permission().isEmpty() && !PermissionHelper.hasPermissionOrDefault(player, def.permission(), true)) {
             player.sendSystemMessage(ArcadiaMessages.error(LanguageHelper.get(player, "lootbox.no.permission")));
             return 0;
         }
 
-        if (HistoryManager.checkAutoclicker(player.getUUID())) {
-            player.sendSystemMessage(ArcadiaMessages.error(LanguageHelper.get(player, "lootbox.autoclicker")));
+        // Per-lootbox cooldown also gates the bulk path (the single-open path sets it after a successful open).
+        String cooldownKey = COOLDOWN_PREFIX + id;
+        if (!CooldownManager.isReady(player.getUUID(), cooldownKey)) {
+            String remaining = CooldownManager.getRemainingFormatted(player.getUUID(), cooldownKey);
+            player.sendSystemMessage(ArcadiaMessages.warning(LanguageHelper.get(player, "lootbox.cooldown", "time", remaining)));
             return 0;
         }
 
@@ -184,6 +210,13 @@ public final class LootHelper {
         int cap = Math.min(requested, BULK_OPEN_LIMIT);
         int opened = 0;
         for (int i = 0; i < cap; i++) {
+            // Count each bulk opening toward the per-minute autoclicker cap so a 10-box
+            // burst registers as 10 opens, not one.
+            if (HistoryManager.checkAutoclicker(player.getUUID())) {
+                player.sendSystemMessage(ArcadiaMessages.error(LanguageHelper.get(player, "lootbox.autoclicker")));
+                break;
+            }
+
             ItemStack keyStack = findKeyInInventory(player, keyRes);
             if (keyStack == null) break;
 
@@ -213,9 +246,10 @@ public final class LootHelper {
         LootboxDefinition def = LootboxManager.get(id);
         if (def == null) return false;
 
-        // Permission check (soft LuckPerms — works without LP)
+        // Permission check (soft LuckPerms — works without LP; gated boxes are public
+        // when no permission backend is present rather than OP-only)
         if (!def.permission().isEmpty()) {
-            if (!PermissionHelper.hasPermission(player, def.permission())) {
+            if (!PermissionHelper.hasPermissionOrDefault(player, def.permission(), true)) {
                 player.sendSystemMessage(ArcadiaMessages.error(LanguageHelper.get(player, "lootbox.no.permission")));
                 return true;
             }
@@ -236,7 +270,6 @@ public final class LootHelper {
 
         ItemStack keyStack = findKeyInInventory(player, keyRes);
         if (keyStack == null) {
-            boolean fr = LanguageHelper.isFrench(player);
             player.sendSystemMessage(ArcadiaMessages.error(LanguageHelper.get(player, "lootbox.no.key")));
             return true;
         }
@@ -516,14 +549,21 @@ public final class LootHelper {
         String rarity = entry.rarity() != null ? entry.rarity() : "common";
         String rarityColor = def.rarityColor();
 
-        // Build broadcast message directly (config format has placeholder issues with §)
-        String msg = "§6\u2699 §d\u2726 §e" + player.getName().getString() +
-                " §7a trouvé " + rarityColor + capitalize(rarity) +
-                " §7: §f" + count + "x §e" + name +
-                " §7dans §e" + def.displayName() + "§7! §d\u2726";
+        String finder = player.getName().getString();
+        String countStr = String.valueOf(count);
 
-        Component component = Component.literal(msg);
-        for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) p.sendSystemMessage(component);
+        // Localize per recipient — each player sees the broadcast in their own client language.
+        for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
+            String rarityName = rarityColor + LanguageHelper.getRarityName(p, rarity) + "§7";
+            Map<String, String> ph = Map.of(
+                    "player", "§e" + finder + "§7",
+                    "rarity", rarityName,
+                    "count", "§f" + countStr + "§7",
+                    "item", "§e" + name + "§7",
+                    "lootbox", "§e" + def.displayName() + "§7");
+            String body = LanguageHelper.get(p, "broadcast.found", ph);
+            p.sendSystemMessage(Component.literal("§6⚙ §d✦ §7" + body + " §d✦"));
+        }
     }
 
     private static String shortItem(String fullId) {

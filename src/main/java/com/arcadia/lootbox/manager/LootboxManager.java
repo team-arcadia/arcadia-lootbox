@@ -219,7 +219,7 @@ public final class LootboxManager {
         if (Files.exists(file)) return;
         String content = """
             ================================================================
-                      ARCADIA LOOTBOX v1.2.0 - CONFIG GUIDE
+                      ARCADIA LOOTBOX - CONFIG GUIDE
             ================================================================
 
             TWO LOOTBOX TYPES:

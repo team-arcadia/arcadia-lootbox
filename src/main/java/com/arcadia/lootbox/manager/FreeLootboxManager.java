@@ -14,8 +14,10 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -121,9 +123,9 @@ public final class FreeLootboxManager {
      */
     public static String getRemainingFormatted(ServerPlayer player, String lootboxId, LootboxDefinition def) {
         long remainingMs = getRemainingCooldownMs(player, lootboxId, def);
-        if (remainingMs <= 0) {
-            return com.arcadia.lootbox.util.LanguageHelper.isFrench(player) ? "Prêt !" : "Ready!";
-        }
+        boolean fr = com.arcadia.lootbox.util.LanguageHelper.isFrench(player);
+        if (remainingMs < 0) return fr ? "Indisponible" : "Unavailable"; // free not enabled (-1 sentinel)
+        if (remainingMs == 0) return fr ? "Prêt !" : "Ready!";
         return formatDuration(remainingMs);
     }
 
@@ -206,15 +208,44 @@ public final class FreeLootboxManager {
     }
 
     /**
-     * Saves claim timestamps to disk. Called on server stop and periodically.
+     * Synchronously saves claim timestamps to disk. Used at shutdown where we must
+     * block until the data is persisted. Periodic saves go through {@link #autoSave()}.
      */
     public static void save() {
         if (!dirty.compareAndSet(true, false)) return;
+        // Snapshot under no lock — ConcurrentHashMap copy is safe — then write.
+        writeSnapshot(new HashMap<>(CLAIM_TIMESTAMPS));
+    }
+
+    /**
+     * Saves if dirty, OFF the calling (server tick) thread. Called periodically via the
+     * scheduler. The dirty flag is cleared and a snapshot taken synchronously (cheap),
+     * then GSON serialization + file IO run on the common pool so the tick loop never
+     * blocks on disk.
+     */
+    public static void autoSave() {
+        if (!dirty.compareAndSet(true, false)) return;
+        Map<String, Long> snapshot = new HashMap<>(CLAIM_TIMESTAMPS);
+        CompletableFuture.runAsync(() -> writeSnapshot(snapshot));
+    }
+
+    /**
+     * Atomically writes a snapshot to disk (temp file + move). On failure the dirty
+     * flag is re-armed so the next save retries.
+     */
+    private static void writeSnapshot(Map<String, Long> snapshot) {
         Path file = getDataFile();
         try {
             Files.createDirectories(file.getParent());
-            try (FileWriter writer = new FileWriter(file.toFile())) {
-                GSON.toJson(CLAIM_TIMESTAMPS, writer);
+            Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
+            try (FileWriter writer = new FileWriter(tmp.toFile())) {
+                GSON.toJson(snapshot, writer);
+            }
+            try {
+                Files.move(tmp, file, java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                        java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+            } catch (java.nio.file.AtomicMoveNotSupportedException ex) {
+                Files.move(tmp, file, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (Exception e) {
             dirty.set(true); // Mark dirty again so next save retries
@@ -223,17 +254,10 @@ public final class FreeLootboxManager {
     }
 
     /**
-     * Saves if dirty. Call this periodically (e.g., every 5 minutes via scheduler).
-     */
-    public static void autoSave() {
-        if (dirty.get()) save();
-    }
-
-    /**
      * Clears all data (server shutdown cleanup).
      */
     public static void clearAll() {
-        save(); // Persist before clearing
+        save(); // Persist synchronously before clearing
         CLAIM_TIMESTAMPS.clear();
     }
 

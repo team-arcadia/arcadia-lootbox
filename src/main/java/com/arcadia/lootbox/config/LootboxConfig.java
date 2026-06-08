@@ -20,8 +20,6 @@ public final class LootboxConfig {
 
     // Broadcast
     public static final ModConfigSpec.BooleanValue BROADCAST_ENABLED;
-    public static final ModConfigSpec.ConfigValue<String> BROADCAST_FORMAT;
-    public static final ModConfigSpec.ConfigValue<String> BROADCAST_RARE_FORMAT;
     public static final ModConfigSpec.IntValue BROADCAST_MIN_RARITY;
 
     // Hub / Shop
@@ -63,7 +61,7 @@ public final class LootboxConfig {
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
-        builder.comment("Arcadia Lootbox v1.2.0 - Global Configuration").push("general");
+        builder.comment("Arcadia Lootbox - Global Configuration").push("general");
         DEFAULT_COOLDOWN_TICKS = builder.comment("Default cooldown in ticks (20 = 1s)").defineInRange("defaultCooldownTicks", 20, 1, 6000);
         MAX_LOOTBOXES_PER_CHUNK = builder.comment("Max lootboxes per chunk (0 = unlimited)").defineInRange("maxLootboxesPerChunk", 0, 0, 256);
         DESTROY_ON_OPEN_DEFAULT = builder.comment("Destroy lootbox block after opening by default").define("destroyOnOpenDefault", false);
@@ -71,10 +69,8 @@ public final class LootboxConfig {
         REQUIRE_SNEAK_DEFAULT = builder.comment("Require sneaking to open by default").define("requireSneakDefault", false);
         builder.pop();
 
-        builder.comment("Broadcast settings").push("broadcast");
+        builder.comment("Broadcast settings (message text is localized per recipient)").push("broadcast");
         BROADCAST_ENABLED = builder.define("enabled", true);
-        BROADCAST_FORMAT = builder.define("format", "§6⚙ §e{player} §7opened §e{lootbox} §7and got §f{count}x §e{item}§7!");
-        BROADCAST_RARE_FORMAT = builder.define("rareFormat", "§6⚙ §d✦ §e{player} §7found {rarity_color}{rarity} §7item: §f{count}x §e{item} §7from §e{lootbox}§7! §d✦");
         BROADCAST_MIN_RARITY = builder.comment("Min rarity for broadcast (0=common..5=mythic)").defineInRange("minRarity", 2, 0, 5);
         builder.pop();
 
@@ -94,7 +90,9 @@ public final class LootboxConfig {
         builder.comment("Security").push("security");
         MAX_INTERACTION_DISTANCE = builder.defineInRange("maxInteractionDistance", 8.0, 1.0, 64.0);
         ANTI_AUTOCLICKER = builder.define("antiAutoclicker", true);
-        ANTI_AUTOCLICKER_THRESHOLD = builder.defineInRange("antiAutoclickerThreshold", 10, 1, 100);
+        // Above BULK_OPEN_LIMIT (10) so a full legitimate bulk-open burst plus a few
+        // preceding opens stays within the rolling 60s window without a false positive.
+        ANTI_AUTOCLICKER_THRESHOLD = builder.comment("Max lootbox opens per minute before flagging (>10 to allow a full bulk-open)").defineInRange("antiAutoclickerThreshold", 20, 1, 100);
         builder.pop();
 
         builder.comment("Animation").push("animation");

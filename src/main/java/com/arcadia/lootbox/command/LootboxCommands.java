@@ -129,13 +129,15 @@ public final class LootboxCommands {
 
     private static int cmdReload(CommandContext<CommandSourceStack> ctx) {
         var src = ctx.getSource();
-        if (LootboxConfig.ASYNC_CONFIG_RELOAD.get()) {
+        var server = src.getServer();
+        if (LootboxConfig.ASYNC_CONFIG_RELOAD.get() && server != null) {
             src.sendSuccess(() -> ArcadiaMessages.info(t(src, "cmd.reloading")), true);
-            LootboxManager.reloadAsync().thenAccept(c -> {
+            // Disk read + parse runs on the common pool; the atomic swap and all
+            // feedback/networking are marshalled back onto the server thread.
+            LootboxManager.reloadAsync().thenAcceptAsync(c -> {
                 src.sendSuccess(() -> ArcadiaMessages.success(t(src, "cmd.reloaded", "count", String.valueOf(c))), true);
-                // Re-sync all connected clients
                 syncAllClients(src);
-            });
+            }, server);
         } else {
             int c = LootboxManager.reload();
             src.sendSuccess(() -> ArcadiaMessages.success(t(src, "cmd.reloaded", "count", String.valueOf(c))), true);
@@ -341,11 +343,11 @@ public final class LootboxCommands {
     private static int cmdStats(CommandContext<CommandSourceStack> ctx) {
         var src = ctx.getSource();
         src.sendSuccess(() -> ArcadiaMessages.info("§6=== " + t(src, "stats.title") + " ==="), false);
-        src.sendSuccess(() -> Component.literal("  §7Definitions: §f" + LootboxManager.count()), false);
-        src.sendSuccess(() -> Component.literal("  §7Keys: §f" + KeyRegistry.getKeyCount()), false);
-        src.sendSuccess(() -> Component.literal("  §7Hub: §f" + LootboxConfig.HUB_ENABLED.get()), false);
-        src.sendSuccess(() -> Component.literal("  §7Broadcast: §f" + LootboxConfig.BROADCAST_ENABLED.get()), false);
-        src.sendSuccess(() -> Component.literal("  §7Shop URL: §f" + LootboxConfig.SHOP_URL.get()), false);
+        src.sendSuccess(() -> Component.literal("  §7" + t(src, "stats.definitions") + ": §f" + LootboxManager.count()), false);
+        src.sendSuccess(() -> Component.literal("  §7" + t(src, "stats.keys") + ": §f" + KeyRegistry.getKeyCount()), false);
+        src.sendSuccess(() -> Component.literal("  §7" + t(src, "stats.hub") + ": §f" + LootboxConfig.HUB_ENABLED.get()), false);
+        src.sendSuccess(() -> Component.literal("  §7" + t(src, "stats.broadcast") + ": §f" + LootboxConfig.BROADCAST_ENABLED.get()), false);
+        src.sendSuccess(() -> Component.literal("  §7" + t(src, "stats.shop") + ": §f" + LootboxConfig.SHOP_URL.get()), false);
         return 1;
     }
 
@@ -377,8 +379,9 @@ public final class LootboxCommands {
             // Atomic claim — prevents double-claim race condition
             if (!FreeLootboxManager.tryAtomicClaim(player, id, def)) {
                 String remaining = FreeLootboxManager.getRemainingFormatted(player, id, def);
-                src.sendSuccess(() -> ArcadiaMessages.warning(
-                        player.getName().getString() + " cannot claim '" + id + "' yet. " + remaining), false);
+                String notReady = t(src, "free.not.ready", java.util.Map.of(
+                        "player", player.getName().getString(), "id", id, "time", remaining));
+                src.sendSuccess(() -> ArcadiaMessages.warning(notReady), false);
                 return 0;
             }
 
@@ -415,7 +418,7 @@ public final class LootboxCommands {
             if (canClaim) {
                 src.sendSuccess(() -> Component.literal("  §a" + t(src, "free.ready")), false);
             } else {
-                src.sendSuccess(() -> Component.literal("  §7Remaining: §e" + remaining), false);
+                src.sendSuccess(() -> Component.literal("  §7" + t(src, "free.remaining", "time", "§e" + remaining + "§7")), false);
             }
             return 1;
         } catch (Exception e) { ctx.getSource().sendFailure(ArcadiaMessages.error(e.getMessage())); return 0; }

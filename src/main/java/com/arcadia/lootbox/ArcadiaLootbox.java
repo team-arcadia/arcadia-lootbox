@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Main Mod Class for Arcadia Lootbox v1.2.0.
+ * Main Mod Class for Arcadia Lootbox.
  * Integrates with arcadia-lib for hub, messaging, cooldowns, and scheduling.
  *
  * @author vyrriox
@@ -50,8 +50,12 @@ public class ArcadiaLootbox {
     private static final Logger LOGGER = LoggerFactory.getLogger("ArcadiaLootbox");
     public static ArcadiaLootbox instance;
 
+    /** Mod version, read from the container at construction so logs never go stale. */
+    private static String version = "?";
+
     public ArcadiaLootbox(IEventBus modEventBus, ModContainer container) {
         instance = this;
+        version = container.getModInfo().getVersion().toString();
 
         // Register items (keys) and creative tab
         KeyRegistry.ITEMS.register(modEventBus);
@@ -79,7 +83,7 @@ public class ArcadiaLootbox {
                 LootboxNet.sendOpenHub(player);
             });
 
-            LOGGER.info("[ArcadiaLootbox] v1.2.0 registered. LuckPerms: {}", PermissionHelper.isLuckPermsLoaded());
+            LOGGER.info("[ArcadiaLootbox] v{} registered. LuckPerms: {}", version, PermissionHelper.isLuckPermsLoaded());
         });
     }
 
@@ -94,8 +98,8 @@ public class ArcadiaLootbox {
         try { minutes = LootboxConfig.FREE_AUTOSAVE_MINUTES.get(); } catch (Exception ignored) {}
         com.arcadia.lib.scheduler.SchedulerService.repeating(minutes * 20 * 60, FreeLootboxManager::autoSave);
 
-        LOGGER.info("[ArcadiaLootbox] v1.2.0 initialized — {} lootboxes loaded, {} keys registered",
-                LootboxManager.count(), KeyRegistry.getKeyCount());
+        LOGGER.info("[ArcadiaLootbox] v{} initialized — {} lootboxes loaded, {} keys registered",
+                version, LootboxManager.count(), KeyRegistry.getKeyCount());
     }
 
     // --- Event Handlers ---
@@ -156,6 +160,9 @@ public class ArcadiaLootbox {
     public void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             CooldownManager.clearPlayer(player.getUUID());
+            // Evict per-player throttle state so it doesn't accumulate across sessions.
+            HistoryManager.clearAutoclicker(player.getUUID());
+            LootHelper.clearPreviewCooldown(player.getUUID());
         }
     }
 

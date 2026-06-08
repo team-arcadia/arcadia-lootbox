@@ -8,11 +8,11 @@
 
 <p>&nbsp;</p>
 
-<p style="text-align: center;"><img src="https://img.shields.io/badge/Minecraft-1.21.1-62B47A?style=flat-square&amp;logo=minecraft&amp;logoColor=white" alt="MC 1.21.1">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/NeoForge-21.1.42+-F16436?style=flat-square" alt="NeoForge">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Java-21-007396?style=flat-square&amp;logo=openjdk&amp;logoColor=white" alt="Java 21">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Arcadia_Lib-bundled-9C27B0?style=flat-square" alt="Arcadia Lib bundled">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/LuckPerms-optional-2196F3?style=flat-square" alt="LuckPerms optional">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/License-LGPL--3.0-FFA500?style=flat-square" alt="LGPL-3.0">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Languages-EN%20%2F%20FR-2196F3?style=flat-square" alt="EN / FR"></p>
+<p style="text-align: center;"><img src="https://img.shields.io/badge/Minecraft-1.21.1-62B47A?style=flat-square&amp;logo=minecraft&amp;logoColor=white" alt="MC 1.21.1">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/NeoForge-21.1.219+-F16436?style=flat-square" alt="NeoForge">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Java-21-007396?style=flat-square&amp;logo=openjdk&amp;logoColor=white" alt="Java 21">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Arcadia_Lib-bundled-9C27B0?style=flat-square" alt="Arcadia Lib bundled">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/LuckPerms-optional-2196F3?style=flat-square" alt="LuckPerms optional">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/License-LGPL--3.0-FFA500?style=flat-square" alt="LGPL-3.0">&nbsp;&nbsp;&nbsp; <img src="https://img.shields.io/badge/Languages-EN%20%2F%20FR-2196F3?style=flat-square" alt="EN / FR"></p>
 
 <p>&nbsp;</p>
 
-<p style="text-align: center;"><img src="https://img.shields.io/badge/Stable_Release-v1.2.4-00cc00?style=for-the-badge" alt="Stable v1.2.4"></p>
+<p style="text-align: center;"><img src="https://img.shields.io/badge/Stable_Release-v1.2.5-00cc00?style=for-the-badge" alt="Stable v1.2.5"></p>
 
 <table style="margin-left: auto; margin-right: auto; max-width: 850px; border: 2px solid #FFC107; background-color: rgba(255, 193, 7, 0.15);">
 <tbody>
@@ -282,7 +282,7 @@
 </tr>
 <tr style="background-color: rgba(255, 165, 0, 0.10);">
 <td style="text-align: center; padding: 8px; border: 1px solid #FFA500;"><strong>NeoForge</strong></td>
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;">21.1.42+</td>
+<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;">21.1.219+</td>
 </tr>
 <tr>
 <td style="text-align: center; padding: 8px; border: 1px solid #FFA500;"><strong>Java</strong></td>
@@ -574,7 +574,7 @@
 </tr>
 <tr style="background-color: rgba(255, 165, 0, 0.10);">
 <td style="text-align: center; padding: 8px; border: 1px solid #FFA500;"><strong>NeoForge</strong></td>
-<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;">21.1.42+</td>
+<td style="text-align: center; padding: 8px; border: 1px solid #FFA500;">21.1.219+</td>
 </tr>
 <tr>
 <td style="text-align: center; padding: 8px; border: 1px solid #FFA500;"><strong>Java</strong></td>

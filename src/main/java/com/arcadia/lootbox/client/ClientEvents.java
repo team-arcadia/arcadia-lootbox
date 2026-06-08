@@ -13,7 +13,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
  *
  * @author vyrriox
  */
-@EventBusSubscriber(modid = ArcadiaLootbox.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = ArcadiaLootbox.MODID, value = Dist.CLIENT)
 public final class ClientEvents {
 
     private ClientEvents() {}

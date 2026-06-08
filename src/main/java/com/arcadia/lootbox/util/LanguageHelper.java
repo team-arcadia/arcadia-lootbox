@@ -80,6 +80,10 @@ public final class LanguageHelper {
         put("free.reset.one", "Reset free timer for '{id}' for {player}.", "Timer gratuit reinitialise pour '{id}' pour {player}.");
         put("free.reset.all", "Reset ALL free timers for {player}.", "TOUS les timers gratuits reinitialises pour {player}.");
 
+        // ── Broadcast ───────────────────────────────────────────────────
+        put("broadcast.found", "{player} found {rarity} item: {count}x {item} from {lootbox}!",
+                "{player} a trouvé un objet {rarity} : {count}x {item} dans {lootbox} !");
+
         // ── Stats ───────────────────────────────────────────────────────
         put("stats.title", "Arcadia Lootbox Stats", "Statistiques Arcadia Lootbox");
         put("stats.definitions", "Definitions", "Definitions");
@@ -96,9 +100,13 @@ public final class LanguageHelper {
         put("rarity.common", "Common", "Commune");
         put("rarity.uncommon", "Uncommon", "Peu commune");
         put("rarity.rare", "Rare", "Rare");
+        put("rarity.superior", "Superior", "Superieure");
         put("rarity.epic", "Epic", "Epique");
         put("rarity.legendary", "Legendary", "Legendaire");
         put("rarity.mythic", "Mythic", "Mythique");
+        put("rarity.divine", "Divine", "Divine");
+        put("rarity.celestial", "Celestial", "Celeste");
+        put("rarity.transcendent", "Transcendent", "Transcendante");
 
         // ── Hub screen ──────────────────────────────────────────────────
         put("hub.title", "Lootbox Hub", "Hub Lootbox");
@@ -108,6 +116,9 @@ public final class LanguageHelper {
         put("hub.close", "ESC to close", "ESC pour fermer");
         put("hub.drops", "{count} drops", "{count} drops");
         put("hub.type", "Type: {type}", "Type : {type}");
+
+        // ── Lootbox item ────────────────────────────────────────────────
+        put("item.lootbox.prefix", "Lootbox: ", "Lootbox : ");
 
         // ── Lootbox info lore ───────────────────────────────────────────
         put("lore.rarity", "Rarity: {rarity}", "Rarete : {rarity}");
@@ -168,11 +179,17 @@ public final class LanguageHelper {
     }
 
     /**
-     * Gets the localized rarity display name.
+     * Gets the localized rarity display name. Falls back to a capitalized form of the
+     * raw rarity for any tier without an explicit translation (instead of leaking the key).
      */
     public static String getRarityName(ServerPlayer player, String rarity) {
-        if (rarity == null) return get(player, "rarity.common");
-        return get(player, "rarity." + rarity.toLowerCase());
+        if (rarity == null || rarity.isEmpty()) return get(player, "rarity.common");
+        String key = "rarity." + rarity.toLowerCase();
+        boolean isFrench = isFrench(player);
+        Map<String, String> table = isFrench ? FR : EN;
+        if (table.containsKey(key)) return table.get(key);
+        if (!isFrench && EN.containsKey(key)) return EN.get(key);
+        return rarity.substring(0, 1).toUpperCase() + rarity.substring(1).toLowerCase();
     }
 
     // ── Internal ────────────────────────────────────────────────────────

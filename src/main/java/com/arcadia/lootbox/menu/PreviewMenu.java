@@ -81,6 +81,8 @@ public class PreviewMenu extends ChestMenu {
 
     /** Cached static frame (orange + yellow pedestal panes). Built once. */
     private final ItemStack[] cachedFrame = new ItemStack[54];
+    /** Yellow pedestal pane flanking the Draw button — per-instance to avoid cross-menu sharing. */
+    private final ItemStack pedestal = pane(Items.YELLOW_STAINED_GLASS_PANE);
 
     private String filter = null;
     private int page = 0;
@@ -138,7 +140,6 @@ public class PreviewMenu extends ChestMenu {
 
     private void prebuildFrame() {
         ItemStack warm = pane(Items.ORANGE_STAINED_GLASS_PANE);
-        ItemStack pedestal = pane(Items.YELLOW_STAINED_GLASS_PANE);
 
         // Top row (info bar): warm except INFO_SLOT
         for (int i = 0; i < 9; i++) {
@@ -149,21 +150,11 @@ public class PreviewMenu extends ChestMenu {
             cachedFrame[row * 9] = warm;
             cachedFrame[row * 9 + 8] = warm;
         }
-        // Action row will be filled dynamically; pre-bake the pedestal slot ids
-        // so that empty action slots get yellow accents.
-        // (Pedestal here is informational — actual placement happens in rebuild.)
-        // Keep cachedFrame[45..53] = null on purpose (filled per-rebuild).
-        // Pre-store pedestal as the "default" backing for slots adjacent to Draw
-        // so a single tile is reused across rebuilds.
+        // The action row (45..53) is filled per-rebuild via buildActionRow; the yellow
+        // pedestal pane backing its empty accent slots is the per-instance `this.pedestal`.
         cachedFrame[44] = warm;          // last filter-row right slot (frame edge)
         cachedFrame[35] = warm;          // not needed but harmless
-        // We'll use this pedestal slot through buildActionBar instead.
-        // Track the singleton so we can reuse it.
-        ACTION_PEDESTAL_REF[0] = pedestal;
     }
-
-    /** Container for the pedestal pane shared across rebuilds. */
-    private static final ItemStack[] ACTION_PEDESTAL_REF = new ItemStack[1];
 
     private void applyCachedFrame(net.minecraft.world.Container c) {
         for (int i = 0; i < 54; i++) {
@@ -197,8 +188,7 @@ public class PreviewMenu extends ChestMenu {
     }
 
     private void buildActionRow(net.minecraft.world.Container c, Player viewer, int totalPages) {
-        // Pedestal flanks the Draw button
-        ItemStack pedestal = ACTION_PEDESTAL_REF[0];
+        // Pedestal (this.pedestal) flanks the Draw button.
 
         // Filter chips (or pedestal if no rarities to show)
         if (presentRarities.size() > 1) {

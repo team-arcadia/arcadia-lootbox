@@ -168,14 +168,14 @@ All commands live under `/arcadia_lootbox` and require OP level 2 by default. Us
 | Dependency | Version |
 |------------|---------|
 | Minecraft | 1.21.1 |
-| NeoForge | 21.1.42+ |
+| NeoForge | 21.1.219+ |
 | Java | 21 |
-| Arcadia Lib | bundled in the jar |
+| Arcadia Lib | 1.2.13+ (bundled in the jar) |
 | LuckPerms | optional (soft integration) |
 
 ## Installation
 
-1. Place `ArcadiaLootbox-1.2.4.jar` in your `mods/` folder. Arcadia Lib is bundled inside.
+1. Place `ArcadiaLootbox-1.2.5.jar` in your `mods/` folder. Arcadia Lib is bundled inside.
 2. (Optional) Install [LuckPerms](https://luckperms.net/) for permission-based features.
 3. Start the server. On first launch, the mod creates `config/arcadia/arcadialootbox/` with two example lootboxes and a `README.txt` cheat sheet.
 4. Edit the example JSON files or add your own. Run `/arcadia_lootbox reload` to apply changes live.
@@ -366,14 +366,14 @@ Toutes les commandes vivent sous `/arcadia_lootbox` et requièrent OP niveau 2 p
 | Dépendance | Version |
 |------------|---------|
 | Minecraft | 1.21.1 |
-| NeoForge | 21.1.42+ |
+| NeoForge | 21.1.219+ |
 | Java | 21 |
-| Arcadia Lib | incluse dans le jar |
+| Arcadia Lib | 1.2.13+ (incluse dans le jar) |
 | LuckPerms | optionnel (intégration souple) |
 
 ## Installation
 
-1. Placez `ArcadiaLootbox-1.2.4.jar` dans votre dossier `mods/`. Arcadia Lib est incluse dedans.
+1. Placez `ArcadiaLootbox-1.2.5.jar` dans votre dossier `mods/`. Arcadia Lib est incluse dedans.
 2. (Optionnel) Installez [LuckPerms](https://luckperms.net/) pour les fonctionnalités basées sur permissions.
 3. Démarrez le serveur. Au premier lancement, le mod crée `config/arcadia/arcadialootbox/` avec deux lootbox d'exemple et une feuille de triche `README.txt`.
 4. Éditez les JSON d'exemple ou ajoutez les vôtres. Lancez `/arcadia_lootbox reload` pour appliquer les changements en live.

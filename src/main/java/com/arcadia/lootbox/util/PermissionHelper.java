@@ -81,8 +81,9 @@ public final class PermissionHelper {
             // Use arcadia-lib's PermissionService which wraps LuckPerms API
             return com.arcadia.lib.permissions.PermissionService.hasPermission(player, permission);
         } catch (Exception e) {
+            // Safe-deny: a transient LP failure must not silently grant the node to every OP.
             LOGGER.debug("[ArcadiaLootbox] LP permission check failed for '{}': {}", permission, e.getMessage());
-            return player.hasPermissions(2);
+            return false;
         }
     }
 

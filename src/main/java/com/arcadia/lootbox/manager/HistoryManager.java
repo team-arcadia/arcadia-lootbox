@@ -28,9 +28,11 @@ public final class HistoryManager {
     public static void record(UUID uuid, String lootboxId, String lootboxName, List<String> items) {
         int max = LootboxConfig.HISTORY_MAX_ENTRIES.get();
         if (max <= 0) return;
+        // Defensive copy — the caller's list is reused/mutated after recording.
+        List<String> itemsCopy = items == null ? List.of() : new ArrayList<>(items);
         Deque<HistoryEntry> entries = HISTORY.computeIfAbsent(uuid, k -> new ArrayDeque<>());
         synchronized (entries) {
-            entries.addFirst(new HistoryEntry(lootboxId, lootboxName, items, System.currentTimeMillis()));
+            entries.addFirst(new HistoryEntry(lootboxId, lootboxName, itemsCopy, System.currentTimeMillis()));
             while (entries.size() > max) entries.removeLast();
         }
     }
@@ -42,6 +44,10 @@ public final class HistoryManager {
     }
 
     public static void clearHistory(UUID uuid) { HISTORY.remove(uuid); }
+
+    /** Drops the per-player click-timestamp window. Call on logout — the 60s window
+     *  is meaningless across a disconnect and would otherwise leak per player. */
+    public static void clearAutoclicker(UUID uuid) { CLICK_TIMESTAMPS.remove(uuid); }
 
     public static void clearAll() { HISTORY.clear(); CLICK_TIMESTAMPS.clear(); }
 
