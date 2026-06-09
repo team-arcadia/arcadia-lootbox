@@ -52,7 +52,7 @@ repositories {
 
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
-    compileOnly files('libs/arcadia-lib-1.2.13.jar')
+    compileOnly files('libs/arcadia-lib-1.2.14.jar')
 }
 
 tasks.withType(JavaCompile).configureEach {

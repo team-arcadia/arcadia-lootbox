@@ -8,7 +8,7 @@ All notable changes to Arcadia LootBox are documented here.
 
 ### Changed
 
-- **Arcadia Lib 1.2.13** — Updated the bundled `arcadia-lib` dependency from 1.2.0 to 1.2.13 and raised the required version range to `[1.2.13,)`.
+- **Arcadia Lib 1.2.14** — Updated the bundled `arcadia-lib` dependency from 1.2.0 to 1.2.14 and raised the required version range to `[1.2.14,)`.
 - **NeoForge 21.1.219** — Bumped the NeoForge target from 21.1.42 to 21.1.219, aligning with the shared library and picking up the latest loader fixes.
 
 ### Security
@@ -42,7 +42,7 @@ All notable changes to Arcadia LootBox are documented here.
 
 ### Modifications
 
-- **Arcadia Lib 1.2.13** — Mise à jour de la dépendance `arcadia-lib` de 1.2.0 vers 1.2.13 et relèvement de la plage de version requise à `[1.2.13,)`.
+- **Arcadia Lib 1.2.14** — Mise à jour de la dépendance `arcadia-lib` de 1.2.0 vers 1.2.14 et relèvement de la plage de version requise à `[1.2.14,)`.
 - **NeoForge 21.1.219** — Passage de la cible NeoForge de 21.1.42 à 21.1.219, alignée sur la bibliothèque partagée et bénéficiant des derniers correctifs du loader.
 
 ### Sécurité

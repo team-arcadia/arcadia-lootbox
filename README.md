@@ -170,7 +170,7 @@ All commands live under `/arcadia_lootbox` and require OP level 2 by default. Us
 | Minecraft | 1.21.1 |
 | NeoForge | 21.1.219+ |
 | Java | 21 |
-| Arcadia Lib | 1.2.13+ (bundled in the jar) |
+| Arcadia Lib | 1.2.14+ (bundled in the jar) |
 | LuckPerms | optional (soft integration) |
 
 ## Installation
@@ -368,7 +368,7 @@ Toutes les commandes vivent sous `/arcadia_lootbox` et requièrent OP niveau 2 p
 | Minecraft | 1.21.1 |
 | NeoForge | 21.1.219+ |
 | Java | 21 |
-| Arcadia Lib | 1.2.13+ (incluse dans le jar) |
+| Arcadia Lib | 1.2.14+ (incluse dans le jar) |
 | LuckPerms | optionnel (intégration souple) |
 
 ## Installation

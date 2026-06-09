@@ -32,6 +32,6 @@ side="BOTH"
 [[dependencies.arcadialootbox]]
 modId="arcadia_lib"
 type="required"
-versionRange="[1.2.13,)"
+versionRange="[1.2.14,)"
 ordering="AFTER"
 side="BOTH"
