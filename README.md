@@ -76,6 +76,20 @@ Drop a new `.json` file into `config/arcadia/arcadialootbox/`. The file name bec
 
 Behavior: each entry of `lootTable` rolls **independently** against its `chance` (`0.0–1.0`). With the values above, on a single open the player could get 0 diamonds + 0 gold + 5 iron, or all three at once. `broadcast: true` on a single entry forces a server-wide message when it drops; `broadcastRare: true` at the top level triggers a broadcast whenever an entry's `rarity` meets the global broadcast threshold (`lootbox.toml > Broadcast`).
 
+### Items with NBT / data components (v1.2.6)
+
+Both `item` and `guaranteedItem` accept the **full vanilla `/give` syntax**, so a reward can carry data components (enchantments, custom name, potion contents, …). Bare ids like `minecraft:diamond` still work unchanged.
+
+```json
+"lootTable": [
+  { "item": "minecraft:enchanted_book[stored_enchantments={levels:{\"minecraft:sharpness\":5}}]", "minCount": 1, "maxCount": 1, "chance": 0.1,  "rarity": "legendary", "displayName": "Sharpness V Book", "broadcast": true },
+  { "item": "minecraft:diamond_sword[enchantments={levels:{\"minecraft:looting\":3}}]",            "minCount": 1, "maxCount": 1, "chance": 0.2,  "rarity": "epic",      "displayName": "Looting III Sword" },
+  { "item": "minecraft:potion[potion_contents={potion:\"minecraft:strong_healing\"}]",             "minCount": 1, "maxCount": 2, "chance": 0.4,  "rarity": "rare",      "displayName": "Healing II Potion" }
+]
+```
+
+Tip: build the item in-game and copy the bracket part straight from a working `/give` command. Note the JSON escaping of the inner quotes (`\"`). A full example ships as `example_nbt.json`.
+
 ### Guaranteed example with free timer
 
 ```json
@@ -115,7 +129,7 @@ Behavior: the player always receives 1–3 bread (`guaranteedItem`) **and** exac
 | `keyItem` | resource id | `"minecraft:tripwire_hook"` | Item the player must hold to open the lootbox. Usually one of the 50 registered keys. |
 | `rarity` | string | `"common"` | One of `common, uncommon, rare, epic, legendary, mythic`. Drives color, broadcast threshold, sort order. |
 | `type` | string | `"weighted"` | `"weighted"` or `"guaranteed"`. |
-| `lootTable` | array | `[]` | Entries with `item, minCount, maxCount, chance (or weight in guaranteed mode), rarity, displayName, broadcast`. |
+| `lootTable` | array | `[]` | Entries with `item, minCount, maxCount, chance (or weight in guaranteed mode), rarity, displayName, broadcast`. `item` accepts the full `/give` syntax for NBT / data components (e.g. enchanted books). |
 | `guaranteedItem` | resource id | `""` | (Guaranteed mode) Always-given item. |
 | `guaranteedMinCount` / `guaranteedMaxCount` | int | `1 / 1` | (Guaranteed mode) Count range for the always-given item. |
 | `permission` | string | `""` | LuckPerms node required to open. Empty = no check. |
@@ -175,7 +189,7 @@ All commands live under `/arcadia_lootbox` and require OP level 2 by default. Us
 
 ## Installation
 
-1. Place `ArcadiaLootbox-1.2.5.jar` in your `mods/` folder. Arcadia Lib is bundled inside.
+1. Place `ArcadiaLootbox-1.2.6.jar` in your `mods/` folder. Arcadia Lib is bundled inside.
 2. (Optional) Install [LuckPerms](https://luckperms.net/) for permission-based features.
 3. Start the server. On first launch, the mod creates `config/arcadia/arcadialootbox/` with two example lootboxes and a `README.txt` cheat sheet.
 4. Edit the example JSON files or add your own. Run `/arcadia_lootbox reload` to apply changes live.
@@ -274,6 +288,20 @@ Déposez un nouveau fichier `.json` dans `config/arcadia/arcadialootbox/`. Le no
 
 Comportement : chaque entrée de `lootTable` tire **indépendamment** contre son `chance` (`0.0–1.0`). Avec ces valeurs, sur une ouverture le joueur peut obtenir 0 diamant + 0 or + 5 fer, ou les trois d'un coup. `broadcast: true` sur une entrée force un message serveur global quand elle drop ; `broadcastRare: true` au top-level déclenche un broadcast dès qu'une entrée dont la `rarity` atteint le seuil global broadcast (`lootbox.toml > Broadcast`) drop.
 
+### Objets avec NBT / data-components (v1.2.6)
+
+`item` et `guaranteedItem` acceptent la **syntaxe complète de la commande `/give`**, donc une récompense peut porter des data-components (enchantements, nom personnalisé, contenu de potion, …). Les ids simples comme `minecraft:diamond` continuent de fonctionner à l'identique.
+
+```json
+"lootTable": [
+  { "item": "minecraft:enchanted_book[stored_enchantments={levels:{\"minecraft:sharpness\":5}}]", "minCount": 1, "maxCount": 1, "chance": 0.1,  "rarity": "legendary", "displayName": "Livre Tranchant V", "broadcast": true },
+  { "item": "minecraft:diamond_sword[enchantments={levels:{\"minecraft:looting\":3}}]",            "minCount": 1, "maxCount": 1, "chance": 0.2,  "rarity": "epic",      "displayName": "Épée Butin III" },
+  { "item": "minecraft:potion[potion_contents={potion:\"minecraft:strong_healing\"}]",             "minCount": 1, "maxCount": 2, "chance": 0.4,  "rarity": "rare",      "displayName": "Potion de Soin II" }
+]
+```
+
+Astuce : construisez l'objet en jeu et copiez la partie entre crochets directement depuis une commande `/give` qui fonctionne. Attention à l'échappement JSON des guillemets internes (`\"`). Un exemple complet est fourni dans `example_nbt.json`.
+
 ### Exemple guaranteed avec timer gratuit
 
 ```json
@@ -313,7 +341,7 @@ Comportement : le joueur reçoit toujours 1 à 3 pains (`guaranteedItem`) **et**
 | `keyItem` | id resource | `"minecraft:tripwire_hook"` | Item que le joueur doit tenir pour ouvrir. Généralement une des 50 clés intégrées. |
 | `rarity` | string | `"common"` | Une de `common, uncommon, rare, epic, legendary, mythic`. Pilote couleur, seuil broadcast, ordre de tri. |
 | `type` | string | `"weighted"` | `"weighted"` ou `"guaranteed"`. |
-| `lootTable` | array | `[]` | Entrées avec `item, minCount, maxCount, chance (ou poids en guaranteed), rarity, displayName, broadcast`. |
+| `lootTable` | array | `[]` | Entrées avec `item, minCount, maxCount, chance (ou poids en guaranteed), rarity, displayName, broadcast`. `item` accepte la syntaxe complète de `/give` pour le NBT / data-components (ex. livres enchantés). |
 | `guaranteedItem` | id resource | `""` | (Guaranteed) Item toujours donné. |
 | `guaranteedMinCount` / `guaranteedMaxCount` | int | `1 / 1` | (Guaranteed) Plage de quantité de l'item garanti. |
 | `permission` | string | `""` | Node LuckPerms requis. Vide = pas de check. |
@@ -373,7 +401,7 @@ Toutes les commandes vivent sous `/arcadia_lootbox` et requièrent OP niveau 2 p
 
 ## Installation
 
-1. Placez `ArcadiaLootbox-1.2.5.jar` dans votre dossier `mods/`. Arcadia Lib est incluse dedans.
+1. Placez `ArcadiaLootbox-1.2.6.jar` dans votre dossier `mods/`. Arcadia Lib est incluse dedans.
 2. (Optionnel) Installez [LuckPerms](https://luckperms.net/) pour les fonctionnalités basées sur permissions.
 3. Démarrez le serveur. Au premier lancement, le mod crée `config/arcadia/arcadialootbox/` avec deux lootbox d'exemple et une feuille de triche `README.txt`.
 4. Éditez les JSON d'exemple ou ajoutez les vôtres. Lancez `/arcadia_lootbox reload` pour appliquer les changements en live.

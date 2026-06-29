@@ -202,6 +202,34 @@ public final class LootboxManager {
                 2, "Boite Chanceuse", "§aVous avez obtenu quelque chose !", "§a✦ Boite Chanceuse ✦", "§7Vous obtenez toujours du pain + un objet chanceux !",
                 true, 72, "", 48, "arcadialootbox.free.reduced"
         ));
+
+        // NBT / data-component example (v1.2.6) — enchanted books, custom gear, potions
+        createIfAbsent(dir, "example_nbt.json", new LootboxDefinition(
+                "Enchanter's Crate", "purple", "arcadialootbox:dungeon_key_epic",
+                "minecraft:block.chest.open", "§dArcane rewards unlocked!",
+                List.of(
+                        new LootboxDefinition.LootEntry(
+                                "minecraft:enchanted_book[stored_enchantments={levels:{\"minecraft:sharpness\":5}}]",
+                                1, 1, 0.10, "legendary", "Sharpness V Book", true),
+                        new LootboxDefinition.LootEntry(
+                                "minecraft:diamond_sword[enchantments={levels:{\"minecraft:looting\":3}}]",
+                                1, 1, 0.20, "epic", "Looting III Sword", true),
+                        new LootboxDefinition.LootEntry(
+                                "minecraft:potion[potion_contents={potion:\"minecraft:strong_healing\"}]",
+                                1, 2, 0.40, "rare", "Healing II Potion", false),
+                        new LootboxDefinition.LootEntry(
+                                "minecraft:diamond_pickaxe[enchantments={levels:{\"minecraft:efficiency\":4,\"minecraft:unbreaking\":3}}]",
+                                1, 1, 0.30, "epic", "Miner's Pickaxe", false)
+                ),
+                List.of("minecraft:enchant", "minecraft:witch"),
+                "weighted", "", 0, 0,
+                "epic", true, "", false, -1, "",
+                LootboxDefinition.AnimationConfig.defaults(),
+                false, 20, "", false, "§d✦ Enchanter's Crate ✦", "§7Enchanted gear awaits!",
+                List.of(), 0, "", 0, true,
+                3, "Caisse de l'Enchanteur", "§dRécompenses arcaniques débloquées !", "§d✦ Caisse de l'Enchanteur ✦", "§7De l'équipement enchanté vous attend !",
+                false, 72, "", 48, ""
+        ));
     }
 
     private static void createIfAbsent(Path dir, String filename, LootboxDefinition def) {
@@ -234,6 +262,22 @@ public final class LootboxManager {
                - "guaranteedMinCount": 1
                - "guaranteedMaxCount": 3
                In the lootTable, "chance" acts as WEIGHT (higher = more likely).
+
+            ITEMS WITH NBT / DATA COMPONENTS (v1.2.6):
+            ==========================================
+            Any "item" or "guaranteedItem" accepts the same syntax as the
+            vanilla /give command, so you can hand out enchanted books,
+            custom-named gear, potions, written books, etc.
+
+            Examples (mind the JSON escaping of inner quotes):
+              "minecraft:enchanted_book[stored_enchantments={levels:{\\"minecraft:sharpness\\":5}}]"
+              "minecraft:diamond_sword[enchantments={levels:{\\"minecraft:sharpness\\":5}}]"
+              "minecraft:potion[potion_contents={potion:\\"minecraft:strong_healing\\"}]"
+              "minecraft:diamond_pickaxe[custom_name='{\\"text\\":\\"Excalibur\\",\\"color\\":\\"gold\\"}']"
+
+            Tip: build the item in-game, run /data get to inspect components,
+            or copy the bracket part straight from a working /give command.
+            A bare id like "minecraft:diamond" still works exactly as before.
 
             KEY ITEMS:
             ==========

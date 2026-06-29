@@ -4,11 +4,11 @@ import com.arcadia.lib.item.ItemBuilder;
 import com.arcadia.lootbox.data.LootboxDefinition;
 import com.arcadia.lootbox.manager.FreeLootboxManager;
 import com.arcadia.lootbox.manager.LootboxManager;
+import com.arcadia.lootbox.util.ItemSpecResolver;
 import com.arcadia.lootbox.util.LootHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -73,6 +73,8 @@ public class PreviewMenu extends ChestMenu {
     private final BlockPos targetPos;
     private final LootboxDefinition def;
     private final boolean fr;
+    /** Registry access for resolving item specs carrying data components / NBT. */
+    private final HolderLookup.Provider registries;
 
     private final List<LootboxDefinition.LootEntry> allSorted;
     private final List<String> presentRarities;
@@ -95,6 +97,7 @@ public class PreviewMenu extends ChestMenu {
         this.targetPos = pos;
         this.def = def;
         this.fr = language != null && language.startsWith("fr");
+        this.registries = playerInv.player.level().registryAccess();
 
         Comparator<LootboxDefinition.LootEntry> byRarity =
                 Comparator.comparingInt(e -> rarityRank(e.rarity()));
@@ -312,21 +315,21 @@ public class PreviewMenu extends ChestMenu {
     }
 
     private ItemStack buildItemIcon(LootboxDefinition.LootEntry entry) {
-        ResourceLocation res = ResourceLocation.tryParse(entry.item());
-        if (res == null) return null;
-        var item = BuiltInRegistries.ITEM.get(res);
-        if (item == Items.AIR) return null;
+        // Resolve the spec into a template stack so components (enchantments, potion
+        // contents, etc.) carry into the preview tooltip just like the real reward.
+        ItemStack base = ItemSpecResolver.resolve(entry.item(), registries);
+        if (base == null) return null;
 
         String eRarity = entry.rarity() != null ? entry.rarity() : "common";
         String eColor = rarityColor(eRarity);
-        String eName = sanitize(entry.displayName() != null ? entry.displayName() : shortItem(entry.item()));
+        String eName = sanitize(entry.displayName() != null ? entry.displayName() : ItemSpecResolver.shortName(entry.item()));
         String eRarityName = fr ? frRarity(eRarity) : capitalize(eRarity);
 
         String chanceRaw = def.isGuaranteedType()
                 ? String.format(Locale.ROOT, "%.2f", entry.chance())
                 : String.format(Locale.ROOT, "%.1f%%", entry.chance() * 100);
 
-        ItemStack display = ItemBuilder.of(item)
+        ItemStack display = ItemBuilder.of(base)
                 .name(Component.literal(eColor + "§l" + eName + " §8• " + eColor + eRarityName))
                 .addLore("")
                 .addLore(Component.literal(" §7").append(
