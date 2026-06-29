@@ -1,6 +1,6 @@
-<h1 style="text-align: center;"><span style="color: #ffa500;">🎁 ARCADIA LOOTBOX — KEYS, CRATES & REWARDS 🎁</span></h1>
+<h1 style="text-align: center;"><span style="color: #ffa500;">🎁 ARCADIA LOOTBOX - KEYS, CRATES & REWARDS 🎁</span></h1>
 <p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>⚡ The lootbox system your server actually deserves ⚡</strong></span></p>
-<p style="text-align: center;"><span style="font-size: large;"><em>Data-driven crates, 50 themed keys, free timers, multi-draw — and a polished Hub UI players will love.</em></span></p>
+<p style="text-align: center;"><span style="font-size: large;"><em>Data-driven crates, 50 themed keys, free timers, multi-draw - and a polished Hub UI players will love.</em></span></p>
 
 <p>&nbsp;</p>
 
@@ -12,18 +12,18 @@
 
 <p>&nbsp;</p>
 
-<p style="text-align: center;"><img src="https://img.shields.io/badge/Stable_Release-v1.2.5-00cc00?style=for-the-badge" alt="Stable v1.2.5"></p>
+<p style="text-align: center;"><img src="https://img.shields.io/badge/Stable_Release-v1.2.6-00cc00?style=for-the-badge" alt="Stable v1.2.6"></p>
 
 <table style="margin-left: auto; margin-right: auto; max-width: 850px; border: 2px solid #FFC107; background-color: rgba(255, 193, 7, 0.15);">
 <tbody>
 <tr>
 <td style="padding: 14px 18px; vertical-align: top; width: 50%; border-right: 2px solid #FFC107;">
 <p><span style="color: #FFC107; font-size: large;"><strong>[EN] Built for Real Servers</strong></span></p>
-<p>Arcadia Lootbox is a <strong>production-grade</strong> crate system. Thread-safe managers, async config reload, atomic map swaps, anti-autoclicker, per-lootbox cooldowns, usage caps, soft LuckPerms integration. No client-only references leak into common code — safe on dedicated servers from day one.</p>
+<p>Arcadia Lootbox is a <strong>production-grade</strong> crate system. Thread-safe managers, async config reload, atomic map swaps, anti-autoclicker, per-lootbox cooldowns, usage caps, soft LuckPerms integration. No client-only references leak into common code - safe on dedicated servers from day one.</p>
 </td>
 <td style="padding: 14px 18px; vertical-align: top; width: 50%;">
 <p><span style="color: #FFC107; font-size: large;"><strong>[FR] Conçu pour les vrais serveurs</strong></span></p>
-<p>Arcadia Lootbox est un système de crates <strong>de qualité production</strong>. Managers thread-safe, rechargement de config asynchrone, swap atomique des maps, anti-autoclicker, cooldowns par lootbox, limites d'utilisations, intégration LuckPerms souple. Aucune classe client ne fuit dans le code commun — sûr sur serveur dédié dès le premier lancement.</p>
+<p>Arcadia Lootbox est un système de crates <strong>de qualité production</strong>. Managers thread-safe, rechargement de config asynchrone, swap atomique des maps, anti-autoclicker, cooldowns par lootbox, limites d'utilisations, intégration LuckPerms souple. Aucune classe client ne fuit dans le code commun - sûr sur serveur dédié dès le premier lancement.</p>
 </td>
 </tr>
 </tbody>
@@ -36,13 +36,13 @@
 <tr>
 <td style="padding: 14px 18px; vertical-align: top; width: 50%; border-right: 2px solid #2196F3; text-align: center;">
 <p><span style="color: #2196F3; font-size: large;"><strong>🔌 DROP-IN & DATA-DRIVEN</strong></span></p>
-<p>Drop the jar in <code>mods/</code> and you get 50 themed keys, a steampunk Hub UI, and 14 admin commands out of the box. Define new lootboxes with simple JSON files — no Java, no KubeJS scripts, no datapacks.</p>
-<p>✅ <strong>Works in singleplayer and on dedicated servers.</strong> Reload live with <code>/arcadia_lootbox reload</code> — async, no tick freeze.</p>
+<p>Drop the jar in <code>mods/</code> and you get 50 themed keys, a steampunk Hub UI, and 14 admin commands out of the box. Define new lootboxes with simple JSON files - no Java, no KubeJS scripts, no datapacks.</p>
+<p>✅ <strong>Works in singleplayer and on dedicated servers.</strong> Reload live with <code>/arcadia_lootbox reload</code> - async, no tick freeze.</p>
 </td>
 <td style="padding: 14px 18px; vertical-align: top; width: 50%; text-align: center;">
 <p><span style="color: #2196F3; font-size: large;"><strong>🔌 PRÊT À L'EMPLOI & DATA-DRIVEN</strong></span></p>
-<p>Posez le jar dans <code>mods/</code> et vous avez 50 clés thématiques, une UI Hub steampunk et 14 commandes admin d'office. Définissez de nouvelles lootbox avec de simples fichiers JSON — pas de Java, pas de scripts KubeJS, pas de datapacks.</p>
-<p>✅ <strong>Fonctionne en solo et sur serveur dédié.</strong> Rechargement à chaud via <code>/arcadia_lootbox reload</code> — asynchrone, sans freeze de tick.</p>
+<p>Posez le jar dans <code>mods/</code> et vous avez 50 clés thématiques, une UI Hub steampunk et 14 commandes admin d'office. Définissez de nouvelles lootbox avec de simples fichiers JSON - pas de Java, pas de scripts KubeJS, pas de datapacks.</p>
+<p>✅ <strong>Fonctionne en solo et sur serveur dédié.</strong> Rechargement à chaud via <code>/arcadia_lootbox reload</code> - asynchrone, sans freeze de tick.</p>
 </td>
 </tr>
 </tbody>
@@ -64,10 +64,10 @@
 <tbody>
 <tr>
 <td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🗝️ 50 Themed Keys</strong></span><br>Six categories — <strong>Dungeon, Shop, Vote, Lootable, Event, Boss</strong> — with up to 10 tiers each (Common → Transcendent / Bronze → Overlord). Custom 16×16 textures and JSON-defined item models, all bundled.</p>
+<p><span style="color: #ffa500;"><strong>🗝️ 50 Themed Keys</strong></span><br>Six categories - <strong>Dungeon, Shop, Vote, Lootable, Event, Boss</strong> - with up to 10 tiers each (Common → Transcendent / Bronze → Overlord). Custom 16×16 textures and JSON-defined item models, all bundled.</p>
 </td>
 <td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>📦 Data-Driven Lootboxes</strong></span><br>Define a lootbox by writing a JSON file. 35+ tunable parameters: <strong>weighted</strong> or <strong>guaranteed</strong> drops, per-item chance, min/max counts, rarities, broadcast triggers, free timers, permissions, particles, sounds, animations, command rewards.</p>
+<p><span style="color: #ffa500;"><strong>📦 Data-Driven Lootboxes</strong></span><br>Define a lootbox by writing a JSON file. 35+ tunable parameters: <strong>weighted</strong> or <strong>guaranteed</strong> drops, per-item chance, min/max counts, rarities, broadcast triggers, free timers, permissions, particles, sounds, animations, command rewards. Rewards can even carry <strong>NBT / data components</strong> (enchanted books, named gear, custom potions) via the vanilla <code>/give</code> syntax.</p>
 </td>
 </tr>
 <tr>
@@ -88,10 +88,10 @@
 </tr>
 <tr>
 <td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🌐 100% Bilingual EN/FR</strong></span><br>Every user-facing string goes through <code>LanguageHelper</code> with both English and French translations. Language is detected per-player via client info — no manual switch needed.</p>
+<p><span style="color: #ffa500;"><strong>🌐 100% Bilingual EN/FR</strong></span><br>Every user-facing string goes through <code>LanguageHelper</code> with both English and French translations. Language is detected per-player via client info - no manual switch needed.</p>
 </td>
 <td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🔑 Soft LuckPerms Integration</strong></span><br>Permission nodes on every lootbox and free-reduced-cooldown perk. LuckPerms is <strong>optional</strong> — the mod gracefully falls back to vanilla OP checks when LP isn't installed.</p>
+<p><span style="color: #ffa500;"><strong>🔑 Soft LuckPerms Integration</strong></span><br>Permission nodes on every lootbox and free-reduced-cooldown perk. LuckPerms is <strong>optional</strong> - the mod gracefully falls back to vanilla OP checks when LP isn't installed.</p>
 </td>
 </tr>
 </tbody>
@@ -129,7 +129,7 @@
 
 <p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>🛠️ Creating a Lootbox (JSON)</strong></span></p>
 
-<p style="text-align: center;">Every lootbox is a single JSON file in <code>config/arcadia/arcadialootbox/</code>. The file name becomes the lootbox ID. Two examples are generated on first launch — <code>example_weighted.json</code> and <code>example_guaranteed.json</code> — alongside a <code>README.txt</code> cheat sheet.</p>
+<p style="text-align: center;">Every lootbox is a single JSON file in <code>config/arcadia/arcadialootbox/</code>. The file name becomes the lootbox ID. Three examples are generated on first launch: <code>example_weighted.json</code>, <code>example_guaranteed.json</code> and <code>example_nbt.json</code>, alongside a <code>README.txt</code> cheat sheet.</p>
 
 <p>&nbsp;</p>
 
@@ -205,6 +205,36 @@
 
 <p>&nbsp;</p>
 
+<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: x-large; color: #ffa500;"><strong>✨ Items with NBT / Data Components</strong></span></p>
+
+<p style="text-align: center;">Any <code>item</code> (and the <code>guaranteedItem</code>) accepts the <strong>full vanilla <code>/give</code> syntax</strong>, so a reward can carry data components: enchanted books, pre-enchanted gear, named items, custom potions and more. A bare id like <code>minecraft:diamond</code> keeps working unchanged. Mind the JSON escaping of inner quotes (<code>\"</code>).</p>
+
+<table style="margin-left: auto; margin-right: auto; max-width: 900px;">
+<tbody>
+<tr>
+<td style="padding: 12px 16px; vertical-align: top; border: 1px solid #FFA500;">
+<pre><code>"lootTable": [
+  { "item": "minecraft:enchanted_book[stored_enchantments={levels:{\"minecraft:sharpness\":5}}]",
+    "minCount": 1, "maxCount": 1, "chance": 0.1, "rarity": "legendary",
+    "displayName": "Sharpness V Book", "broadcast": true },
+
+  { "item": "minecraft:diamond_sword[enchantments={levels:{\"minecraft:looting\":3}}]",
+    "minCount": 1, "maxCount": 1, "chance": 0.2, "rarity": "epic",
+    "displayName": "Looting III Sword" },
+
+  { "item": "minecraft:potion[potion_contents={potion:\"minecraft:strong_healing\"}]",
+    "minCount": 1, "maxCount": 2, "chance": 0.4, "rarity": "rare",
+    "displayName": "Healing II Potion" }
+]</code></pre>
+</td>
+</tr>
+</tbody>
+</table>
+
+<p style="text-align: center;"><em>Tip: build the item in-game and copy the bracket part straight from a working <code>/give</code> command. A full example ships as <code>example_nbt.json</code>.</em></p>
+
+<p>&nbsp;</p>
+
 <p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: x-large; color: #ffa500;"><strong>🧩 Key fields you'll use most</strong></span></p>
 
 <table style="margin-left: auto; margin-right: auto; max-width: 900px; border-collapse: collapse;">
@@ -221,7 +251,7 @@
 </tr>
 <tr style="background-color: rgba(255, 165, 0, 0.06);">
 <td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>type</code></td>
-<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>"weighted"</code> or <code>"guaranteed"</code> — chooses the drop algorithm above.</td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>"weighted"</code> or <code>"guaranteed"</code> - chooses the drop algorithm above.</td>
 </tr>
 <tr>
 <td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>rarity</code></td>
@@ -249,7 +279,7 @@
 </tr>
 <tr>
 <td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>commandRewards</code></td>
-<td style="padding: 6px 12px; border: 1px solid #FFA500;">Array of <code>{ command, chance, asConsole }</code> — runs as console or player, <code>{player}</code> is replaced safely.</td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">Array of <code>{ command, chance, asConsole }</code> - runs as console or player, <code>{player}</code> is replaced safely.</td>
 </tr>
 <tr style="background-color: rgba(255, 165, 0, 0.06);">
 <td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>displayNameFR</code>, <code>openMessageFR</code>, <code>openTitleFR</code></td>
@@ -260,7 +290,7 @@
 
 <p>&nbsp;</p>
 
-<p style="text-align: center;"><em>Full field reference (35+ parameters) is documented in the project <a href="https://github.com/Team-Arcadia/Arcadia-LootBox/blob/main/README.md" target="_blank" rel="nofollow noopener">README.md</a>. After editing any JSON, run <code>/arcadia_lootbox reload</code> — the reload is async, so the tick loop never stalls.</em></p>
+<p style="text-align: center;"><em>Full field reference (35+ parameters) is documented in the project <a href="https://github.com/Team-Arcadia/Arcadia-LootBox/blob/main/README.md" target="_blank" rel="nofollow noopener">README.md</a>. After editing any JSON, run <code>/arcadia_lootbox reload</code> - the reload is async, so the tick loop never stalls.</em></p>
 
 <p>&nbsp;</p>
 
@@ -301,7 +331,7 @@
 
 <p>&nbsp;</p>
 
-<p style="text-align: center;"><em>Arcadia Lib is shipped inside the jar — no separate download. LuckPerms is fully optional; the mod falls back to vanilla OP checks when it's absent.</em></p>
+<p style="text-align: center;"><em>Arcadia Lib is shipped inside the jar - no separate download. LuckPerms is fully optional; the mod falls back to vanilla OP checks when it's absent.</em></p>
 
 <p>&nbsp;</p>
 
@@ -332,7 +362,7 @@
 
 <p>&nbsp;</p>
 
-<p style="text-align: center;"><a href="https://wabbanode.com/partner/vyrriox" target="_blank" rel="nofollow noopener"><img style="border: 2px solid #FFA500;" src="https://arcadia-echoes-of-power.fr/storage/curseforge/bannerwab.png" alt="WabbaNode — Official Hosting Partner" width="800"></a></p>
+<p style="text-align: center;"><a href="https://wabbanode.com/partner/vyrriox" target="_blank" rel="nofollow noopener"><img style="border: 2px solid #FFA500;" src="https://arcadia-echoes-of-power.fr/storage/curseforge/bannerwab.png" alt="WabbaNode - Official Hosting Partner" width="800"></a></p>
 
 <p>&nbsp;</p>
 
@@ -356,10 +386,10 @@
 <tbody>
 <tr>
 <td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🗝️ 50 clés thématiques</strong></span><br>Six catégories — <strong>Donjon, Boutique, Vote, Trouvable, Événement, Boss</strong> — avec jusqu'à 10 paliers chacune (Commune → Transcendante / Bronze → Suzerain). Textures custom 16×16 et modèles d'objet en JSON, tout est inclus.</p>
+<p><span style="color: #ffa500;"><strong>🗝️ 50 clés thématiques</strong></span><br>Six catégories - <strong>Donjon, Boutique, Vote, Trouvable, Événement, Boss</strong> - avec jusqu'à 10 paliers chacune (Commune → Transcendante / Bronze → Suzerain). Textures custom 16×16 et modèles d'objet en JSON, tout est inclus.</p>
 </td>
 <td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>📦 Lootbox data-driven</strong></span><br>Définissez une lootbox en écrivant un fichier JSON. 35+ paramètres réglables : drops <strong>pondérés</strong> ou <strong>garantis</strong>, chance par item, min/max, raretés, déclencheurs de broadcast, timers gratuits, permissions, particules, sons, animations, récompenses par commande.</p>
+<p><span style="color: #ffa500;"><strong>📦 Lootbox data-driven</strong></span><br>Définissez une lootbox en écrivant un fichier JSON. 35+ paramètres réglables : drops <strong>pondérés</strong> ou <strong>garantis</strong>, chance par item, min/max, raretés, déclencheurs de broadcast, timers gratuits, permissions, particules, sons, animations, récompenses par commande. Les récompenses peuvent même porter du <strong>NBT / data-components</strong> (livres enchantés, équipement nommé, potions custom) via la syntaxe de la commande <code>/give</code>.</p>
 </td>
 </tr>
 <tr>
@@ -380,10 +410,10 @@
 </tr>
 <tr>
 <td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🌐 100 % bilingue EN/FR</strong></span><br>Chaque texte visible passe par <code>LanguageHelper</code> avec traductions anglaise et française. La langue est détectée par joueur via le client info — aucun switch manuel.</p>
+<p><span style="color: #ffa500;"><strong>🌐 100 % bilingue EN/FR</strong></span><br>Chaque texte visible passe par <code>LanguageHelper</code> avec traductions anglaise et française. La langue est détectée par joueur via le client info - aucun switch manuel.</p>
 </td>
 <td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🔑 Intégration LuckPerms souple</strong></span><br>Nodes de permission sur chaque lootbox et perk de cooldown réduit. LuckPerms est <strong>optionnel</strong> — le mod retombe gracieusement sur les checks OP vanilla quand LP n'est pas installé.</p>
+<p><span style="color: #ffa500;"><strong>🔑 Intégration LuckPerms souple</strong></span><br>Nodes de permission sur chaque lootbox et perk de cooldown réduit. LuckPerms est <strong>optionnel</strong> - le mod retombe gracieusement sur les checks OP vanilla quand LP n'est pas installé.</p>
 </td>
 </tr>
 </tbody>
@@ -421,7 +451,7 @@
 
 <p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>🛠️ Créer une lootbox (JSON)</strong></span></p>
 
-<p style="text-align: center;">Chaque lootbox est un unique fichier JSON dans <code>config/arcadia/arcadialootbox/</code>. Le nom du fichier devient l'ID de la lootbox. Deux exemples sont générés au premier lancement — <code>example_weighted.json</code> et <code>example_guaranteed.json</code> — accompagnés d'une feuille de triche <code>README.txt</code>.</p>
+<p style="text-align: center;">Chaque lootbox est un unique fichier JSON dans <code>config/arcadia/arcadialootbox/</code>. Le nom du fichier devient l'ID de la lootbox. Trois exemples sont générés au premier lancement : <code>example_weighted.json</code>, <code>example_guaranteed.json</code> et <code>example_nbt.json</code>, accompagnés d'une feuille de triche <code>README.txt</code>.</p>
 
 <p>&nbsp;</p>
 
@@ -497,6 +527,36 @@
 
 <p>&nbsp;</p>
 
+<p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: x-large; color: #ffa500;"><strong>✨ Objets avec NBT / data-components</strong></span></p>
+
+<p style="text-align: center;">Tout <code>item</code> (et le <code>guaranteedItem</code>) accepte la <strong>syntaxe complète de la commande <code>/give</code></strong>, donc une récompense peut porter des data-components : livres enchantés, équipement pré-enchanté, objets nommés, potions custom, etc. Un id simple comme <code>minecraft:diamond</code> continue de fonctionner à l'identique. Attention à l'échappement JSON des guillemets internes (<code>\"</code>).</p>
+
+<table style="margin-left: auto; margin-right: auto; max-width: 900px;">
+<tbody>
+<tr>
+<td style="padding: 12px 16px; vertical-align: top; border: 1px solid #FFA500;">
+<pre><code>"lootTable": [
+  { "item": "minecraft:enchanted_book[stored_enchantments={levels:{\"minecraft:sharpness\":5}}]",
+    "minCount": 1, "maxCount": 1, "chance": 0.1, "rarity": "legendary",
+    "displayName": "Livre Tranchant V", "broadcast": true },
+
+  { "item": "minecraft:diamond_sword[enchantments={levels:{\"minecraft:looting\":3}}]",
+    "minCount": 1, "maxCount": 1, "chance": 0.2, "rarity": "epic",
+    "displayName": "Épée Butin III" },
+
+  { "item": "minecraft:potion[potion_contents={potion:\"minecraft:strong_healing\"}]",
+    "minCount": 1, "maxCount": 2, "chance": 0.4, "rarity": "rare",
+    "displayName": "Potion de Soin II" }
+]</code></pre>
+</td>
+</tr>
+</tbody>
+</table>
+
+<p style="text-align: center;"><em>Astuce : construisez l'objet en jeu et copiez la partie entre crochets directement depuis une commande <code>/give</code> qui fonctionne. Un exemple complet est fourni dans <code>example_nbt.json</code>.</em></p>
+
+<p>&nbsp;</p>
+
 <p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: x-large; color: #ffa500;"><strong>🧩 Les champs que vous utiliserez le plus</strong></span></p>
 
 <table style="margin-left: auto; margin-right: auto; max-width: 900px; border-collapse: collapse;">
@@ -513,7 +573,7 @@
 </tr>
 <tr style="background-color: rgba(255, 165, 0, 0.06);">
 <td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>type</code></td>
-<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>"weighted"</code> ou <code>"guaranteed"</code> — choisit l'algorithme de drop ci-dessus.</td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>"weighted"</code> ou <code>"guaranteed"</code> - choisit l'algorithme de drop ci-dessus.</td>
 </tr>
 <tr>
 <td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>rarity</code></td>
@@ -541,7 +601,7 @@
 </tr>
 <tr>
 <td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>commandRewards</code></td>
-<td style="padding: 6px 12px; border: 1px solid #FFA500;">Tableau de <code>{ command, chance, asConsole }</code> — exécute en console ou joueur, <code>{player}</code> est remplacé de manière sûre.</td>
+<td style="padding: 6px 12px; border: 1px solid #FFA500;">Tableau de <code>{ command, chance, asConsole }</code> - exécute en console ou joueur, <code>{player}</code> est remplacé de manière sûre.</td>
 </tr>
 <tr style="background-color: rgba(255, 165, 0, 0.06);">
 <td style="padding: 6px 12px; border: 1px solid #FFA500;"><code>displayNameFR</code>, <code>openMessageFR</code>, <code>openTitleFR</code></td>
@@ -552,7 +612,7 @@
 
 <p>&nbsp;</p>
 
-<p style="text-align: center;"><em>La référence complète des champs (35+ paramètres) est documentée dans le <a href="https://github.com/Team-Arcadia/Arcadia-LootBox/blob/main/README.md" target="_blank" rel="nofollow noopener">README.md</a> du projet. Après chaque édition de JSON, lancez <code>/arcadia_lootbox reload</code> — le rechargement est asynchrone, donc le tick loop ne bloque jamais.</em></p>
+<p style="text-align: center;"><em>La référence complète des champs (35+ paramètres) est documentée dans le <a href="https://github.com/Team-Arcadia/Arcadia-LootBox/blob/main/README.md" target="_blank" rel="nofollow noopener">README.md</a> du projet. Après chaque édition de JSON, lancez <code>/arcadia_lootbox reload</code> - le rechargement est asynchrone, donc le tick loop ne bloque jamais.</em></p>
 
 <p>&nbsp;</p>
 
@@ -593,7 +653,7 @@
 
 <p>&nbsp;</p>
 
-<p style="text-align: center;"><em>Arcadia Lib est livrée à l'intérieur du jar — aucun téléchargement séparé. LuckPerms est totalement optionnel ; le mod retombe sur les checks OP vanilla en son absence.</em></p>
+<p style="text-align: center;"><em>Arcadia Lib est livrée à l'intérieur du jar - aucun téléchargement séparé. LuckPerms est totalement optionnel ; le mod retombe sur les checks OP vanilla en son absence.</em></p>
 
 <p>&nbsp;</p>
 
@@ -624,7 +684,7 @@
 
 <p>&nbsp;</p>
 
-<p style="text-align: center;"><a href="https://lordhosting.fr/gaming/serveur-minecraft?ref=arcadia" target="_blank" rel="nofollow noopener"><img style="border: 2px solid #FFA500;" src="https://arcadia-echoes-of-power.fr/storage/curseforge/bannerlord.png" alt="LordHosting — Hébergeur Officiel Partenaire" width="800"></a></p>
+<p style="text-align: center;"><a href="https://lordhosting.fr/gaming/serveur-minecraft?ref=arcadia" target="_blank" rel="nofollow noopener"><img style="border: 2px solid #FFA500;" src="https://arcadia-echoes-of-power.fr/storage/curseforge/bannerlord.png" alt="LordHosting - Hébergeur Officiel Partenaire" width="800"></a></p>
 
 <p>&nbsp;</p>
 
@@ -634,13 +694,13 @@
 
 <hr style="border: 1px solid #FFA500;">
 
-<h1 style="text-align: center;"><span style="color: #ffa500;">🌟 PLAY ARCADIA V2 — ECHOES OF POWER 🌟</span></h1>
+<h1 style="text-align: center;"><span style="color: #ffa500;">🌟 PLAY ARCADIA V2 - ECHOES OF POWER 🌟</span></h1>
 <p align="center" style="text-align: center; margin-top: 1.2em; margin-bottom: 0.6em;"><span style="font-size: xx-large; color: #ffa500;"><strong>⚡ Where Magic Meets Machinery ⚡</strong></span></p>
-<p style="text-align: center;"><span style="font-size: large;"><em>The flagship modpack Arcadia Lootbox was built for — and ships in by default.</em></span></p>
+<p style="text-align: center;"><span style="font-size: large;"><em>The flagship modpack Arcadia Lootbox was built for - and ships in by default.</em></span></p>
 
 <p>&nbsp;</p>
 
-<p style="text-align: center;"><a href="https://www.curseforge.com/minecraft/modpacks/arcadia-echoes-of-power-v2" target="_blank" rel="nofollow noopener"><img style="border: 2px solid #FFA500; border-radius: 8px;" src="https://arcadia-echoes-of-power.fr/storage/curseforge/serveur.gif" alt="Arcadia V2 — Echoes of Power" width="700"></a></p>
+<p style="text-align: center;"><a href="https://www.curseforge.com/minecraft/modpacks/arcadia-echoes-of-power-v2" target="_blank" rel="nofollow noopener"><img style="border: 2px solid #FFA500; border-radius: 8px;" src="https://arcadia-echoes-of-power.fr/storage/curseforge/serveur.gif" alt="Arcadia V2 - Echoes of Power" width="700"></a></p>
 
 <p>&nbsp;</p>
 
@@ -655,12 +715,12 @@
 <p><span style="color: #ffa500;"><strong>🔗 True Cross-Mod Progression</strong></span><br>Tech and magic don't live in separate silos. Late-game crafts need <strong>both</strong> ecosystems. 4 custom bridge items (Arcane Circuit, Ethereal Alloy, Industrial Heart, Rune Matrix) tie everything together.</p>
 </td>
 <td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🌐 100% Bilingual EN/FR</strong></span><br><strong>25,000+ translation entries</strong> across the entire pack. Quests, items, custom UIs — fully translated. Zero franglais.</p>
+<p><span style="color: #ffa500;"><strong>🌐 100% Bilingual EN/FR</strong></span><br><strong>25,000+ translation entries</strong> across the entire pack. Quests, items, custom UIs - fully translated. Zero franglais.</p>
 </td>
 </tr>
 <tr>
 <td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
-<p><span style="color: #ffa500;"><strong>🎮 Curated Server Experience</strong></span><br>In-house mods built for Arcadia: <strong>Arcadia Lootbox</strong>, Arcadia Pets (collectibles + PvP duels + ELO ladder), Arcadia Guard moderation, Prestige progression, Heart of Arcadia. Not mods bolted together — a tailored ecosystem.</p>
+<p><span style="color: #ffa500;"><strong>🎮 Curated Server Experience</strong></span><br>In-house mods built for Arcadia: <strong>Arcadia Lootbox</strong>, Arcadia Pets (collectibles + PvP duels + ELO ladder), Arcadia Guard moderation, Prestige progression, Heart of Arcadia. Not mods bolted together - a tailored ecosystem.</p>
 </td>
 <td style="padding: 12px 16px; vertical-align: top; width: 50%; border: 1px solid #FFA500; text-align: center;">
 <p><span style="color: #ffa500;"><strong>📜 3,000+ Quest-Guided Journey</strong></span><br>31 chapters of FTB Quests covering every mod's progression path. Whether you're fresh or a 1000-hour veteran, you always know what to do next.</p>
@@ -671,13 +731,13 @@
 
 <p>&nbsp;</p>
 
-<p style="text-align: center;"><span style="font-size: x-large;"><strong>🎮 JOIN THE ADVENTURE — 490 MODS, ONE EPIC JOURNEY 🎮</strong></span></p>
+<p style="text-align: center;"><span style="font-size: x-large;"><strong>🎮 JOIN THE ADVENTURE - 490 MODS, ONE EPIC JOURNEY 🎮</strong></span></p>
 
 <p style="text-align: center;"><a href="https://www.curseforge.com/minecraft/modpacks/arcadia-echoes-of-power-v2" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Play_Now-Arcadia_V2-2ea44f?style=for-the-badge&amp;logo=curseforge&amp;logoColor=white" alt="Play Arcadia V2"></a>&nbsp; &nbsp;<a href="https://arcadia-echoes-of-power.fr/discord" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/discord/1346965857288589472?label=Join%20Discord&amp;logo=discord&amp;style=for-the-badge&amp;color=5865F2&amp;labelColor=0f172a" alt="Join Discord"></a>&nbsp; &nbsp;<a href="https://www.arcadia-echoes-of-power.fr/" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Official-Website-FFA500?style=for-the-badge&amp;logo=google-chrome&amp;logoColor=white" alt="Website"></a>&nbsp; &nbsp;<a href="https://www.arcadia-echoes-of-power.fr/wiki" target="_blank" rel="nofollow noopener"><img src="https://img.shields.io/badge/Wiki-Guides-2196F3?style=for-the-badge&amp;logo=bookstack&amp;logoColor=white" alt="Wiki"></a></p>
 
 <p>&nbsp;</p>
 
-<p align="center" style="text-align: center;"><span style="font-size: large; color: #ffa500;"><strong>🇫🇷 Découvrez Arcadia V2 : Echoes of Power</strong></span><br><em>Le modpack phare pour lequel Arcadia Lootbox a été conçu — et qui l'inclut par défaut. 490+ mods, 3 000+ quêtes, 5 serveurs actifs, 100 % bilingue EN/FR. <strong>Industrie + Magie + Exploration</strong>, comptez 150 à 300 heures pour atteindre l'endgame.</em></p>
+<p align="center" style="text-align: center;"><span style="font-size: large; color: #ffa500;"><strong>🇫🇷 Découvrez Arcadia V2 : Echoes of Power</strong></span><br><em>Le modpack phare pour lequel Arcadia Lootbox a été conçu - et qui l'inclut par défaut. 490+ mods, 3 000+ quêtes, 5 serveurs actifs, 100 % bilingue EN/FR. <strong>Industrie + Magie + Exploration</strong>, comptez 150 à 300 heures pour atteindre l'endgame.</em></p>
 
 <p>&nbsp;</p>
 
