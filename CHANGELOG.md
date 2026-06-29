@@ -4,6 +4,38 @@ All notable changes to Arcadia LootBox are documented here.
 
 ---
 
+## [1.2.6] - 2026-06-29
+
+### Added
+
+- **NBT / data-component loot items** — Lootbox rewards now accept the full vanilla `/give` item syntax, so any reward can carry data components (NBT). You can drop enchanted books, pre-enchanted gear, named items, custom potions, written books and more. Works for every `item` in a loot table and for the `guaranteedItem`. A bare id such as `minecraft:diamond` keeps working unchanged.
+- **`ItemSpecResolver` utility** — A single resolver parses each spec with the vanilla `ItemParser`, applies its components onto a template stack, and degrades gracefully (base item without NBT) if registry access is missing or the spec is malformed.
+- **`example_nbt.json`** — A new auto-generated example crate showcasing a Sharpness V book, a Looting III sword, strong healing potions and a multi-enchant pickaxe.
+
+### Changed
+
+- **Component-aware giving & preview** — The drop logic now clones a template stack (preserving every component) instead of rebuilding a bare item, and the preview GUI renders the real enchanted/named item so the tooltip matches the actual reward.
+
+### Performance
+
+- **Zero-overhead fast path** — Bare `namespace:id` specs skip the command parser entirely and resolve directly through the registry, so existing configs pay no parsing cost.
+
+### Ajouts
+
+- **Objets de butin avec NBT / data-components** — Les récompenses acceptent désormais la syntaxe d'objet complète de la commande `/give`, donc n'importe quelle récompense peut porter des data-components (NBT). On peut distribuer des livres enchantés, de l'équipement pré-enchanté, des objets nommés, des potions personnalisées, des livres écrits, etc. Fonctionne pour chaque `item` d'une table de butin et pour le `guaranteedItem`. Un id simple comme `minecraft:diamond` continue de fonctionner à l'identique.
+- **Utilitaire `ItemSpecResolver`** — Un résolveur unique analyse chaque spec avec le `ItemParser` vanilla, applique ses composants sur un stack modèle, et se rabat proprement (objet de base sans NBT) si l'accès au registre manque ou si la spec est invalide.
+- **`example_nbt.json`** — Un nouvel exemple de caisse auto-généré présentant un livre Tranchant V, une épée Butin III, des potions de soin puissant et une pioche multi-enchantée.
+
+### Modifications
+
+- **Distribution et aperçu sensibles aux composants** — La logique de drop clone désormais un stack modèle (préservant chaque composant) au lieu de reconstruire un objet nu, et le menu d'aperçu affiche le véritable objet enchanté/nommé afin que l'infobulle corresponde à la récompense réelle.
+
+### Performance
+
+- **Chemin rapide sans surcoût** — Les specs simples `namespace:id` contournent entièrement le parseur de commande et se résolvent directement via le registre, donc les configs existantes ne paient aucun coût d'analyse.
+
+---
+
 ## [1.2.5] - 2026-06-08
 
 ### Changed

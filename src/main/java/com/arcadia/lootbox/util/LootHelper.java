@@ -394,24 +394,23 @@ public final class LootHelper {
     private static void handleWeightedDrop(ServerLevel level, BlockPos pos, ServerPlayer player,
                                             LootboxDefinition def, net.minecraft.util.RandomSource random,
                                             List<String> receivedItems, String lootboxId) {
-        Map<net.minecraft.world.item.Item, Integer> drops = new LinkedHashMap<>();
         int maxDrops = LootboxConfig.MAX_DROPS_PER_OPEN.get();
         int dropCount = 0;
+        var registries = level.registryAccess();
 
         for (LootboxDefinition.LootEntry entry : def.lootTable()) {
             if (dropCount >= maxDrops) break;
             if (random.nextDouble() <= entry.chance()) {
-                ResourceLocation itemRes = ResourceLocation.tryParse(entry.item());
-                if (itemRes == null) continue;
-                var item = BuiltInRegistries.ITEM.get(itemRes);
-                if (item == Items.AIR) continue;
+                // Resolve a template stack (supports data components / NBT, e.g. enchanted books).
+                ItemStack template = ItemSpecResolver.resolve(entry.item(), registries);
+                if (template == null) continue;
 
                 int min = Math.max(0, entry.minCount());
                 int max = Math.max(min, entry.maxCount());
                 int count = min == max ? min : random.nextInt(max - min + 1) + min;
                 if (count > 0) {
-                    drops.merge(item, count, Integer::sum);
-                    String name = entry.displayName() != null ? entry.displayName() : entry.item();
+                    giveItemStack(player, template, count);
+                    String name = entry.displayName() != null ? entry.displayName() : ItemSpecResolver.shortName(entry.item());
                     receivedItems.add(count + "x " + name);
                     dropCount++;
                     if (entry.broadcast() || (def.broadcastRare() && shouldBroadcast(entry.rarity()))) {
@@ -420,7 +419,6 @@ public final class LootHelper {
                 }
             }
         }
-        giveDrops(player, drops);
     }
 
     // --- GUARANTEED DROP: pick ONE from pool (weighted) + guaranteed item ---
@@ -428,19 +426,18 @@ public final class LootHelper {
     private static void handleGuaranteedDrop(ServerLevel level, BlockPos pos, ServerPlayer player,
                                               LootboxDefinition def, net.minecraft.util.RandomSource random,
                                               List<String> receivedItems, String lootboxId) {
+        var registries = level.registryAccess();
+
         // 1. Give guaranteed item
         if (def.guaranteedItem() != null && !def.guaranteedItem().isEmpty()) {
-            ResourceLocation gRes = ResourceLocation.tryParse(def.guaranteedItem());
-            if (gRes != null) {
-                var gItem = BuiltInRegistries.ITEM.get(gRes);
-                if (gItem != Items.AIR) {
-                    int gMin = Math.max(1, def.guaranteedMinCount());
-                    int gMax = Math.max(gMin, def.guaranteedMaxCount());
-                    int gCount = gMin == gMax ? gMin : random.nextInt(gMax - gMin + 1) + gMin;
-                    giveItem(player, gItem, gCount);
-                    boolean fr = LanguageHelper.isFrench(player);
-                    receivedItems.add(gCount + "x " + def.guaranteedItem() + (fr ? " (garanti)" : " (guaranteed)"));
-                }
+            ItemStack gTemplate = ItemSpecResolver.resolve(def.guaranteedItem(), registries);
+            if (gTemplate != null) {
+                int gMin = Math.max(1, def.guaranteedMinCount());
+                int gMax = Math.max(gMin, def.guaranteedMaxCount());
+                int gCount = gMin == gMax ? gMin : random.nextInt(gMax - gMin + 1) + gMin;
+                giveItemStack(player, gTemplate, gCount);
+                boolean fr = LanguageHelper.isFrench(player);
+                receivedItems.add(gCount + "x " + ItemSpecResolver.shortName(def.guaranteedItem()) + (fr ? " (garanti)" : " (guaranteed)"));
             }
         }
 
@@ -457,20 +454,17 @@ public final class LootHelper {
                 for (LootboxDefinition.LootEntry entry : def.lootTable()) {
                     cumulative += Math.max(0, entry.chance());
                     if (roll < cumulative) {
-                        ResourceLocation itemRes = ResourceLocation.tryParse(entry.item());
-                        if (itemRes != null) {
-                            var item = BuiltInRegistries.ITEM.get(itemRes);
-                            if (item != Items.AIR) {
-                                int min = Math.max(1, entry.minCount());
-                                int max = Math.max(min, entry.maxCount());
-                                int count = min == max ? min : random.nextInt(max - min + 1) + min;
-                                if (count <= 0) break;
-                                giveItem(player, item, count);
-                                String name = entry.displayName() != null ? entry.displayName() : entry.item();
-                                receivedItems.add(count + "x " + name);
-                                if (entry.broadcast() || (def.broadcastRare() && shouldBroadcast(entry.rarity()))) {
-                                    broadcastDrop(level, player, def, entry, count, lootboxId);
-                                }
+                        ItemStack template = ItemSpecResolver.resolve(entry.item(), registries);
+                        if (template != null) {
+                            int min = Math.max(1, entry.minCount());
+                            int max = Math.max(min, entry.maxCount());
+                            int count = min == max ? min : random.nextInt(max - min + 1) + min;
+                            if (count <= 0) break;
+                            giveItemStack(player, template, count);
+                            String name = entry.displayName() != null ? entry.displayName() : ItemSpecResolver.shortName(entry.item());
+                            receivedItems.add(count + "x " + name);
+                            if (entry.broadcast() || (def.broadcastRare() && shouldBroadcast(entry.rarity()))) {
+                                broadcastDrop(level, player, def, entry, count, lootboxId);
                             }
                         }
                         break;
@@ -482,18 +476,17 @@ public final class LootHelper {
 
     // --- Item giving ---
 
-    private static void giveDrops(ServerPlayer player, Map<net.minecraft.world.item.Item, Integer> drops) {
-        for (var entry : drops.entrySet()) {
-            giveItem(player, entry.getKey(), entry.getValue());
-        }
-    }
-
-    private static void giveItem(ServerPlayer player, net.minecraft.world.item.Item item, int total) {
-        int maxStack = item.getDefaultInstance().getMaxStackSize();
+    /**
+     * Grants {@code total} copies of a template stack, preserving its data components
+     * (enchantments, custom name, potion contents, …) and splitting across max-stack-size boundaries.
+     */
+    private static void giveItemStack(ServerPlayer player, ItemStack template, int total) {
+        int maxStack = template.getMaxStackSize();
         while (total > 0) {
             int split = Math.min(total, maxStack);
-            ItemStack stack = new ItemStack(item, split);
-            if (!player.getInventory().add(stack)) player.drop(stack, false);
+            ItemStack copy = template.copy();
+            copy.setCount(split);
+            if (!player.getInventory().add(copy)) player.drop(copy, false);
             total -= split;
         }
     }
@@ -545,7 +538,7 @@ public final class LootHelper {
 
     private static void broadcastDrop(ServerLevel level, ServerPlayer player, LootboxDefinition def,
                                        LootboxDefinition.LootEntry entry, int count, String lootboxId) {
-        String name = entry.displayName() != null ? entry.displayName() : shortItem(entry.item());
+        String name = entry.displayName() != null ? entry.displayName() : ItemSpecResolver.shortName(entry.item());
         String rarity = entry.rarity() != null ? entry.rarity() : "common";
         String rarityColor = def.rarityColor();
 
@@ -564,16 +557,6 @@ public final class LootHelper {
             String body = LanguageHelper.get(p, "broadcast.found", ph);
             p.sendSystemMessage(Component.literal("§6⚙ §d✦ §7" + body + " §d✦"));
         }
-    }
-
-    private static String shortItem(String fullId) {
-        if (fullId == null) return "???";
-        int colon = fullId.indexOf(':');
-        return colon >= 0 ? fullId.substring(colon + 1).replace('_', ' ') : fullId;
-    }
-
-    private static String capitalize(String s) {
-        return s == null || s.isEmpty() ? "Common" : s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
     }
 
     // --- Key search ---
